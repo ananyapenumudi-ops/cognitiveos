@@ -1,0 +1,37 @@
+{
+  "name": "cognitiveos",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "lint": "oxlint",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preview": "vite preview",
+    "docs": "cd docs/source && node build.mjs && node print.mjs documentation.html ../CognitiveOS-Documentation.pdf"
+  },
+  "dependencies": {
+    "d3-shape": "^3.2.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "three": "^0.186.1",
+    "zod": "^4.6.5",
+    "zustand": "^5.0.15"
+  },
+  "devDependencies": {
+    "@types/d3-shape": "^3.2.0",
+    "@types/node": "^26.6.4",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@types/three": "^0.186.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "fast-check": "^4.10.2",
+    "oxlint": "^1.87.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.3",
+    "vitest": "^5.0.3"
+  }
+}

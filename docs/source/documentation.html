@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CognitiveOS · Project Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6ead8; --paper-2: #fbf4e9; --paper-3: #efdfc6; --card: #fffaf2;
+    --ink: #1c2240; --ink-soft: #464a5e; --mute: #8a7f73; --black: #141414;
+    /* one colour per load driver, after the Inside Out emotion palette */
+    --blue: #2f5bd3; --red: #e5452f; --yellow: #f2b233; --pink: #e0569b; --purple: #7b4fc9; --green: #2fa37a;
+    --blue-soft: #dbe3f8; --red-soft: #fadcd5; --yellow-soft: #fcebc4; --pink-soft: #f8d9e8; --purple-soft: #e6dcf6; --green-soft: #d3eee2;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); font-family: 'DM Sans', 'Segoe UI', sans-serif; font-size: 9.2pt; line-height: 1.48; background: var(--paper); counter-reset: pg; }
+  h1, h2, h3, h4 { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; line-height: .98; margin: 0; text-transform: uppercase; }
+  .mono, .pill, th, .tag, .ref, td.num { font-family: 'DM Mono', Consolas, monospace; font-weight: 500; }
+  p { margin: 0 0 6.5pt; }
+  b, strong { font-weight: 700; }
+
+  /* every page is exactly one A4 sheet */
+  .page { width: 210mm; height: 297mm; position: relative; overflow: hidden; padding: 15mm 16mm 22mm; break-after: page; background: var(--paper); counter-increment: pg; }
+  .page:last-child { break-after: auto; }
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .14em; color: var(--mute); border-top: 1px solid rgba(28,34,64,.18); padding-top: 2.4mm; }
+  .foot .n::before { content: counter(pg, decimal-leading-zero) ' / 16'; }
+
+  /* deck-style black pills */
+  .pill { display: inline-block; background: var(--black); color: var(--paper); border-radius: 99px; font-size: 6.6pt; letter-spacing: .14em; text-transform: uppercase; padding: 1.3mm 3.6mm; }
+  .pill.blue { background: var(--blue); } .pill.red { background: var(--red); } .pill.outline { background: transparent; color: var(--ink); border: 1.2px solid var(--ink); }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4mm; }
+  h2 { font-size: 33pt; font-weight: 800; letter-spacing: .002em; margin: 3mm 0 3.5mm; max-width: 150mm; }
+  h2 i { font-style: normal; color: var(--blue); }
+  h2 i.r { color: var(--red); } h2 i.p { color: var(--pink); } h2 i.g { color: var(--green); } h2 i.y { color: #d9951a; } h2 i.v { color: var(--purple); }
+  h3 { font-size: 13.5pt; font-weight: 800; margin: 4.5mm 0 1.8mm; letter-spacing: .01em; }
+  h4 { font-size: 11pt; font-weight: 800; letter-spacing: .02em; }
+  .lead { font-size: 10.6pt; color: var(--ink-soft); margin-bottom: 4mm; line-height: 1.5; max-width: 165mm; }
+  ul { margin: 0 0 6pt; padding-left: 4.2mm; }
+  li { margin: 0 0 2.2pt; }
+  li::marker { color: var(--red); }
+  .small { font-size: 7.9pt; color: var(--ink-soft); }
+  .mark { width: 22mm; height: 26mm; flex: none; }
+
+  .box { border-radius: 4mm; padding: 4mm 5mm; margin: 0 0 4mm; break-inside: avoid; background: var(--card); position: relative; }
+  .box.blue { background: var(--blue-soft); } .box.red { background: var(--red-soft); } .box.yellow { background: var(--yellow-soft); } .box.pink { background: var(--pink-soft); } .box.green { background: var(--green-soft); } .box.purple { background: var(--purple-soft); }
+  .box.ink { background: var(--ink); color: var(--paper); } .box.ink h3, .box.ink h4 { color: var(--paper); } .box.ink li::marker { color: var(--yellow); } .box.ink .small { color: #c9c3d6; }
+  .box h3 { margin-top: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .grid2 > .box, .grid3 > .box { margin: 0; }
+  .gap { margin-bottom: 4mm; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 0 0 4mm; font-size: 8.1pt; }
+  th { text-align: left; font-size: 6.2pt; letter-spacing: .13em; text-transform: uppercase; padding: 2.2mm 2.6mm; color: var(--paper); background: var(--ink); }
+  th:first-child { border-radius: 2mm 0 0 2mm; } th:last-child { border-radius: 0 2mm 2mm 0; }
+  td { padding: 1.9mm 2.6mm; border-bottom: 1px solid rgba(28,34,64,.13); vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.num { white-space: nowrap; font-size: 7.6pt; }
+  .ref { font-size: 6.9pt; color: var(--red); white-space: nowrap; }
+  .delta { display: inline-block; margin-left: 1mm; font-size: 6.6pt; background: var(--green); color: #fff; border-radius: 99px; padding: 0 1.5mm; }
+  .dot { display: inline-block; width: 3mm; height: 3mm; border-radius: 50%; vertical-align: -.5mm; margin-right: 1.5mm; }
+  .tag { display: inline-block; font-size: 6pt; letter-spacing: .08em; text-transform: uppercase; border-radius: 99px; padding: .5mm 2mm; white-space: nowrap; }
+  .tag.mvp { background: var(--ink); color: var(--paper); } .tag.v2 { background: var(--yellow); color: var(--ink); } .tag.later { background: var(--pink-soft); color: var(--ink); border: 1px solid var(--pink); }
+  .tag.stand { background: var(--paper-3); color: var(--ink); border: 1px dashed var(--mute); }
+
+  figure { margin: 0 0 3.5mm; break-inside: avoid; }
+  figcaption { font-family: 'DM Mono', monospace; font-size: 6.6pt; letter-spacing: .04em; color: var(--mute); margin-top: 1.8mm; }
+
+  .toc { list-style: none; padding: 0; margin: 0; }
+  .toc li { display: flex; gap: 4mm; align-items: baseline; padding: 1.95mm 0; border-bottom: 1px solid rgba(28,34,64,.16); font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: 15pt; line-height: 1.05; }
+  .toc li span { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 7.6pt; color: var(--red); width: 9mm; }
+  .toc li em { font-family: 'DM Sans', sans-serif; font-weight: 400; text-transform: none; font-style: normal; color: var(--mute); font-size: 8.4pt; margin-left: auto; }
+
+  .stat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; margin-bottom: 5mm; }
+  .stat div { border-radius: 4mm; padding: 4mm; color: #fff; }
+  .stat div:nth-child(1) { background: var(--blue); } .stat div:nth-child(2) { background: var(--red); } .stat div:nth-child(3) { background: var(--yellow); color: var(--ink); } .stat div:nth-child(4) { background: var(--green); }
+  .stat b { display: block; font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 34pt; line-height: .9; margin-bottom: 1.5mm; }
+  .stat span { font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .12em; text-transform: uppercase; }
+
+  .flow { display: flex; gap: 2mm; margin: 1.5mm 0 4mm; }
+  .flow div { flex: 1 1 0; background: var(--card); border-radius: 3mm; padding: 2.6mm 2.8mm; font-size: 7.9pt; line-height: 1.38; border-top: 3px solid var(--blue); }
+  .flow div:nth-child(2) { border-color: var(--red); } .flow div:nth-child(3) { border-color: var(--yellow); } .flow div:nth-child(4) { border-color: var(--pink); } .flow div:nth-child(5) { border-color: var(--purple); } .flow div:nth-child(6) { border-color: var(--green); }
+  .flow div b { display: block; font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: 10pt; margin-bottom: .8mm; }
+
+  .eq { background: var(--ink); color: var(--paper); border-radius: 4mm; padding: 3.6mm 5mm; font-family: 'DM Mono', monospace; font-size: 7.7pt; line-height: 1.65; margin: 0 0 4mm; }
+  .eq .c { color: #9aa3c7; } .eq b { color: var(--yellow); font-weight: 500; } .eq .k { color: #f39a8b; }
+  pre { font-family: 'DM Mono', monospace; font-size: 7.1pt; line-height: 1.5; background: var(--ink); color: var(--paper); border-radius: 4mm; padding: 3.6mm 5mm; margin: 0 0 4mm; white-space: pre-wrap; }
+  pre .c { color: #9aa3c7; } pre .k { color: var(--yellow); } pre .s { color: #f39a8b; }
+  code { font-family: 'DM Mono', monospace; font-size: 7.7pt; background: var(--paper-3); border-radius: 1mm; padding: 0 1mm; }
+
+  .legend { list-style: none; padding: 0; margin: 0; font-size: 8pt; }
+  .legend li { display: flex; align-items: center; gap: 2mm; padding: 1.1mm 0; border-bottom: 1px dashed rgba(28,34,64,.18); }
+  .legend li i { width: 3.2mm; height: 3.2mm; border-radius: 50%; flex: none; }
+  .legend li b { margin-left: auto; font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  /* driver rows on the science page */
+  .drv { display: grid; grid-template-columns: 30mm 1fr 52mm; gap: 4mm; padding: 2.7mm 0; border-bottom: 1px solid rgba(28,34,64,.14); break-inside: avoid; font-size: 8.15pt; line-height: 1.42; }
+  .drv h4 { font-size: 12pt; line-height: 1; }
+  .drv .num { font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .1em; color: var(--mute); display: block; margin-bottom: 1mm; }
+  .drv .how { background: var(--card); border-radius: 2.5mm; padding: 2mm 2.6mm; font-size: 7.7pt; }
+  .drv .how b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); display: block; }
+  .drv p { margin: 0 0 1.2mm; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6mm; }
+  .card { border-radius: 4mm; padding: 3.4mm 4mm 3.2mm; background: var(--card); break-inside: avoid; position: relative; overflow: hidden; }
+  .card h4 { font-size: 13pt; margin: 0 0 1.4mm; padding-right: 16mm; }
+  .card .who { font-family: 'DM Mono', monospace; font-size: 6.3pt; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin-bottom: 1.4mm; }
+  .card p { font-size: 7.9pt; margin: 0 0 1.4mm; line-height: 1.42; }
+  .card .lever { font-size: 7.7pt; border-top: 1px dashed rgba(28,34,64,.25); padding-top: 1.5mm; color: var(--ink-soft); }
+  .card .lever b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .1em; text-transform: uppercase; color: var(--red); }
+  .card .face { position: absolute; right: -2mm; top: 2mm; width: 15mm; height: 18mm; }
+
+  /* architecture */
+  .layer { border-radius: 4mm; padding: 2.8mm 4mm; margin-bottom: 1.8mm; break-inside: avoid; }
+  .layer > b { display: block; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.4pt; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 1.5mm; }
+  .layer .mods { display: flex; flex-wrap: wrap; gap: 1.6mm; }
+  .layer .mods span { font-size: 7.4pt; padding: .9mm 2.4mm; border-radius: 99px; background: rgba(255,255,255,.8); }
+  .l1 { background: var(--blue-soft); } .l2 { background: var(--yellow-soft); } .l3 { background: var(--pink-soft); } .l4 { background: var(--ink); color: var(--paper); }
+  .l4 .mods span { background: rgba(246,234,216,.13); color: var(--paper); }
+  .arrow { text-align: center; font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .14em; color: var(--mute); margin: -.6mm 0 1.2mm; }
+
+  /* wireframes */
+  .wf { border: 1.4px solid var(--ink); border-radius: 3.5mm; overflow: hidden; background: var(--card); break-inside: avoid; }
+  .wf .bar { background: var(--ink); color: var(--paper); font-family: 'DM Mono', monospace; font-size: 6.1pt; letter-spacing: .1em; padding: 1.6mm 3mm; display: flex; gap: 2.5mm; align-items: center; }
+  .wf .bar i { width: 2mm; height: 2mm; border-radius: 50%; background: var(--red); } .wf .bar i + i { background: var(--yellow); } .wf .bar i + i + i { background: var(--green); }
+  .wf .bar span { margin-left: auto; color: #9aa3c7; }
+  .wf .body { padding: 3mm; height: 84mm; position: relative; font-size: 6.6pt; }
+  .wf .note { font-size: 7.6pt; color: var(--ink-soft); padding: 2.2mm 3mm; border-top: 1px dashed rgba(28,34,64,.3); line-height: 1.4; }
+  .lane { display: flex; align-items: center; gap: 1.5mm; margin-bottom: 1.6mm; }
+  .lane .lbl { width: 12mm; font-family: 'DM Mono', monospace; font-size: 5.6pt; color: var(--mute); }
+  .lane .trk { flex: 1; height: 5mm; position: relative; background: var(--paper-2); border-radius: 1.2mm; }
+  .lane .trk span { position: absolute; top: .5mm; bottom: .5mm; border-radius: 1mm; color: #fff; font-size: 5.4pt; padding: .4mm 1mm; overflow: hidden; white-space: nowrap; }
+  .slider { margin-bottom: 2.6mm; }
+  .slider div { height: 1.6mm; background: var(--paper-3); border-radius: 99px; position: relative; margin-top: .8mm; }
+  .slider div i { position: absolute; top: -1.1mm; width: 3.8mm; height: 3.8mm; border-radius: 50%; background: var(--blue); border: 1px solid #fff; }
+  .chip { display: inline-block; border-radius: 99px; padding: .5mm 2mm; font-size: 5.8pt; margin: 0 .8mm 1mm 0; background: var(--paper-3); }
+  .chip.on { background: var(--ink); color: var(--paper); }
+
+  .timeline { border-left: 2px solid var(--ink); margin-left: 2mm; padding-left: 6mm; }
+  .timeline .t { position: relative; margin-bottom: 5.4mm; font-size: 9pt; break-inside: avoid; }
+  .timeline .t p { margin: 0; }
+  .timeline .t::before { content: ''; position: absolute; left: -8.6mm; top: .6mm; width: 4.2mm; height: 4.2mm; border-radius: 50%; background: var(--c, var(--blue)); border: 1.5px solid var(--paper); }
+  .timeline .t h4 { font-size: 12.5pt; margin-bottom: .8mm; }
+  .timeline .t .mono { font-size: 6.6pt; color: var(--red); letter-spacing: .1em; }
+  .timeline .t .done { font-size: 7.6pt; color: var(--ink-soft); margin-top: .8mm; }
+  .timeline .t .done b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .1em; color: var(--green); }
+
+  .refs { font-size: 8.3pt; line-height: 1.42; padding-left: 0; list-style: none; columns: 2; column-gap: 7mm; }
+  .refs li { break-inside: avoid; margin-bottom: 2.8mm; padding-left: 7mm; text-indent: -7mm; }
+  .refs li b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.4pt; color: var(--red); display: inline-block; width: 7mm; text-indent: 0; }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.4mm; }
+  .sw div { border-radius: 3mm; height: 17mm; padding: 2mm; color: #fff; font-family: 'DM Mono', monospace; font-size: 5.8pt; letter-spacing: .06em; display: flex; flex-direction: column; justify-content: flex-end; }
+  .sw div b { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 9pt; letter-spacing: .02em; text-transform: uppercase; }
+
+  /* ── cover ── */
+  .cover { padding: 0; }
+  .cover .pills { position: absolute; top: 12mm; left: 14mm; right: 14mm; display: flex; justify-content: space-between; }
+  .cover .art { position: absolute; top: 20mm; left: 0; width: 210mm; height: 170mm; }
+  .cover h1 { position: absolute; left: 14mm; top: 184mm; font-size: 92pt; font-weight: 900; letter-spacing: -.005em; line-height: .82; color: var(--ink); }
+  .cover h1 span { display: inline-block; background: var(--red); color: var(--paper); border-radius: 7mm; padding: 1.5mm 4mm 0; margin-left: 2mm; transform: rotate(-3deg); }
+  .cover .tagline { position: absolute; left: 14mm; width: 118mm; top: 215mm; font-size: 10.6pt; line-height: 1.5; color: var(--ink-soft); }
+  .cover .tagline b { color: var(--ink); }
+  .cover .stamp { position: absolute; right: 14mm; top: 213mm; width: 50mm; font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .14em; text-align: center; line-height: 1.5; color: var(--ink); border: 1.4px solid var(--ink); border-radius: 99px; padding: 2.2mm 3mm; transform: rotate(-4deg); background: var(--yellow); }
+  .cover .meta { position: absolute; left: 14mm; right: 14mm; bottom: 13mm; display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 5mm; }
+  .cover .meta div { border-top: 1.6px solid var(--ink); padding-top: 2.6mm; }
+  .cover .meta span { display: block; font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-bottom: 1.2mm; }
+  .cover .meta b { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 13pt; text-transform: uppercase; line-height: 1.05; display: block; }
+  .cover .meta small { display: block; font-size: 7.6pt; color: var(--ink-soft); margin-top: .8mm; }
+</style>
+</head>
+<body>
+
+<!-- Shared illustration parts: a head in profile (facing right), its hair, and a thought orb. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="head" viewBox="0 0 110 130">
+      <path d="M18 130 C19 116 16 104 11 92 C3 72 4 44 20 26 C34 9 62 4 80 16 C92 24 96 38 95 50 C95 54 97 57 99 61 L106 73 C107 76 105 78 101 78 L101 82 C103 83 103 86 100 87 C102 89 101 92 98 93 C98 99 95 103 88 104 C83 104 80 106 80 110 L82 130 Z"/>
+    </symbol>
+    <symbol id="hair" viewBox="0 0 110 130">
+      <path d="M11 92 C3 72 4 44 20 26 C34 9 62 4 80 16 C88 21 93 28 95 37 C82 29 64 31 55 45 C48 57 46 72 32 86 C26 92 18 95 11 92 Z"/>
+    </symbol>
+    <symbol id="eye" viewBox="0 0 110 130"><path d="M80 57 q4 -3 8 0" fill="none" stroke="#1c2240" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <radialGradient id="orb" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="page cover">
+  <div class="pills"><span class="pill">CognitiveOS · Project documentation</span><span class="pill outline">v0.1 · 08 Oct 2026</span></div>
+
+  <!-- layered profile heads (after the "Standing on the shoulders of giants" poster) with thought orbs (after Inside Out) -->
+  <svg class="art" viewBox="0 0 210 170" xmlns="http://www.w3.org/2000/svg">
+    <style>.lab{font:500 2.7px 'DM Mono',monospace;fill:#1c2240;letter-spacing:.35px}.labs{font:400 2.5px 'DM Sans',sans-serif;fill:#464a5e}</style>
+    <!-- soft backdrop rays, like the emotion wedges -->
+    <g opacity=".9">
+      <path d="M105 92 L20 0 L52 0 Z" fill="#fadcd5"/><path d="M105 92 L60 0 L92 0 Z" fill="#fcebc4"/><path d="M105 92 L100 0 L132 0 Z" fill="#dbe3f8"/>
+      <path d="M105 92 L140 0 L172 0 Z" fill="#e6dcf6"/><path d="M105 92 L180 0 L210 0 L210 14 Z" fill="#d3eee2"/>
+    </g>
+    <!-- back head: marigold, facing right -->
+    <g transform="translate(96 8) scale(.78)"><use href="#head" width="110" height="130" fill="#f2b233"/><use href="#hair" width="110" height="130" fill="#d9951a"/><use href="#eye" width="110" height="130"/></g>
+    <!-- pink head, mirrored, facing left -->
+    <g transform="translate(120 66) scale(.74)"><use href="#head" width="110" height="130" fill="#e0569b"/><use href="#hair" width="110" height="130" fill="#b83c79"/><use href="#eye" width="110" height="130"/></g>
+    <!-- front head: cobalt, facing right -->
+    <g transform="translate(26 26) scale(1.06)"><use href="#head" width="110" height="130" fill="#2f5bd3"/><use href="#hair" width="110" height="130" fill="#1f3f9e"/><use href="#eye" width="110" height="130"/></g>
+
+    <!-- thought orbs inside the front head: one per load driver -->
+    <g>
+      <circle cx="70" cy="58" r="11" fill="#e5452f"/><circle cx="70" cy="58" r="11" fill="url(#orb)"/>
+      <!-- switching: two overlapping tabs -->
+      <rect x="63.5" y="53" width="9" height="7" rx="1" fill="none" stroke="#fff" stroke-width=".9"/><rect x="67.5" y="56.5" width="9" height="7" rx="1" fill="#e5452f" stroke="#fff" stroke-width=".9"/>
+      <circle cx="93" cy="46" r="8" fill="#f2b233"/><circle cx="93" cy="46" r="8" fill="url(#orb)"/>
+      <!-- notification bell -->
+      <path d="M89.4 49 h7.2 l-1.2 -1.6 v-3 a2.4 2.4 0 0 0 -4.8 0 v3 z" fill="#fff"/><circle cx="93" cy="50.3" r=".9" fill="#fff"/>
+      <circle cx="86" cy="74" r="7" fill="#7b4fc9"/><circle cx="86" cy="74" r="7" fill="url(#orb)"/>
+      <!-- deadline clock -->
+      <circle cx="86" cy="74" r="3.6" fill="none" stroke="#fff" stroke-width=".8"/><path d="M86 71.6 V74 L87.8 75.2" fill="none" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <circle cx="52" cy="80" r="7.5" fill="#e0569b"/><circle cx="52" cy="80" r="7.5" fill="url(#orb)"/>
+      <!-- open loops: three open rings -->
+      <g fill="none" stroke="#fff" stroke-width=".8"><path d="M48.5 80 a1.8 1.8 0 1 1 1 1.6"/><path d="M52 80 a1.8 1.8 0 1 1 1 1.6"/><path d="M55.5 80 a1.8 1.8 0 1 1 1 1.6"/></g>
+      <circle cx="108" cy="64" r="6" fill="#2fa37a"/><circle cx="108" cy="64" r="6" fill="url(#orb)"/>
+      <!-- fatigue: battery -->
+      <rect x="104.6" y="62.2" width="6" height="3.6" rx=".6" fill="none" stroke="#fff" stroke-width=".7"/><rect x="105.3" y="62.9" width="1.8" height="2.2" fill="#fff"/><rect x="110.8" y="63.3" width=".8" height="1.4" fill="#fff"/>
+      <circle cx="58" cy="44" r="9" fill="#fff" opacity=".18"/>
+      <!-- complexity: a little lattice of linked nodes -->
+      <g stroke="#fff" stroke-width=".6" opacity=".95"><line x1="54" y1="41" x2="60" y2="39"/><line x1="60" y1="39" x2="62" y2="46"/><line x1="54" y1="41" x2="56" y2="48"/><line x1="56" y1="48" x2="62" y2="46"/><line x1="54" y1="41" x2="62" y2="46"/></g>
+      <g fill="#fff"><circle cx="54" cy="41" r="1.1"/><circle cx="60" cy="39" r="1.1"/><circle cx="62" cy="46" r="1.1"/><circle cx="56" cy="48" r="1.1"/></g>
+    </g>
+    <!-- floating memory bubbles -->
+    <g opacity=".85">
+      <circle cx="16" cy="120" r="4" fill="#dbe3f8"/><circle cx="16" cy="120" r="4" fill="url(#orb)"/>
+      <circle cx="24" cy="132" r="2.4" fill="#fcebc4"/><circle cx="196" cy="40" r="3.5" fill="#fadcd5"/><circle cx="190" cy="52" r="2" fill="#d3eee2"/><circle cx="12" cy="66" r="2.6" fill="#e6dcf6"/>
+    </g>
+    <!-- poster-style leader lines and labels -->
+    <g fill="none" stroke="#1c2240" stroke-width=".3"><polyline points="59,58 34,40 8,40"/><polyline points="45,80 22,108 8,108"/><polyline points="101,46 122,30 150,30"/><polyline points="114,64 150,64"/></g>
+    <g fill="#1c2240"><circle cx="8" cy="40" r=".9"/><circle cx="8" cy="108" r=".9"/><circle cx="150" cy="30" r=".9"/><circle cx="150" cy="64" r=".9"/></g>
+    <text x="8" y="37.6" class="lab">CONTEXT SWITCHING</text><text x="8" y="44" class="labs">residue lingers</text><text x="8" y="47.4" class="labs">after you leave</text>
+    <text x="8" y="105.6" class="lab">OPEN LOOPS</text><text x="8" y="112" class="labs">unfinished tasks</text><text x="8" y="115.4" class="labs">keep knocking</text>
+    <text x="152" y="31" class="lab">NOTIFICATIONS</text><text x="152" y="35" class="labs">cost attention even unread</text>
+    <text x="152" y="65" class="lab">FATIGUE</text><text x="152" y="69" class="labs">builds with time on task</text>
+  </svg>
+
+  <h1>Cognitive<span>OS</span></h1>
+  <p class="tagline">A <b>cognitive load simulator</b>, not another to-do app. Lay out a day of tasks, meetings, alerts and deadlines; CognitiveOS estimates minute by minute how loaded your mind is, shows <b>what is driving it</b>, and lets you test a different way of working before you live it.</p>
+  <div class="stamp">DOCUMENTATION FIRST<br>PRE-BUILD SPEC</div>
+  <div class="meta">
+    <div><span>Grounded in</span><b>Cognitive load &amp; interruption research</b><small>19 peer-reviewed sources, appendix B</small></div>
+    <div><span>Fields</span><b>Psychology · HCI · AI</b><small>Behavioural analytics, visualisation</small></div>
+    <div><span>Status</span><b>Design draft</b><small>Build starts after sign-off</small></div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTENTS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Contents</span></div>
+  <h2>What's <i>inside</i></h2>
+  <ol class="toc">
+    <li><span>01</span> Project overview <em>the problem, the idea, who it's for</em></li>
+    <li><span>02</span> The science <em>six drivers of load, and the evidence for each</em></li>
+    <li><span>03</span> The model <em>equations, zones, calibration</em></li>
+    <li><span>04</span> What-if experiments <em>the prototype run on a sample day</em></li>
+    <li><span>05</span> What we'll build <em>every module, MVP and later</em></li>
+    <li><span>06</span> Scenario library <em>six people, six levers</em></li>
+    <li><span>07</span> Screens we'll design <em>wireframes of the four main views</em></li>
+    <li><span>08</span> Tech stack <em>frontend, engine, storage, AI</em></li>
+    <li><span>09</span> Architecture <em>layers, tick loop, data model</em></li>
+    <li><span>10</span> Principles <em>honesty, privacy, determinism</em></li>
+    <li><span>11</span> Build plan <em>six weeks, milestone by milestone</em></li>
+    <li><span>12</span> Future features <em>what could come after v1</em></li>
+    <li><span>A·B</span> Appendices <em>glossary, design language, references</em></li>
+  </ol>
+
+  <div class="stat" style="margin-top: 6mm">
+    <div><b>6</b><span>load drivers</span></div>
+    <div><b>19</b><span>cited studies</span></div>
+    <div><b>1 min</b><span>simulation step</span></div>
+    <div><b>0</b><span>trackers or accounts</span></div>
+  </div>
+
+  <div class="box yellow" style="margin:0">
+    <h3>How to read this document</h3>
+    <p style="margin:0">This is written <b>before any code</b>, so it is a specification and a plan, not a report. Citations in red (for example <span class="ref">Leroy 2009</span>) point to appendix B. Every coefficient the model uses is either tied to a source or tagged <span class="tag stand">stand-in</span>, meaning we picked a sensible value that calibration will replace. The charts in sections 03 and 04 come from a 90-line prototype of the model, run on a made-up sample day, so they show <b>how the simulator will behave</b>, not findings about real people. Items tagged <span class="tag mvp">MVP</span> are committed for v1; <span class="tag v2">v2</span> and <span class="tag later">Later</span> are planned, not promised.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 01 OVERVIEW ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">01 · Project overview</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/><circle cx="60" cy="58" r="10" fill="#f2b233"/><circle cx="76" cy="44" r="6" fill="#e5452f"/></svg></div>
+  <h2>Model the <i>mind</i>, not the <i class="r">to-do list</i></h2>
+  <p class="lead">Productivity apps count tasks. But two days with the same task list can feel completely different: one with long quiet blocks, one chopped up by meetings and pings. CognitiveOS models that difference. It treats a day as a sequence of demands on limited working memory and simulates how they add up.</p>
+
+  <div class="grid2 gap">
+    <div class="box red">
+      <h3>The problem</h3>
+      <ul>
+        <li>Knowledge work is fragmented. In one field study, people spent on average about <b>11 minutes</b> on a project before switching or being interrupted, and <b>57%</b> of those stretches were interrupted <span class="ref">Mark et al. 2005</span>.</li>
+        <li>The costs are invisible. A switch leaves <b>attention residue</b> on the old task <span class="ref">Leroy 2009</span>; an alert hurts focus even if you never pick up the phone <span class="ref">Stothart et al. 2015</span>.</li>
+        <li>Tools show <i>what</i> you did, not <i>why</i> the day felt heavy, and they never let you try a different pattern before committing to it.</li>
+      </ul>
+    </div>
+    <div class="box blue">
+      <h3>Our answer</h3>
+      <ul>
+        <li>A <b>transparent load model</b>: six drivers, each tied to published research, combined with weights you can see and change.</li>
+        <li>A <b>simulator, not a tracker</b>. You describe a day; nothing watches you. Then you ask "what if I batch my notifications?" and watch the curve change.</li>
+        <li><b>Exact explanations</b>. Because the model is additive, every minute splits cleanly into its drivers. No black box to reverse-engineer.</li>
+        <li><b>Personal calibration</b> from short NASA-TLX check-ins, with the uncertainty shown.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Who it's for</h3>
+  <p><b>Students</b> planning exam weeks and group projects. <b>Developers and designers</b> whose deep work keeps getting cut by meetings. <b>Team leads</b> who want to understand the cost of the interruptions they create, on their own schedule, not anyone else's. <b>HCI and psychology learners</b> who want to see interruption research run as a model rather than read it as a list of findings.</p>
+
+  <h3>A user's journey</h3>
+  <div class="flow">
+    <div><b>1 · Build a day</b>Drag tasks and meetings onto a timeline, rate how complex each is.</div>
+    <div><b>2 · Add the noise</b>Alert rate, open tasks, deadlines, planned breaks.</div>
+    <div><b>3 · Simulate</b>Minute-by-minute load curve, coloured by driver.</div>
+    <div><b>4 · Ask why</b>Click a spike: which drivers, which events caused it.</div>
+    <div><b>5 · Try a what-if</b>Pull a lever, compare the two days side by side.</div>
+    <div><b>6 · Calibrate</b>Rate real days with NASA-TLX; the weights become yours.</div>
+  </div>
+
+  <div class="box ink" style="margin-top:1mm">
+    <h4 style="font-size:12.5pt;margin-bottom:1.5mm">What it is not</h4>
+    <p class="small" style="margin:0;font-size:8.2pt">Not a diagnostic tool, not a measure of anyone's ability, and not a way for employers to monitor staff. It produces an <b style="color:#fff">estimate under stated assumptions</b>, and says so on every screen.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 02 SCIENCE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">02 · The science</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/><circle cx="58" cy="56" r="9" fill="#fff" opacity=".3"/></svg></div>
+  <h2>Six things that <i class="r">load</i> a mind</h2>
+  <p class="lead" style="margin-bottom:2mm">Working memory holds only about four chunks at once <span class="ref">Cowan 2001</span>. Everything below competes for that space. For each driver: what happens, the evidence, and how CognitiveOS turns it into a number.</p>
+
+  <div class="drv">
+    <div><span class="num">x₁ · intrinsic</span><h4 style="color:var(--blue)">Task complexity</h4></div>
+    <div><p>Tasks whose parts must be held in mind together impose more load than tasks that can be done piece by piece <span class="ref">Sweller 1988</span>. Cognitive Load Theory calls this <b>intrinsic load</b> and separates it from load added by how work is presented <span class="ref">Sweller et al. 1998</span>.</p></div>
+    <div class="how"><b>How we model it</b>Each block gets a complexity rating c from 1 (sorting email) to 5 (debugging a race condition). x₁ = c / 5 while working on it.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₂ · switching</span><h4 style="color:var(--red)">Switching &amp; residue</h4></div>
+    <div><p>Switching between tasks costs time even when the switch is predictable <span class="ref">Rogers &amp; Monsell 1995</span>, and the cost grows with how complex the tasks are <span class="ref">Rubinstein et al. 2001</span>. Leaving a task unfinished keeps part of your attention on it: <b>attention residue</b> <span class="ref">Leroy 2009</span>. Resuming means re-activating the old goal <span class="ref">Altmann &amp; Trafton 2002</span>.</p></div>
+    <div class="how"><b>How we model it</b>A spike at each switch (decay τ = 3 min) plus residue proportional to the old task's complexity (τ = 12 min). <span class="tag stand">stand-in τs</span></div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₃ · alerts</span><h4 style="color:#c98a12">Notifications</h4></div>
+    <div><p>Just receiving a phone notification, without answering it, impaired performance on a sustained-attention task about as much as using the phone did <span class="ref">Stothart et al. 2015</span>. In a field experiment, people whose notifications were batched three times a day reported more focus and less stress <span class="ref">Fitz et al. 2019</span>.</p></div>
+    <div class="how"><b>How we model it</b>Each alert adds a short spike (τ = 1.5 min). With probability p = 0.35 you act on it: a 3-minute detour that counts as a switch. Batching holds alerts until set times.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₄ · open loops</span><h4 style="color:var(--pink)">Open loops</h4></div>
+    <div><p>Unfinished goals keep intruding on unrelated work. Making a specific plan for the goal, without finishing it, removed that interference <span class="ref">Masicampo &amp; Baumeister 2011</span>.</p></div>
+    <div class="how"><b>How we model it</b>Background load that saturates with the number of open tasks n: 1 − e<sup>−n/4</sup>. Halved when each task has a written next step.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₅ · time</span><h4 style="color:var(--purple)">Deadline pressure</h4></div>
+    <div><p><b>Temporal demand</b> is one of the six dimensions of the NASA-TLX workload scale <span class="ref">Hart &amp; Staveland 1988</span>. Interrupted people finished tasks faster but reported more stress, frustration, time pressure and effort <span class="ref">Mark et al. 2008</span>.</p></div>
+    <div class="how"><b>How we model it</b>Work left ÷ time left for each deadline, ramping in over the last 4 hours. The tightest deadline wins.</div>
+  </div>
+  <div class="drv" style="border-bottom:0">
+    <div><span class="num">x₆ · fatigue</span><h4 style="color:var(--green)">Fatigue</h4></div>
+    <div><p>Mental fatigue builds with time on a demanding task and reduces engagement <span class="ref">Boksem &amp; Tops 2008</span>. Brief, occasional breaks from a task prevented the usual drop in vigilance <span class="ref">Ariga &amp; Lleras 2011</span>.</p></div>
+    <div class="how"><b>How we model it</b>An accumulator that grows faster under high load and recovers during breaks (τ = 14 min). It lags, so a heavy morning shows up after lunch.</div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 03 MODEL ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">03 · The model</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/><circle cx="60" cy="56" r="8" fill="#f2b233"/></svg></div>
+  <h2>One number, <i class="v">six honest parts</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Load at minute t is a weighted sum of the six drivers. Simple on purpose: a sum can be explained exactly, tested for sensible behaviour, and fitted to a person with very little data.</p>
+
+  <div class="eq">
+    <span class="c">// load at minute t, from the six drivers in section 02</span><br>
+    <b>L(t)</b> = w₁·complexity + w₂·switching + w₃·alerts + w₄·openLoops + w₅·deadline + w₆·fatigue<br>
+    <span class="k">switching(t)</span> = Σ<sub>switches s</sub> e<sup>−(t−s)/3</sup> + 0.75 · Σ<sub>s</sub> (c<sub>prev</sub>/5) · e<sup>−(t−s)/12</sup><br>
+    <span class="k">fatigue</span>(t+1) = F + (0.4 + L)(1 − F)/260 <span class="c">while working</span> · F · e<sup>−1/14</sup> <span class="c">during breaks</span><br>
+    <span class="c">// default weights (stand-ins until calibration):</span> w = (0.34, 0.30, 0.16, 0.14, 0.14, 0.22)
+  </div>
+
+  <figure>
+    <svg viewBox="-1 -1 172 64" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block"><style>.ax{font:500 2.4px 'DM Mono',monospace;fill:#6f6457}.zl{font:700 2.3px 'DM Mono',monospace;letter-spacing:.2px;paint-order:stroke;stroke:#fffaf2;stroke-width:.9px}</style><rect x="0" y="0" width="170" height="52" fill="#fffaf2"/><rect x="0" y="25.0" width="170" height="14.6" fill="#2fa37a" opacity=".08"/><rect x="0" y="0" width="170" height="16.6" fill="#e5452f" opacity=".07"/><rect x="17.7" y="52" width="10.6" height="2.2" fill="#1c2240"/><rect x="63.9" y="52" width="10.6" height="2.2" fill="#c9bba6"/><rect x="95.8" y="52" width="10.6" height="2.2" fill="#1c2240"/><rect x="134.9" y="52" width="10.6" height="2.2" fill="#1c2240"/><polygon points="0.0,40.7 0.4,40.7 0.7,40.7 1.1,40.7 1.4,40.7 1.8,40.7 2.1,43.5 2.5,46.3 2.8,49.2 3.2,46.3 3.5,43.5 3.9,40.7 4.3,40.7 4.6,40.7 5.0,40.7 5.3,40.7 5.7,40.7 6.0,40.7 6.4,40.7 6.7,40.7 7.1,40.7 7.5,43.5 7.8,46.3 8.2,49.2 8.5,46.3 8.9,43.5 9.2,40.7 9.6,40.7 9.9,40.7 10.3,40.7 10.6,43.5 11.0,46.3 11.4,49.2 11.7,49.2 12.1,46.3 12.4,43.5 12.8,40.7 13.1,40.7 13.5,40.7 13.8,40.7 14.2,40.7 14.6,40.7 14.9,40.7 15.3,40.7 15.6,40.7 16.0,40.7 16.3,40.7 16.7,40.7 17.0,40.7 17.4,42.6 17.7,44.5 18.1,46.3 18.5,46.3 18.8,46.3 19.2,46.3 19.5,46.3 19.9,46.3 20.2,46.3 20.6,46.3 20.9,46.3 21.3,46.3 21.6,46.3 22.0,46.3 22.4,46.3 22.7,46.3 23.1,46.3 23.4,46.3 23.8,46.3 24.1,46.3 24.5,46.3 24.8,46.3 25.2,46.3 25.6,46.3 25.9,46.3 26.3,46.3 26.6,47.3 27.0,48.2 27.3,49.2 27.7,48.2 28.0,44.5 28.4,44.5 28.7,45.4 29.1,49.2 29.5,45.4 29.8,45.4 30.2,45.4 30.5,49.2 30.9,45.4 31.2,41.6 31.6,37.9 31.9,41.6 32.3,45.4 32.7,49.2 33.0,49.2 33.4,49.2 33.7,45.4 34.1,41.6 34.4,37.9 34.8,37.9 35.1,41.6 35.5,45.4 35.8,49.2 36.2,45.4 36.6,41.6 36.9,37.9 37.3,37.9 37.6,37.9 38.0,37.9 38.3,41.6 38.7,45.4 39.0,49.2 39.4,45.4 39.7,41.6 40.1,37.9 40.5,37.9 40.8,37.9 41.2,37.9 41.5,37.9 41.9,37.9 42.2,37.9 42.6,37.9 42.9,37.9 43.3,37.9 43.7,37.9 44.0,41.6 44.4,45.4 44.7,49.2 45.1,46.3 45.4,43.5 45.8,40.7 46.1,40.7 46.5,40.7 46.8,40.7 47.2,40.7 47.6,40.7 47.9,43.5 48.3,46.3 48.6,49.2 49.0,46.3 49.3,46.3 49.7,46.3 50.0,49.2 50.4,49.2 50.8,49.2 51.1,49.2 51.5,49.2 51.8,49.2 52.2,49.2 52.5,49.2 52.9,49.2 53.2,49.2 53.6,49.2 53.9,49.2 54.3,49.2 54.7,49.2 55.0,49.2 55.4,49.2 55.7,49.2 56.1,49.2 56.4,49.2 56.8,49.2 57.1,49.2 57.5,49.2 57.8,49.2 58.2,49.2 58.6,49.2 58.9,49.2 59.3,49.2 59.6,49.2 60.0,49.2 60.3,49.2 60.7,49.2 61.0,49.2 61.4,49.2 61.8,49.2 62.1,49.2 62.5,49.2 62.8,49.2 63.2,49.2 63.5,50.1 63.9,51.1 64.2,52.0 64.6,52.0 64.9,52.0 65.3,52.0 65.7,52.0 66.0,52.0 66.4,52.0 66.7,52.0 67.1,52.0 67.4,52.0 67.8,52.0 68.1,52.0 68.5,52.0 68.9,52.0 69.2,52.0 69.6,52.0 69.9,52.0 70.3,52.0 70.6,52.0 71.0,52.0 71.3,52.0 71.7,52.0 72.0,52.0 72.4,52.0 72.8,52.0 73.1,52.0 73.5,52.0 73.8,52.0 74.2,47.3 74.5,42.6 74.9,37.9 75.2,37.9 75.6,37.9 75.9,37.9 76.3,37.9 76.7,37.9 77.0,41.6 77.4,45.4 77.7,49.2 78.1,45.4 78.4,41.6 78.8,37.9 79.1,37.9 79.5,37.9 79.9,37.9 80.2,41.6 80.6,45.4 80.9,49.2 81.3,45.4 81.6,41.6 82.0,37.9 82.3,37.9 82.7,37.9 83.0,37.9 83.4,37.9 83.8,37.9 84.1,37.9 84.5,37.9 84.8,37.9 85.2,41.6 85.5,45.4 85.9,49.2 86.2,45.4 86.6,41.6 87.0,37.9 87.3,37.9 87.7,37.9 88.0,37.9 88.4,37.9 88.7,37.9 89.1,37.9 89.4,37.9 89.8,37.9 90.1,37.9 90.5,37.9 90.9,37.9 91.2,37.9 91.6,37.9 91.9,37.9 92.3,37.9 92.6,37.9 93.0,41.6 93.3,45.4 93.7,49.2 94.1,45.4 94.4,41.6 94.8,37.9 95.1,37.9 95.5,40.7 95.8,43.5 96.2,46.3 96.5,46.3 96.9,46.3 97.2,46.3 97.6,46.3 98.0,46.3 98.3,47.3 98.7,48.2 99.0,49.2 99.4,49.2 99.7,49.2 100.1,49.2 100.4,48.2 100.8,48.2 101.1,48.2 101.5,49.2 101.9,48.2 102.2,47.3 102.6,46.3 102.9,46.3 103.3,46.3 103.6,46.3 104.0,46.3 104.3,46.3 104.7,46.3 105.1,46.3 105.4,46.3 105.8,46.3 106.1,44.5 106.5,42.6 106.8,40.7 107.2,40.7 107.5,40.7 107.9,40.7 108.2,40.7 108.6,40.7 109.0,40.7 109.3,40.7 109.7,40.7 110.0,40.7 110.4,40.7 110.7,40.7 111.1,40.7 111.4,40.7 111.8,40.7 112.2,43.5 112.5,46.3 112.9,49.2 113.2,49.2 113.6,49.2 113.9,49.2 114.3,46.3 114.6,43.5 115.0,40.7 115.3,40.7 115.7,40.7 116.1,43.5 116.4,46.3 116.8,49.2 117.1,45.4 117.5,41.6 117.8,37.9 118.2,37.9 118.5,37.9 118.9,37.9 119.2,37.9 119.6,37.9 120.0,37.9 120.3,37.9 120.7,37.9 121.0,37.9 121.4,37.9 121.7,37.9 122.1,37.9 122.4,37.9 122.8,37.9 123.2,37.9 123.5,37.9 123.9,37.9 124.2,37.9 124.6,37.9 124.9,37.9 125.3,37.9 125.6,41.6 126.0,45.4 126.3,49.2 126.7,45.4 127.1,41.6 127.4,37.9 127.8,37.9 128.1,37.9 128.5,37.9 128.8,37.9 129.2,37.9 129.5,37.9 129.9,37.9 130.3,37.9 130.6,37.9 131.0,37.9 131.3,37.9 131.7,37.9 132.0,37.9 132.4,37.9 132.7,37.9 133.1,37.9 133.4,37.9 133.8,37.9 134.2,37.9 134.5,40.7 134.9,43.5 135.2,46.3 135.6,46.3 135.9,46.3 136.3,46.3 136.6,47.3 137.0,48.2 137.3,49.2 137.7,48.2 138.1,48.2 138.4,48.2 138.8,49.2 139.1,48.2 139.5,47.3 139.8,46.3 140.2,46.3 140.5,47.3 140.9,48.2 141.3,49.2 141.6,48.2 142.0,47.3 142.3,46.3 142.7,46.3 143.0,46.3 143.4,46.3 143.7,47.3 144.1,48.2 144.4,49.2 144.8,48.2 145.2,45.4 145.5,42.6 145.9,43.5 146.2,46.3 146.6,49.2 146.9,46.3 147.3,43.5 147.6,40.7 148.0,40.7 148.4,40.7 148.7,40.7 149.1,40.7 149.4,40.7 149.8,40.7 150.1,40.7 150.5,40.7 150.8,40.7 151.2,43.5 151.5,46.3 151.9,49.2 152.3,49.2 152.6,49.2 153.0,49.2 153.3,46.3 153.7,43.5 154.0,40.7 154.4,40.7 154.7,43.5 155.1,46.3 155.4,49.2 155.8,49.2 156.2,49.2 156.5,49.2 156.9,46.3 157.2,43.5 157.6,40.7 157.9,40.7 158.3,40.7 158.6,40.7 159.0,40.7 159.4,40.7 159.7,40.7 160.1,40.7 160.4,40.7 160.8,40.7 161.1,40.7 161.5,40.7 161.8,43.5 162.2,46.3 162.5,49.2 162.9,46.3 163.3,43.5 163.6,40.7 164.0,40.7 164.3,40.7 164.7,40.7 165.0,40.7 165.4,40.7 165.7,40.7 166.1,40.7 166.5,40.7 166.8,40.7 167.2,40.7 167.5,40.7 167.9,40.7 168.2,40.7 168.6,40.7 168.9,40.7 169.3,40.7 169.6,40.7 170.0,40.7 170.0,52.0 169.6,52.0 169.3,52.0 168.9,52.0 168.6,52.0 168.2,52.0 167.9,52.0 167.5,52.0 167.2,52.0 166.8,52.0 166.5,52.0 166.1,52.0 165.7,52.0 165.4,52.0 165.0,52.0 164.7,52.0 164.3,52.0 164.0,52.0 163.6,52.0 163.3,52.0 162.9,52.0 162.5,52.0 162.2,52.0 161.8,52.0 161.5,52.0 161.1,52.0 160.8,52.0 160.4,52.0 160.1,52.0 159.7,52.0 159.4,52.0 159.0,52.0 158.6,52.0 158.3,52.0 157.9,52.0 157.6,52.0 157.2,52.0 156.9,52.0 156.5,52.0 156.2,52.0 155.8,52.0 155.4,52.0 155.1,52.0 154.7,52.0 154.4,52.0 154.0,52.0 153.7,52.0 153.3,52.0 153.0,52.0 152.6,52.0 152.3,52.0 151.9,52.0 151.5,52.0 151.2,52.0 150.8,52.0 150.5,52.0 150.1,52.0 149.8,52.0 149.4,52.0 149.1,52.0 148.7,52.0 148.4,52.0 148.0,52.0 147.6,52.0 147.3,52.0 146.9,52.0 146.6,52.0 146.2,52.0 145.9,52.0 145.5,52.0 145.2,52.0 144.8,52.0 144.4,52.0 144.1,52.0 143.7,52.0 143.4,52.0 143.0,52.0 142.7,52.0 142.3,52.0 142.0,52.0 141.6,52.0 141.3,52.0 140.9,52.0 140.5,52.0 140.2,52.0 139.8,52.0 139.5,52.0 139.1,52.0 138.8,52.0 138.4,52.0 138.1,52.0 137.7,52.0 137.3,52.0 137.0,52.0 136.6,52.0 136.3,52.0 135.9,52.0 135.6,52.0 135.2,52.0 134.9,52.0 134.5,52.0 134.2,52.0 133.8,52.0 133.4,52.0 133.1,52.0 132.7,52.0 132.4,52.0 132.0,52.0 131.7,52.0 131.3,52.0 131.0,52.0 130.6,52.0 130.3,52.0 129.9,52.0 129.5,52.0 129.2,52.0 128.8,52.0 128.5,52.0 128.1,52.0 127.8,52.0 127.4,52.0 127.1,52.0 126.7,52.0 126.3,52.0 126.0,52.0 125.6,52.0 125.3,52.0 124.9,52.0 124.6,52.0 124.2,52.0 123.9,52.0 123.5,52.0 123.2,52.0 122.8,52.0 122.4,52.0 122.1,52.0 121.7,52.0 121.4,52.0 121.0,52.0 120.7,52.0 120.3,52.0 120.0,52.0 119.6,52.0 119.2,52.0 118.9,52.0 118.5,52.0 118.2,52.0 117.8,52.0 117.5,52.0 117.1,52.0 116.8,52.0 116.4,52.0 116.1,52.0 115.7,52.0 115.3,52.0 115.0,52.0 114.6,52.0 114.3,52.0 113.9,52.0 113.6,52.0 113.2,52.0 112.9,52.0 112.5,52.0 112.2,52.0 111.8,52.0 111.4,52.0 111.1,52.0 110.7,52.0 110.4,52.0 110.0,52.0 109.7,52.0 109.3,52.0 109.0,52.0 108.6,52.0 108.2,52.0 107.9,52.0 107.5,52.0 107.2,52.0 106.8,52.0 106.5,52.0 106.1,52.0 105.8,52.0 105.4,52.0 105.1,52.0 104.7,52.0 104.3,52.0 104.0,52.0 103.6,52.0 103.3,52.0 102.9,52.0 102.6,52.0 102.2,52.0 101.9,52.0 101.5,52.0 101.1,52.0 100.8,52.0 100.4,52.0 100.1,52.0 99.7,52.0 99.4,52.0 99.0,52.0 98.7,52.0 98.3,52.0 98.0,52.0 97.6,52.0 97.2,52.0 96.9,52.0 96.5,52.0 96.2,52.0 95.8,52.0 95.5,52.0 95.1,52.0 94.8,52.0 94.4,52.0 94.1,52.0 93.7,52.0 93.3,52.0 93.0,52.0 92.6,52.0 92.3,52.0 91.9,52.0 91.6,52.0 91.2,52.0 90.9,52.0 90.5,52.0 90.1,52.0 89.8,52.0 89.4,52.0 89.1,52.0 88.7,52.0 88.4,52.0 88.0,52.0 87.7,52.0 87.3,52.0 87.0,52.0 86.6,52.0 86.2,52.0 85.9,52.0 85.5,52.0 85.2,52.0 84.8,52.0 84.5,52.0 84.1,52.0 83.8,52.0 83.4,52.0 83.0,52.0 82.7,52.0 82.3,52.0 82.0,52.0 81.6,52.0 81.3,52.0 80.9,52.0 80.6,52.0 80.2,52.0 79.9,52.0 79.5,52.0 79.1,52.0 78.8,52.0 78.4,52.0 78.1,52.0 77.7,52.0 77.4,52.0 77.0,52.0 76.7,52.0 76.3,52.0 75.9,52.0 75.6,52.0 75.2,52.0 74.9,52.0 74.5,52.0 74.2,52.0 73.8,52.0 73.5,52.0 73.1,52.0 72.8,52.0 72.4,52.0 72.0,52.0 71.7,52.0 71.3,52.0 71.0,52.0 70.6,52.0 70.3,52.0 69.9,52.0 69.6,52.0 69.2,52.0 68.9,52.0 68.5,52.0 68.1,52.0 67.8,52.0 67.4,52.0 67.1,52.0 66.7,52.0 66.4,52.0 66.0,52.0 65.7,52.0 65.3,52.0 64.9,52.0 64.6,52.0 64.2,52.0 63.9,52.0 63.5,52.0 63.2,52.0 62.8,52.0 62.5,52.0 62.1,52.0 61.8,52.0 61.4,52.0 61.0,52.0 60.7,52.0 60.3,52.0 60.0,52.0 59.6,52.0 59.3,52.0 58.9,52.0 58.6,52.0 58.2,52.0 57.8,52.0 57.5,52.0 57.1,52.0 56.8,52.0 56.4,52.0 56.1,52.0 55.7,52.0 55.4,52.0 55.0,52.0 54.7,52.0 54.3,52.0 53.9,52.0 53.6,52.0 53.2,52.0 52.9,52.0 52.5,52.0 52.2,52.0 51.8,52.0 51.5,52.0 51.1,52.0 50.8,52.0 50.4,52.0 50.0,52.0 49.7,52.0 49.3,52.0 49.0,52.0 48.6,52.0 48.3,52.0 47.9,52.0 47.6,52.0 47.2,52.0 46.8,52.0 46.5,52.0 46.1,52.0 45.8,52.0 45.4,52.0 45.1,52.0 44.7,52.0 44.4,52.0 44.0,52.0 43.7,52.0 43.3,52.0 42.9,52.0 42.6,52.0 42.2,52.0 41.9,52.0 41.5,52.0 41.2,52.0 40.8,52.0 40.5,52.0 40.1,52.0 39.7,52.0 39.4,52.0 39.0,52.0 38.7,52.0 38.3,52.0 38.0,52.0 37.6,52.0 37.3,52.0 36.9,52.0 36.6,52.0 36.2,52.0 35.8,52.0 35.5,52.0 35.1,52.0 34.8,52.0 34.4,52.0 34.1,52.0 33.7,52.0 33.4,52.0 33.0,52.0 32.7,52.0 32.3,52.0 31.9,52.0 31.6,52.0 31.2,52.0 30.9,52.0 30.5,52.0 30.2,52.0 29.8,52.0 29.5,52.0 29.1,52.0 28.7,52.0 28.4,52.0 28.0,52.0 27.7,52.0 27.3,52.0 27.0,52.0 26.6,52.0 26.3,52.0 25.9,52.0 25.6,52.0 25.2,52.0 24.8,52.0 24.5,52.0 24.1,52.0 23.8,52.0 23.4,52.0 23.1,52.0 22.7,52.0 22.4,52.0 22.0,52.0 21.6,52.0 21.3,52.0 20.9,52.0 20.6,52.0 20.2,52.0 19.9,52.0 19.5,52.0 19.2,52.0 18.8,52.0 18.5,52.0 18.1,52.0 17.7,52.0 17.4,52.0 17.0,52.0 16.7,52.0 16.3,52.0 16.0,52.0 15.6,52.0 15.3,52.0 14.9,52.0 14.6,52.0 14.2,52.0 13.8,52.0 13.5,52.0 13.1,52.0 12.8,52.0 12.4,52.0 12.1,52.0 11.7,52.0 11.4,52.0 11.0,52.0 10.6,52.0 10.3,52.0 9.9,52.0 9.6,52.0 9.2,52.0 8.9,52.0 8.5,52.0 8.2,52.0 7.8,52.0 7.5,52.0 7.1,52.0 6.7,52.0 6.4,52.0 6.0,52.0 5.7,52.0 5.3,52.0 5.0,52.0 4.6,52.0 4.3,52.0 3.9,52.0 3.5,52.0 3.2,52.0 2.8,52.0 2.5,52.0 2.1,52.0 1.8,52.0 1.4,52.0 1.1,52.0 0.7,52.0 0.4,52.0 0.0,52.0" fill="#2f5bd3" opacity=".92"/><polygon points="0.0,40.7 0.4,40.7 0.7,40.7 1.1,40.7 1.4,40.7 1.8,40.7 2.1,39.4 2.5,39.2 2.8,39.9 3.2,38.2 3.5,35.9 3.9,33.1 4.3,34.4 4.6,35.4 5.0,36.2 5.3,36.8 5.7,37.3 6.0,37.7 6.4,38.0 6.7,38.3 7.1,38.6 7.5,37.4 7.8,37.5 8.2,38.3 8.5,36.8 8.9,34.6 9.2,31.9 9.6,33.3 9.9,34.4 10.3,35.3 10.6,35.2 11.0,34.8 11.4,34.2 11.7,34.2 12.1,31.4 12.4,28.5 12.8,26.2 13.1,27.3 13.5,28.9 13.8,30.5 14.2,31.7 14.6,32.8 14.9,33.6 15.3,34.4 15.6,35.0 16.0,35.5 16.3,36.0 16.7,36.4 17.0,36.8 17.4,35.1 17.7,33.3 18.1,31.4 18.5,32.0 18.8,33.4 19.2,35.2 19.5,36.8 19.9,38.1 20.2,39.1 20.6,39.9 20.9,40.6 21.3,41.2 21.6,41.7 22.0,42.2 22.4,42.5 22.7,42.9 23.1,43.2 23.4,43.5 23.8,43.7 24.1,43.9 24.5,44.1 24.8,44.3 25.2,44.5 25.6,44.6 25.9,44.8 26.3,44.9 26.6,41.8 27.0,39.9 27.3,38.8 27.7,39.8 28.0,34.4 28.4,31.9 28.7,30.4 29.1,34.2 29.5,30.4 29.8,30.4 30.2,30.4 30.5,34.2 30.9,30.4 31.2,26.7 31.6,23.0 31.9,26.8 32.3,30.5 32.7,34.2 33.0,34.2 33.4,34.2 33.7,30.4 34.1,26.7 34.4,22.9 34.8,22.9 35.1,26.7 35.5,30.4 35.8,34.2 36.2,30.4 36.6,26.7 36.9,22.9 37.3,23.3 37.6,24.2 38.0,25.5 38.3,28.9 38.7,31.8 39.0,34.3 39.4,30.6 39.7,26.8 40.1,23.4 40.5,24.5 40.8,26.0 41.2,27.4 41.5,28.5 41.9,29.4 42.2,30.2 42.6,30.9 42.9,31.6 43.3,32.1 43.7,32.6 44.0,33.3 44.4,33.8 44.7,34.2 45.1,31.4 45.4,28.5 45.8,25.7 46.1,25.7 46.5,26.3 46.8,27.4 47.2,28.9 47.6,30.2 47.9,31.9 48.3,33.2 48.6,34.7 49.0,31.9 49.3,31.9 49.7,31.4 50.0,34.2 50.4,34.2 50.8,34.2 51.1,34.2 51.5,34.2 51.8,34.2 52.2,34.4 52.5,35.4 52.9,36.8 53.2,38.5 53.6,39.8 53.9,40.9 54.3,41.8 54.7,42.6 55.0,43.2 55.4,43.8 55.7,44.3 56.1,44.7 56.4,45.1 56.8,45.5 57.1,45.8 57.5,46.1 57.8,46.3 58.2,46.5 58.6,46.8 58.9,47.0 59.3,47.1 59.6,47.3 60.0,43.3 60.3,40.4 60.7,38.4 61.0,40.8 61.4,42.5 61.8,43.6 62.1,44.7 62.5,45.6 62.8,46.2 63.2,46.7 63.5,48.0 63.9,49.3 64.2,50.5 64.6,50.6 64.9,50.8 65.3,50.9 65.7,51.0 66.0,51.1 66.4,51.2 66.7,51.3 67.1,51.4 67.4,51.4 67.8,51.5 68.1,51.5 68.5,51.5 68.9,51.6 69.2,51.6 69.6,51.7 69.9,51.7 70.3,51.7 70.6,51.7 71.0,51.8 71.3,51.8 71.7,51.8 72.0,51.8 72.4,51.8 72.8,51.8 73.1,51.8 73.5,51.9 73.8,51.9 74.2,43.0 74.5,35.3 74.9,28.5 75.2,31.1 75.6,33.0 75.9,34.4 76.3,35.3 76.7,36.0 77.0,36.2 77.4,37.3 77.7,39.2 78.1,36.4 78.4,32.9 78.8,29.0 79.1,30.4 79.5,31.6 79.9,32.4 80.2,33.3 80.6,34.7 80.9,36.8 81.3,33.6 81.6,30.3 82.0,26.6 82.3,28.2 82.7,29.5 83.0,30.6 83.4,31.4 83.8,32.1 84.1,32.7 84.5,33.2 84.8,33.7 85.2,34.0 85.5,35.1 85.9,37.1 86.2,34.0 86.6,30.6 87.0,26.9 87.3,28.4 87.7,29.7 88.0,30.7 88.4,31.5 88.7,32.2 89.1,32.8 89.4,33.3 89.8,33.7 90.1,34.1 90.5,34.4 90.9,34.7 91.2,35.0 91.6,35.3 91.9,35.5 92.3,35.7 92.6,35.8 93.0,35.6 93.3,36.6 93.7,38.3 94.1,35.4 94.4,32.0 94.8,28.1 95.1,29.5 95.5,30.6 95.8,31.2 96.2,31.4 96.5,31.4 96.9,31.7 97.2,32.7 97.6,34.2 98.0,35.7 98.3,35.7 98.7,35.1 99.0,34.8 99.4,34.8 99.7,34.8 100.1,34.2 100.4,33.3 100.8,33.3 101.1,33.3 101.5,34.2 101.9,33.4 102.2,33.4 102.6,34.0 102.9,36.0 103.3,37.5 103.6,38.7 104.0,39.6 104.3,40.4 104.7,41.1 105.1,41.6 105.4,42.1 105.8,42.5 106.1,37.0 106.5,31.4 106.8,26.6 107.2,28.3 107.5,30.6 107.9,32.4 108.2,33.7 108.6,34.8 109.0,35.6 109.3,36.3 109.7,36.8 110.0,37.3 110.4,37.6 110.7,37.9 111.1,38.2 111.4,38.4 111.8,38.6 112.2,37.5 112.5,37.5 112.9,38.3 113.2,38.1 113.6,36.6 113.9,34.6 114.3,31.8 114.6,29.7 115.0,27.8 115.3,29.7 115.7,31.3 116.1,32.7 116.4,33.7 116.8,34.2 117.1,30.4 117.5,26.7 117.8,22.9 118.2,22.9 118.5,22.9 118.9,23.5 119.2,24.6 119.6,26.2 120.0,27.5 120.3,28.6 120.7,29.6 121.0,30.4 121.4,31.1 121.7,31.7 122.1,32.2 122.4,32.7 122.8,33.2 123.2,33.6 123.5,33.9 123.9,34.2 124.2,34.5 124.6,34.8 124.9,35.1 125.3,35.3 125.6,35.1 126.0,36.1 126.3,37.9 126.7,35.0 127.1,31.6 127.4,27.7 127.8,29.2 128.1,30.4 128.5,31.4 128.8,32.1 129.2,32.8 129.5,33.3 129.9,33.8 130.3,34.2 130.6,34.5 131.0,34.8 131.3,35.1 131.7,35.3 132.0,35.5 132.4,35.7 132.7,35.9 133.1,36.1 133.4,36.2 133.8,36.3 134.2,36.5 134.5,34.8 134.9,33.1 135.2,31.4 135.6,32.1 135.9,33.5 136.3,35.4 136.6,35.6 137.0,35.1 137.3,35.0 137.7,34.9 138.1,34.9 138.4,34.1 138.8,34.5 139.1,34.1 139.5,34.5 139.8,35.1 140.2,36.9 140.5,36.5 140.9,35.6 141.3,35.3 141.6,35.5 142.0,36.3 142.3,36.6 142.7,38.2 143.0,39.4 143.4,40.3 143.7,38.6 144.1,37.2 144.4,36.5 144.8,37.2 145.2,33.7 145.5,29.2 145.9,28.5 146.2,31.4 146.6,34.2 146.9,31.4 147.3,28.6 147.6,26.6 148.0,28.0 148.4,29.9 148.7,31.3 149.1,32.5 149.4,33.4 149.8,34.2 150.1,34.9 150.5,35.5 150.8,36.0 151.2,35.5 151.5,35.8 151.9,36.8 152.3,36.8 152.6,36.0 153.0,34.2 153.3,31.4 153.7,28.9 154.0,27.1 154.4,28.6 154.7,31.1 155.1,32.9 155.4,34.7 155.8,34.7 156.2,34.7 156.5,34.2 156.9,31.4 157.2,28.5 157.6,26.1 157.9,27.0 158.3,28.5 158.6,30.0 159.0,31.2 159.4,32.2 159.7,33.1 160.1,33.8 160.4,34.5 160.8,35.0 161.1,35.5 161.5,36.0 161.8,35.5 162.2,35.7 162.5,36.8 162.9,34.9 163.3,32.8 163.6,30.3 164.0,31.9 164.3,33.1 164.7,34.0 165.0,34.8 165.4,35.5 165.7,36.0 166.1,36.5 166.5,36.9 166.8,37.2 167.2,37.6 167.5,37.8 167.9,38.1 168.2,38.3 168.6,38.5 168.9,38.7 169.3,38.8 169.6,39.0 170.0,39.1 170.0,40.7 169.6,40.7 169.3,40.7 168.9,40.7 168.6,40.7 168.2,40.7 167.9,40.7 167.5,40.7 167.2,40.7 166.8,40.7 166.5,40.7 166.1,40.7 165.7,40.7 165.4,40.7 165.0,40.7 164.7,40.7 164.3,40.7 164.0,40.7 163.6,40.7 163.3,43.5 162.9,46.3 162.5,49.2 162.2,46.3 161.8,43.5 161.5,40.7 161.1,40.7 160.8,40.7 160.4,40.7 160.1,40.7 159.7,40.7 159.4,40.7 159.0,40.7 158.6,40.7 158.3,40.7 157.9,40.7 157.6,40.7 157.2,43.5 156.9,46.3 156.5,49.2 156.2,49.2 155.8,49.2 155.4,49.2 155.1,46.3 154.7,43.5 154.4,40.7 154.0,40.7 153.7,43.5 153.3,46.3 153.0,49.2 152.6,49.2 152.3,49.2 151.9,49.2 151.5,46.3 151.2,43.5 150.8,40.7 150.5,40.7 150.1,40.7 149.8,40.7 149.4,40.7 149.1,40.7 148.7,40.7 148.4,40.7 148.0,40.7 147.6,40.7 147.3,43.5 146.9,46.3 146.6,49.2 146.2,46.3 145.9,43.5 145.5,42.6 145.2,45.4 144.8,48.2 144.4,49.2 144.1,48.2 143.7,47.3 143.4,46.3 143.0,46.3 142.7,46.3 142.3,46.3 142.0,47.3 141.6,48.2 141.3,49.2 140.9,48.2 140.5,47.3 140.2,46.3 139.8,46.3 139.5,47.3 139.1,48.2 138.8,49.2 138.4,48.2 138.1,48.2 137.7,48.2 137.3,49.2 137.0,48.2 136.6,47.3 136.3,46.3 135.9,46.3 135.6,46.3 135.2,46.3 134.9,43.5 134.5,40.7 134.2,37.9 133.8,37.9 133.4,37.9 133.1,37.9 132.7,37.9 132.4,37.9 132.0,37.9 131.7,37.9 131.3,37.9 131.0,37.9 130.6,37.9 130.3,37.9 129.9,37.9 129.5,37.9 129.2,37.9 128.8,37.9 128.5,37.9 128.1,37.9 127.8,37.9 127.4,37.9 127.1,41.6 126.7,45.4 126.3,49.2 126.0,45.4 125.6,41.6 125.3,37.9 124.9,37.9 124.6,37.9 124.2,37.9 123.9,37.9 123.5,37.9 123.2,37.9 122.8,37.9 122.4,37.9 122.1,37.9 121.7,37.9 121.4,37.9 121.0,37.9 120.7,37.9 120.3,37.9 120.0,37.9 119.6,37.9 119.2,37.9 118.9,37.9 118.5,37.9 118.2,37.9 117.8,37.9 117.5,41.6 117.1,45.4 116.8,49.2 116.4,46.3 116.1,43.5 115.7,40.7 115.3,40.7 115.0,40.7 114.6,43.5 114.3,46.3 113.9,49.2 113.6,49.2 113.2,49.2 112.9,49.2 112.5,46.3 112.2,43.5 111.8,40.7 111.4,40.7 111.1,40.7 110.7,40.7 110.4,40.7 110.0,40.7 109.7,40.7 109.3,40.7 109.0,40.7 108.6,40.7 108.2,40.7 107.9,40.7 107.5,40.7 107.2,40.7 106.8,40.7 106.5,42.6 106.1,44.5 105.8,46.3 105.4,46.3 105.1,46.3 104.7,46.3 104.3,46.3 104.0,46.3 103.6,46.3 103.3,46.3 102.9,46.3 102.6,46.3 102.2,47.3 101.9,48.2 101.5,49.2 101.1,48.2 100.8,48.2 100.4,48.2 100.1,49.2 99.7,49.2 99.4,49.2 99.0,49.2 98.7,48.2 98.3,47.3 98.0,46.3 97.6,46.3 97.2,46.3 96.9,46.3 96.5,46.3 96.2,46.3 95.8,43.5 95.5,40.7 95.1,37.9 94.8,37.9 94.4,41.6 94.1,45.4 93.7,49.2 93.3,45.4 93.0,41.6 92.6,37.9 92.3,37.9 91.9,37.9 91.6,37.9 91.2,37.9 90.9,37.9 90.5,37.9 90.1,37.9 89.8,37.9 89.4,37.9 89.1,37.9 88.7,37.9 88.4,37.9 88.0,37.9 87.7,37.9 87.3,37.9 87.0,37.9 86.6,41.6 86.2,45.4 85.9,49.2 85.5,45.4 85.2,41.6 84.8,37.9 84.5,37.9 84.1,37.9 83.8,37.9 83.4,37.9 83.0,37.9 82.7,37.9 82.3,37.9 82.0,37.9 81.6,41.6 81.3,45.4 80.9,49.2 80.6,45.4 80.2,41.6 79.9,37.9 79.5,37.9 79.1,37.9 78.8,37.9 78.4,41.6 78.1,45.4 77.7,49.2 77.4,45.4 77.0,41.6 76.7,37.9 76.3,37.9 75.9,37.9 75.6,37.9 75.2,37.9 74.9,37.9 74.5,42.6 74.2,47.3 73.8,52.0 73.5,52.0 73.1,52.0 72.8,52.0 72.4,52.0 72.0,52.0 71.7,52.0 71.3,52.0 71.0,52.0 70.6,52.0 70.3,52.0 69.9,52.0 69.6,52.0 69.2,52.0 68.9,52.0 68.5,52.0 68.1,52.0 67.8,52.0 67.4,52.0 67.1,52.0 66.7,52.0 66.4,52.0 66.0,52.0 65.7,52.0 65.3,52.0 64.9,52.0 64.6,52.0 64.2,52.0 63.9,51.1 63.5,50.1 63.2,49.2 62.8,49.2 62.5,49.2 62.1,49.2 61.8,49.2 61.4,49.2 61.0,49.2 60.7,49.2 60.3,49.2 60.0,49.2 59.6,49.2 59.3,49.2 58.9,49.2 58.6,49.2 58.2,49.2 57.8,49.2 57.5,49.2 57.1,49.2 56.8,49.2 56.4,49.2 56.1,49.2 55.7,49.2 55.4,49.2 55.0,49.2 54.7,49.2 54.3,49.2 53.9,49.2 53.6,49.2 53.2,49.2 52.9,49.2 52.5,49.2 52.2,49.2 51.8,49.2 51.5,49.2 51.1,49.2 50.8,49.2 50.4,49.2 50.0,49.2 49.7,46.3 49.3,46.3 49.0,46.3 48.6,49.2 48.3,46.3 47.9,43.5 47.6,40.7 47.2,40.7 46.8,40.7 46.5,40.7 46.1,40.7 45.8,40.7 45.4,43.5 45.1,46.3 44.7,49.2 44.4,45.4 44.0,41.6 43.7,37.9 43.3,37.9 42.9,37.9 42.6,37.9 42.2,37.9 41.9,37.9 41.5,37.9 41.2,37.9 40.8,37.9 40.5,37.9 40.1,37.9 39.7,41.6 39.4,45.4 39.0,49.2 38.7,45.4 38.3,41.6 38.0,37.9 37.6,37.9 37.3,37.9 36.9,37.9 36.6,41.6 36.2,45.4 35.8,49.2 35.5,45.4 35.1,41.6 34.8,37.9 34.4,37.9 34.1,41.6 33.7,45.4 33.4,49.2 33.0,49.2 32.7,49.2 32.3,45.4 31.9,41.6 31.6,37.9 31.2,41.6 30.9,45.4 30.5,49.2 30.2,45.4 29.8,45.4 29.5,45.4 29.1,49.2 28.7,45.4 28.4,44.5 28.0,44.5 27.7,48.2 27.3,49.2 27.0,48.2 26.6,47.3 26.3,46.3 25.9,46.3 25.6,46.3 25.2,46.3 24.8,46.3 24.5,46.3 24.1,46.3 23.8,46.3 23.4,46.3 23.1,46.3 22.7,46.3 22.4,46.3 22.0,46.3 21.6,46.3 21.3,46.3 20.9,46.3 20.6,46.3 20.2,46.3 19.9,46.3 19.5,46.3 19.2,46.3 18.8,46.3 18.5,46.3 18.1,46.3 17.7,44.5 17.4,42.6 17.0,40.7 16.7,40.7 16.3,40.7 16.0,40.7 15.6,40.7 15.3,40.7 14.9,40.7 14.6,40.7 14.2,40.7 13.8,40.7 13.5,40.7 13.1,40.7 12.8,40.7 12.4,43.5 12.1,46.3 11.7,49.2 11.4,49.2 11.0,46.3 10.6,43.5 10.3,40.7 9.9,40.7 9.6,40.7 9.2,40.7 8.9,43.5 8.5,46.3 8.2,49.2 7.8,46.3 7.5,43.5 7.1,40.7 6.7,40.7 6.4,40.7 6.0,40.7 5.7,40.7 5.3,40.7 5.0,40.7 4.6,40.7 4.3,40.7 3.9,40.7 3.5,43.5 3.2,46.3 2.8,49.2 2.5,46.3 2.1,43.5 1.8,40.7 1.4,40.7 1.1,40.7 0.7,40.7 0.4,40.7 0.0,40.7" fill="#e5452f" opacity=".92"/><polygon points="0.0,40.7 0.4,40.7 0.7,40.7 1.1,39.5 1.4,38.8 1.8,38.5 2.1,37.0 2.5,35.6 2.8,35.6 3.2,34.8 3.5,34.1 3.9,32.2 4.3,34.0 4.6,35.2 5.0,36.1 5.3,36.8 5.7,37.3 6.0,37.7 6.4,38.0 6.7,38.3 7.1,38.6 7.5,36.2 7.8,35.6 8.2,36.1 8.5,35.6 8.9,32.8 9.2,29.8 9.6,29.8 9.9,31.4 10.3,32.5 10.6,32.5 11.0,31.0 11.4,29.8 11.7,30.7 12.1,28.4 12.4,25.8 12.8,23.5 13.1,25.9 13.5,28.2 13.8,30.1 14.2,31.6 14.6,32.7 14.9,33.6 15.3,34.3 15.6,33.8 16.0,33.7 16.3,33.8 16.7,35.3 17.0,36.2 17.4,34.8 17.7,31.9 18.1,29.4 18.5,29.8 18.8,32.3 19.2,34.7 19.5,35.3 19.9,36.1 20.2,35.6 20.6,35.7 20.9,36.0 21.3,37.6 21.6,38.7 22.0,39.4 22.4,39.9 22.7,41.5 23.1,42.5 23.4,43.1 23.8,43.5 24.1,43.8 24.5,44.1 24.8,44.3 25.2,44.5 25.6,44.6 25.9,44.8 26.3,44.9 26.6,40.6 27.0,38.0 27.3,36.6 27.7,38.7 28.0,32.6 28.4,28.5 28.7,26.3 29.1,30.8 29.5,28.7 29.8,28.3 30.2,28.1 30.5,31.8 30.9,29.2 31.2,26.0 31.6,22.7 31.9,25.4 32.3,28.6 32.7,30.8 33.0,31.2 33.4,31.4 33.7,29.0 34.1,25.9 34.4,22.5 34.8,22.7 35.1,25.3 35.5,28.5 35.8,32.0 36.2,29.3 36.6,26.1 36.9,22.6 37.3,21.9 37.6,22.3 38.0,23.3 38.3,26.5 38.7,29.3 39.0,31.9 39.4,29.3 39.7,26.1 40.1,21.9 40.5,22.5 40.8,23.8 41.2,26.2 41.5,27.9 41.9,27.9 42.2,28.2 42.6,28.7 42.9,30.4 43.3,31.5 43.7,32.3 44.0,31.9 44.4,31.9 44.7,32.0 45.1,30.2 45.4,28.0 45.8,25.4 46.1,25.6 46.5,26.2 46.8,27.3 47.2,28.9 47.6,29.0 47.9,28.9 48.3,28.0 48.6,28.4 49.0,26.2 49.3,26.6 49.7,27.4 50.0,30.9 50.4,32.5 50.8,32.1 51.1,31.9 51.5,31.8 51.8,33.0 52.2,33.8 52.5,33.8 52.9,34.8 53.2,36.2 53.6,38.6 53.9,39.1 54.3,39.6 54.7,40.2 55.0,42.0 55.4,41.9 55.7,42.1 56.1,41.2 56.4,42.1 56.8,41.4 57.1,42.5 57.5,43.1 57.8,44.8 58.2,45.8 58.6,46.4 58.9,46.8 59.3,47.0 59.6,47.2 60.0,42.0 60.3,38.6 60.7,36.3 61.0,39.7 61.4,41.9 61.8,43.3 62.1,44.6 62.5,44.3 62.8,44.3 63.2,44.5 63.5,46.9 63.9,48.7 64.2,50.2 64.6,50.5 64.9,50.7 65.3,50.9 65.7,51.0 66.0,51.1 66.4,51.2 66.7,51.3 67.1,51.4 67.4,51.4 67.8,51.5 68.1,51.5 68.5,51.5 68.9,51.6 69.2,51.6 69.6,51.7 69.9,51.7 70.3,51.7 70.6,51.7 71.0,51.8 71.3,51.8 71.7,51.8 72.0,51.8 72.4,51.8 72.8,51.8 73.1,51.8 73.5,51.9 73.8,51.9 74.2,43.0 74.5,35.3 74.9,28.5 75.2,31.1 75.6,33.0 75.9,34.4 76.3,34.1 76.7,33.0 77.0,30.9 77.4,32.2 77.7,35.3 78.1,34.4 78.4,31.9 78.8,28.5 79.1,29.0 79.5,29.6 79.9,29.0 80.2,29.1 80.6,30.1 80.9,33.2 81.3,31.8 81.6,29.4 82.0,26.1 82.3,28.0 82.7,28.2 83.0,28.7 83.4,29.2 83.8,31.0 84.1,32.2 84.5,32.9 84.8,33.5 85.2,32.7 85.5,33.2 85.9,34.9 86.2,32.9 86.6,30.1 87.0,26.6 87.3,28.3 87.7,29.6 88.0,30.7 88.4,31.5 88.7,32.2 89.1,32.8 89.4,33.3 89.8,33.7 90.1,34.1 90.5,34.4 90.9,34.7 91.2,33.8 91.6,33.4 91.9,33.3 92.3,34.6 92.6,35.3 93.0,34.1 93.3,34.6 93.7,36.1 94.1,34.3 94.4,31.4 94.8,27.7 95.1,28.2 95.5,28.7 95.8,29.0 96.2,29.0 96.5,28.9 96.9,28.0 97.2,29.6 97.6,31.4 98.0,34.3 98.3,33.7 98.7,32.9 99.0,32.4 99.4,32.4 99.7,32.3 100.1,31.7 100.4,32.0 100.8,31.4 101.1,31.1 101.5,31.9 101.9,31.0 102.2,30.9 102.6,31.5 102.9,34.7 103.3,36.8 103.6,38.3 104.0,39.5 104.3,39.1 104.7,39.2 105.1,39.4 105.4,41.0 105.8,40.7 106.1,34.9 106.5,29.1 106.8,25.4 107.2,27.7 107.5,30.3 107.9,32.2 108.2,32.4 108.6,32.9 109.0,33.4 109.3,35.2 109.7,36.2 110.0,37.0 110.4,37.5 110.7,36.6 111.1,36.3 111.4,36.3 111.8,37.5 112.2,35.7 112.5,35.4 112.9,36.0 113.2,35.7 113.6,34.1 113.9,32.2 114.3,30.5 114.6,27.8 115.0,25.6 115.3,27.4 115.7,30.1 116.1,30.9 116.4,31.5 116.8,31.9 117.1,29.2 117.5,26.0 117.8,22.6 118.2,22.7 118.5,21.6 118.9,21.6 119.2,22.4 119.6,25.0 120.0,25.7 120.3,25.3 120.7,25.4 121.0,27.0 121.4,28.1 121.7,29.0 122.1,29.6 122.4,31.4 122.8,32.5 123.2,32.0 123.5,31.9 123.9,32.0 124.2,33.4 124.6,34.2 124.9,34.8 125.3,35.1 125.6,33.8 126.0,34.2 126.3,35.7 126.7,33.9 127.1,31.0 127.4,27.4 127.8,27.8 128.1,28.5 128.5,27.9 128.8,29.2 129.2,30.0 129.5,31.9 129.9,33.0 130.3,32.6 130.6,32.5 131.0,32.5 131.3,33.9 131.7,34.7 132.0,35.2 132.4,35.6 132.7,35.8 133.1,36.0 133.4,36.2 133.8,36.3 134.2,35.2 134.5,31.7 134.9,29.1 135.2,28.1 135.6,29.2 135.9,30.8 136.3,32.8 136.6,33.0 137.0,32.6 137.3,32.4 137.7,33.6 138.1,33.0 138.4,30.7 138.8,30.3 139.1,30.8 139.5,31.5 139.8,32.3 140.2,34.2 140.5,34.0 140.9,33.1 141.3,32.8 141.6,34.2 142.0,35.7 142.3,36.3 142.7,38.0 143.0,39.3 143.4,39.1 143.7,35.5 144.1,33.1 144.4,33.2 144.8,34.3 145.2,31.0 145.5,26.6 145.9,26.0 146.2,28.8 146.6,31.7 146.9,30.1 147.3,27.9 147.6,26.3 148.0,27.8 148.4,29.8 148.7,31.3 149.1,32.5 149.4,32.2 149.8,32.4 150.1,31.5 150.5,31.3 150.8,31.4 151.2,30.7 151.5,30.9 151.9,30.6 152.3,30.0 152.6,30.0 153.0,29.9 153.3,29.2 153.7,27.8 154.0,26.5 154.4,27.1 154.7,27.9 155.1,28.8 155.4,30.2 155.8,29.9 156.2,29.8 156.5,30.5 156.9,28.2 157.2,25.7 157.6,23.4 157.9,25.7 158.3,27.8 158.6,29.6 159.0,31.0 159.4,32.1 159.7,33.0 160.1,33.8 160.4,34.4 160.8,35.0 161.1,35.5 161.5,36.0 161.8,34.3 162.2,32.7 162.5,31.5 162.9,29.7 163.3,29.0 163.6,28.3 164.0,30.8 164.3,32.5 164.7,33.8 165.0,34.7 165.4,34.2 165.7,34.1 166.1,33.1 166.5,33.9 166.8,34.5 167.2,36.1 167.5,37.1 167.9,37.7 168.2,38.1 168.6,38.4 168.9,38.6 169.3,38.8 169.6,37.8 170.0,37.2 170.0,39.1 169.6,39.0 169.3,38.8 168.9,38.7 168.6,38.5 168.2,38.3 167.9,38.1 167.5,37.8 167.2,37.6 166.8,37.2 166.5,36.9 166.1,36.5 165.7,36.0 165.4,35.5 165.0,34.8 164.7,34.0 164.3,33.1 164.0,31.9 163.6,30.3 163.3,32.8 162.9,34.9 162.5,36.8 162.2,35.7 161.8,35.5 161.5,36.0 161.1,35.5 160.8,35.0 160.4,34.5 160.1,33.8 159.7,33.1 159.4,32.2 159.0,31.2 158.6,30.0 158.3,28.5 157.9,27.0 157.6,26.1 157.2,28.5 156.9,31.4 156.5,34.2 156.2,34.7 155.8,34.7 155.4,34.7 155.1,32.9 154.7,31.1 154.4,28.6 154.0,27.1 153.7,28.9 153.3,31.4 153.0,34.2 152.6,36.0 152.3,36.8 151.9,36.8 151.5,35.8 151.2,35.5 150.8,36.0 150.5,35.5 150.1,34.9 149.8,34.2 149.4,33.4 149.1,32.5 148.7,31.3 148.4,29.9 148.0,28.0 147.6,26.6 147.3,28.6 146.9,31.4 146.6,34.2 146.2,31.4 145.9,28.5 145.5,29.2 145.2,33.7 144.8,37.2 144.4,36.5 144.1,37.2 143.7,38.6 143.4,40.3 143.0,39.4 142.7,38.2 142.3,36.6 142.0,36.3 141.6,35.5 141.3,35.3 140.9,35.6 140.5,36.5 140.2,36.9 139.8,35.1 139.5,34.5 139.1,34.1 138.8,34.5 138.4,34.1 138.1,34.9 137.7,34.9 137.3,35.0 137.0,35.1 136.6,35.6 136.3,35.4 135.9,33.5 135.6,32.1 135.2,31.4 134.9,33.1 134.5,34.8 134.2,36.5 133.8,36.3 133.4,36.2 133.1,36.1 132.7,35.9 132.4,35.7 132.0,35.5 131.7,35.3 131.3,35.1 131.0,34.8 130.6,34.5 130.3,34.2 129.9,33.8 129.5,33.3 129.2,32.8 128.8,32.1 128.5,31.4 128.1,30.4 127.8,29.2 127.4,27.7 127.1,31.6 126.7,35.0 126.3,37.9 126.0,36.1 125.6,35.1 125.3,35.3 124.9,35.1 124.6,34.8 124.2,34.5 123.9,34.2 123.5,33.9 123.2,33.6 122.8,33.2 122.4,32.7 122.1,32.2 121.7,31.7 121.4,31.1 121.0,30.4 120.7,29.6 120.3,28.6 120.0,27.5 119.6,26.2 119.2,24.6 118.9,23.5 118.5,22.9 118.2,22.9 117.8,22.9 117.5,26.7 117.1,30.4 116.8,34.2 116.4,33.7 116.1,32.7 115.7,31.3 115.3,29.7 115.0,27.8 114.6,29.7 114.3,31.8 113.9,34.6 113.6,36.6 113.2,38.1 112.9,38.3 112.5,37.5 112.2,37.5 111.8,38.6 111.4,38.4 111.1,38.2 110.7,37.9 110.4,37.6 110.0,37.3 109.7,36.8 109.3,36.3 109.0,35.6 108.6,34.8 108.2,33.7 107.9,32.4 107.5,30.6 107.2,28.3 106.8,26.6 106.5,31.4 106.1,37.0 105.8,42.5 105.4,42.1 105.1,41.6 104.7,41.1 104.3,40.4 104.0,39.6 103.6,38.7 103.3,37.5 102.9,36.0 102.6,34.0 102.2,33.4 101.9,33.4 101.5,34.2 101.1,33.3 100.8,33.3 100.4,33.3 100.1,34.2 99.7,34.8 99.4,34.8 99.0,34.8 98.7,35.1 98.3,35.7 98.0,35.7 97.6,34.2 97.2,32.7 96.9,31.7 96.5,31.4 96.2,31.4 95.8,31.2 95.5,30.6 95.1,29.5 94.8,28.1 94.4,32.0 94.1,35.4 93.7,38.3 93.3,36.6 93.0,35.6 92.6,35.8 92.3,35.7 91.9,35.5 91.6,35.3 91.2,35.0 90.9,34.7 90.5,34.4 90.1,34.1 89.8,33.7 89.4,33.3 89.1,32.8 88.7,32.2 88.4,31.5 88.0,30.7 87.7,29.7 87.3,28.4 87.0,26.9 86.6,30.6 86.2,34.0 85.9,37.1 85.5,35.1 85.2,34.0 84.8,33.7 84.5,33.2 84.1,32.7 83.8,32.1 83.4,31.4 83.0,30.6 82.7,29.5 82.3,28.2 82.0,26.6 81.6,30.3 81.3,33.6 80.9,36.8 80.6,34.7 80.2,33.3 79.9,32.4 79.5,31.6 79.1,30.4 78.8,29.0 78.4,32.9 78.1,36.4 77.7,39.2 77.4,37.3 77.0,36.2 76.7,36.0 76.3,35.3 75.9,34.4 75.6,33.0 75.2,31.1 74.9,28.5 74.5,35.3 74.2,43.0 73.8,51.9 73.5,51.9 73.1,51.8 72.8,51.8 72.4,51.8 72.0,51.8 71.7,51.8 71.3,51.8 71.0,51.8 70.6,51.7 70.3,51.7 69.9,51.7 69.6,51.7 69.2,51.6 68.9,51.6 68.5,51.5 68.1,51.5 67.8,51.5 67.4,51.4 67.1,51.4 66.7,51.3 66.4,51.2 66.0,51.1 65.7,51.0 65.3,50.9 64.9,50.8 64.6,50.6 64.2,50.5 63.9,49.3 63.5,48.0 63.2,46.7 62.8,46.2 62.5,45.6 62.1,44.7 61.8,43.6 61.4,42.5 61.0,40.8 60.7,38.4 60.3,40.4 60.0,43.3 59.6,47.3 59.3,47.1 58.9,47.0 58.6,46.8 58.2,46.5 57.8,46.3 57.5,46.1 57.1,45.8 56.8,45.5 56.4,45.1 56.1,44.7 55.7,44.3 55.4,43.8 55.0,43.2 54.7,42.6 54.3,41.8 53.9,40.9 53.6,39.8 53.2,38.5 52.9,36.8 52.5,35.4 52.2,34.4 51.8,34.2 51.5,34.2 51.1,34.2 50.8,34.2 50.4,34.2 50.0,34.2 49.7,31.4 49.3,31.9 49.0,31.9 48.6,34.7 48.3,33.2 47.9,31.9 47.6,30.2 47.2,28.9 46.8,27.4 46.5,26.3 46.1,25.7 45.8,25.7 45.4,28.5 45.1,31.4 44.7,34.2 44.4,33.8 44.0,33.3 43.7,32.6 43.3,32.1 42.9,31.6 42.6,30.9 42.2,30.2 41.9,29.4 41.5,28.5 41.2,27.4 40.8,26.0 40.5,24.5 40.1,23.4 39.7,26.8 39.4,30.6 39.0,34.3 38.7,31.8 38.3,28.9 38.0,25.5 37.6,24.2 37.3,23.3 36.9,22.9 36.6,26.7 36.2,30.4 35.8,34.2 35.5,30.4 35.1,26.7 34.8,22.9 34.4,22.9 34.1,26.7 33.7,30.4 33.4,34.2 33.0,34.2 32.7,34.2 32.3,30.5 31.9,26.8 31.6,23.0 31.2,26.7 30.9,30.4 30.5,34.2 30.2,30.4 29.8,30.4 29.5,30.4 29.1,34.2 28.7,30.4 28.4,31.9 28.0,34.4 27.7,39.8 27.3,38.8 27.0,39.9 26.6,41.8 26.3,44.9 25.9,44.8 25.6,44.6 25.2,44.5 24.8,44.3 24.5,44.1 24.1,43.9 23.8,43.7 23.4,43.5 23.1,43.2 22.7,42.9 22.4,42.5 22.0,42.2 21.6,41.7 21.3,41.2 20.9,40.6 20.6,39.9 20.2,39.1 19.9,38.1 19.5,36.8 19.2,35.2 18.8,33.4 18.5,32.0 18.1,31.4 17.7,33.3 17.4,35.1 17.0,36.8 16.7,36.4 16.3,36.0 16.0,35.5 15.6,35.0 15.3,34.4 14.9,33.6 14.6,32.8 14.2,31.7 13.8,30.5 13.5,28.9 13.1,27.3 12.8,26.2 12.4,28.5 12.1,31.4 11.7,34.2 11.4,34.2 11.0,34.8 10.6,35.2 10.3,35.3 9.9,34.4 9.6,33.3 9.2,31.9 8.9,34.6 8.5,36.8 8.2,38.3 7.8,37.5 7.5,37.4 7.1,38.6 6.7,38.3 6.4,38.0 6.0,37.7 5.7,37.3 5.3,36.8 5.0,36.2 4.6,35.4 4.3,34.4 3.9,33.1 3.5,35.9 3.2,38.2 2.8,39.9 2.5,39.2 2.1,39.4 1.8,40.7 1.4,40.7 1.1,40.7 0.7,40.7 0.4,40.7 0.0,40.7" fill="#f2b233" opacity=".92"/><polygon points="0.0,36.2 0.4,36.2 0.7,36.2 1.1,34.9 1.4,34.3 1.8,34.0 2.1,32.5 2.5,31.0 2.8,31.1 3.2,30.2 3.5,29.6 3.9,27.7 4.3,29.4 4.6,30.7 5.0,31.6 5.3,32.2 5.7,32.8 6.0,33.2 6.4,33.5 6.7,33.8 7.1,34.0 7.5,31.7 7.8,31.1 8.2,31.6 8.5,31.1 8.9,28.2 9.2,25.3 9.6,25.3 9.9,26.8 10.3,28.0 10.6,28.0 11.0,26.5 11.4,25.3 11.7,26.2 12.1,23.8 12.4,21.3 12.8,19.0 13.1,21.4 13.5,23.7 13.8,25.6 14.2,27.0 14.6,28.2 14.9,29.1 15.3,29.8 15.6,29.2 16.0,29.2 16.3,29.3 16.7,30.8 17.0,31.7 17.4,30.3 17.7,27.4 18.1,24.9 18.5,25.3 18.8,27.7 19.2,30.1 19.5,30.8 19.9,31.6 20.2,31.1 20.6,31.2 20.9,31.5 21.3,33.1 21.6,34.1 22.0,34.9 22.4,35.4 22.7,37.0 23.1,38.0 23.4,38.6 23.8,39.0 24.1,39.3 24.5,39.5 24.8,39.8 25.2,39.9 25.6,40.1 25.9,40.2 26.3,40.4 26.6,36.0 27.0,33.5 27.3,32.1 27.7,34.2 28.0,28.1 28.4,24.0 28.7,21.7 29.1,26.3 29.5,24.2 29.8,23.8 30.2,23.6 30.5,27.3 30.9,24.7 31.2,21.5 31.6,18.2 31.9,20.9 32.3,24.1 32.7,26.2 33.0,26.7 33.4,26.9 33.7,24.5 34.1,21.4 34.4,18.0 34.8,18.2 35.1,20.8 35.5,24.0 35.8,27.5 36.2,24.8 36.6,21.5 36.9,18.1 37.3,17.4 37.6,17.7 38.0,18.8 38.3,22.0 38.7,24.8 39.0,27.3 39.4,24.8 39.7,21.6 40.1,17.4 40.5,18.0 40.8,19.3 41.2,21.7 41.5,23.3 41.9,23.4 42.2,23.7 42.6,24.2 42.9,25.9 43.3,27.0 43.7,27.8 44.0,27.4 44.4,27.4 44.7,27.5 45.1,25.7 45.4,23.4 45.8,20.9 46.1,21.0 46.5,21.7 46.8,22.8 47.2,24.3 47.6,24.4 47.9,24.3 48.3,23.5 48.6,23.9 49.0,21.7 49.3,22.0 49.7,22.9 50.0,26.4 50.4,28.0 50.8,27.6 51.1,27.4 51.5,27.3 51.8,28.4 52.2,29.3 52.5,29.3 52.9,30.3 53.2,31.7 53.6,34.1 53.9,34.5 54.3,35.1 54.7,35.7 55.0,37.5 55.4,37.4 55.7,37.6 56.1,36.6 56.4,37.5 56.8,36.9 57.1,38.0 57.5,38.6 57.8,40.3 58.2,41.3 58.6,41.8 58.9,42.2 59.3,42.5 59.6,42.7 60.0,37.5 60.3,34.1 60.7,31.7 61.0,35.2 61.4,37.4 61.8,38.8 62.1,40.1 62.5,39.8 62.8,39.8 63.2,40.0 63.5,43.1 63.9,45.7 64.2,47.9 64.6,48.2 64.9,48.5 65.3,48.6 65.7,48.8 66.0,48.9 66.4,49.0 66.7,49.0 67.1,49.1 67.4,49.1 67.8,49.2 68.1,49.2 68.5,49.3 68.9,49.3 69.2,49.4 69.6,49.4 69.9,49.4 70.3,49.4 70.6,49.5 71.0,49.5 71.3,49.5 71.7,49.5 72.0,49.5 72.4,49.6 72.8,49.6 73.1,49.6 73.5,49.6 73.8,49.6 74.2,40.0 74.5,31.6 74.9,24.0 75.2,26.6 75.6,28.5 75.9,29.8 76.3,29.6 76.7,28.4 77.0,26.4 77.4,27.7 77.7,30.8 78.1,29.9 78.4,27.4 78.8,23.9 79.1,24.4 79.5,25.1 79.9,24.5 80.2,24.6 80.6,25.5 80.9,28.7 81.3,27.2 81.6,24.9 82.0,21.6 82.3,23.5 82.7,23.7 83.0,24.1 83.4,24.7 83.8,26.5 84.1,27.6 84.5,28.4 84.8,29.0 85.2,28.2 85.5,28.7 85.9,30.3 86.2,28.4 86.6,25.5 87.0,22.0 87.3,23.8 87.7,25.1 88.0,26.1 88.4,27.0 88.7,27.7 89.1,28.3 89.4,28.8 89.8,29.2 90.1,29.6 90.5,29.9 90.9,30.2 91.2,29.3 91.6,28.9 91.9,28.8 92.3,30.0 92.6,30.8 93.0,29.6 93.3,30.0 93.7,31.6 94.1,29.8 94.4,26.8 94.8,23.2 95.1,23.6 95.5,24.1 95.8,24.4 96.2,24.5 96.5,24.4 96.9,23.5 97.2,25.1 97.6,26.9 98.0,29.7 98.3,29.2 98.7,28.4 99.0,27.9 99.4,27.9 99.7,27.8 100.1,27.2 100.4,27.5 100.8,26.9 101.1,26.6 101.5,27.3 101.9,26.4 102.2,26.4 102.6,27.0 102.9,30.2 103.3,32.3 103.6,33.8 104.0,34.9 104.3,34.6 104.7,34.6 105.1,34.9 105.4,36.4 105.8,36.2 106.1,30.4 106.5,24.6 106.8,20.9 107.2,23.2 107.5,25.7 107.9,27.7 108.2,27.9 108.6,28.4 109.0,28.9 109.3,30.6 109.7,31.7 110.0,32.4 110.4,32.9 110.7,32.1 111.1,31.8 111.4,31.7 111.8,33.0 112.2,31.2 112.5,30.8 112.9,31.5 113.2,31.1 113.6,29.6 113.9,27.6 114.3,26.0 114.6,23.3 115.0,21.1 115.3,22.8 115.7,25.5 116.1,26.4 116.4,27.0 116.8,27.3 117.1,24.7 117.5,21.5 117.8,18.0 118.2,18.2 118.5,17.1 118.9,17.1 119.2,17.9 119.6,20.5 120.0,21.2 120.3,20.7 120.7,20.9 121.0,22.5 121.4,23.6 121.7,24.4 122.1,25.1 122.4,26.9 122.8,27.9 123.2,27.5 123.5,27.4 123.9,27.5 124.2,28.9 124.6,29.7 124.9,30.2 125.3,30.6 125.6,29.3 126.0,29.7 126.3,31.2 126.7,29.4 127.1,26.5 127.4,22.9 127.8,23.3 128.1,24.0 128.5,23.4 128.8,24.6 129.2,25.5 129.5,27.4 129.9,28.5 130.3,28.0 130.6,27.9 131.0,28.0 131.3,29.4 131.7,30.2 132.0,30.7 132.4,31.0 132.7,31.3 133.1,31.5 133.4,31.7 133.8,31.8 134.2,30.7 134.5,27.2 134.9,24.6 135.2,23.6 135.6,24.7 135.9,26.2 136.3,28.2 136.6,28.5 137.0,28.1 137.3,27.9 137.7,29.0 138.1,28.5 138.4,26.2 138.8,25.8 139.1,26.2 139.5,27.0 139.8,27.8 140.2,29.7 140.5,29.4 140.9,28.5 141.3,28.2 141.6,29.7 142.0,31.1 142.3,31.7 142.7,33.5 143.0,34.8 143.4,34.6 143.7,31.0 144.1,28.6 144.4,28.7 144.8,29.7 145.2,26.5 145.5,22.1 145.9,21.5 146.2,24.3 146.6,27.1 146.9,25.5 147.3,23.4 147.6,21.7 148.0,23.3 148.4,25.2 148.7,26.7 149.1,27.9 149.4,27.7 149.8,27.9 150.1,27.0 150.5,26.8 150.8,26.9 151.2,26.2 151.5,26.3 151.9,26.1 152.3,25.4 152.6,25.5 153.0,25.4 153.3,24.6 153.7,23.2 154.0,22.0 154.4,22.6 154.7,23.4 155.1,24.3 155.4,25.6 155.8,25.4 156.2,25.3 156.5,25.9 156.9,23.7 157.2,21.2 157.6,18.9 157.9,21.1 158.3,23.3 158.6,25.1 159.0,26.5 159.4,27.6 159.7,28.5 160.1,29.3 160.4,29.9 160.8,30.5 161.1,31.0 161.5,31.4 161.8,29.8 162.2,28.1 162.5,27.0 162.9,25.2 163.3,24.4 163.6,23.8 164.0,26.3 164.3,28.0 164.7,29.2 165.0,30.2 165.4,29.7 165.7,29.6 166.1,28.6 166.5,29.4 166.8,30.0 167.2,31.6 167.5,32.6 167.9,33.2 168.2,33.6 168.6,33.9 168.9,34.1 169.3,34.3 169.6,33.2 170.0,32.7 170.0,37.2 169.6,37.8 169.3,38.8 168.9,38.6 168.6,38.4 168.2,38.1 167.9,37.7 167.5,37.1 167.2,36.1 166.8,34.5 166.5,33.9 166.1,33.1 165.7,34.1 165.4,34.2 165.0,34.7 164.7,33.8 164.3,32.5 164.0,30.8 163.6,28.3 163.3,29.0 162.9,29.7 162.5,31.5 162.2,32.7 161.8,34.3 161.5,36.0 161.1,35.5 160.8,35.0 160.4,34.4 160.1,33.8 159.7,33.0 159.4,32.1 159.0,31.0 158.6,29.6 158.3,27.8 157.9,25.7 157.6,23.4 157.2,25.7 156.9,28.2 156.5,30.5 156.2,29.8 155.8,29.9 155.4,30.2 155.1,28.8 154.7,27.9 154.4,27.1 154.0,26.5 153.7,27.8 153.3,29.2 153.0,29.9 152.6,30.0 152.3,30.0 151.9,30.6 151.5,30.9 151.2,30.7 150.8,31.4 150.5,31.3 150.1,31.5 149.8,32.4 149.4,32.2 149.1,32.5 148.7,31.3 148.4,29.8 148.0,27.8 147.6,26.3 147.3,27.9 146.9,30.1 146.6,31.7 146.2,28.8 145.9,26.0 145.5,26.6 145.2,31.0 144.8,34.3 144.4,33.2 144.1,33.1 143.7,35.5 143.4,39.1 143.0,39.3 142.7,38.0 142.3,36.3 142.0,35.7 141.6,34.2 141.3,32.8 140.9,33.1 140.5,34.0 140.2,34.2 139.8,32.3 139.5,31.5 139.1,30.8 138.8,30.3 138.4,30.7 138.1,33.0 137.7,33.6 137.3,32.4 137.0,32.6 136.6,33.0 136.3,32.8 135.9,30.8 135.6,29.2 135.2,28.1 134.9,29.1 134.5,31.7 134.2,35.2 133.8,36.3 133.4,36.2 133.1,36.0 132.7,35.8 132.4,35.6 132.0,35.2 131.7,34.7 131.3,33.9 131.0,32.5 130.6,32.5 130.3,32.6 129.9,33.0 129.5,31.9 129.2,30.0 128.8,29.2 128.5,27.9 128.1,28.5 127.8,27.8 127.4,27.4 127.1,31.0 126.7,33.9 126.3,35.7 126.0,34.2 125.6,33.8 125.3,35.1 124.9,34.8 124.6,34.2 124.2,33.4 123.9,32.0 123.5,31.9 123.2,32.0 122.8,32.5 122.4,31.4 122.1,29.6 121.7,29.0 121.4,28.1 121.0,27.0 120.7,25.4 120.3,25.3 120.0,25.7 119.6,25.0 119.2,22.4 118.9,21.6 118.5,21.6 118.2,22.7 117.8,22.6 117.5,26.0 117.1,29.2 116.8,31.9 116.4,31.5 116.1,30.9 115.7,30.1 115.3,27.4 115.0,25.6 114.6,27.8 114.3,30.5 113.9,32.2 113.6,34.1 113.2,35.7 112.9,36.0 112.5,35.4 112.2,35.7 111.8,37.5 111.4,36.3 111.1,36.3 110.7,36.6 110.4,37.5 110.0,37.0 109.7,36.2 109.3,35.2 109.0,33.4 108.6,32.9 108.2,32.4 107.9,32.2 107.5,30.3 107.2,27.7 106.8,25.4 106.5,29.1 106.1,34.9 105.8,40.7 105.4,41.0 105.1,39.4 104.7,39.2 104.3,39.1 104.0,39.5 103.6,38.3 103.3,36.8 102.9,34.7 102.6,31.5 102.2,30.9 101.9,31.0 101.5,31.9 101.1,31.1 100.8,31.4 100.4,32.0 100.1,31.7 99.7,32.3 99.4,32.4 99.0,32.4 98.7,32.9 98.3,33.7 98.0,34.3 97.6,31.4 97.2,29.6 96.9,28.0 96.5,28.9 96.2,29.0 95.8,29.0 95.5,28.7 95.1,28.2 94.8,27.7 94.4,31.4 94.1,34.3 93.7,36.1 93.3,34.6 93.0,34.1 92.6,35.3 92.3,34.6 91.9,33.3 91.6,33.4 91.2,33.8 90.9,34.7 90.5,34.4 90.1,34.1 89.8,33.7 89.4,33.3 89.1,32.8 88.7,32.2 88.4,31.5 88.0,30.7 87.7,29.6 87.3,28.3 87.0,26.6 86.6,30.1 86.2,32.9 85.9,34.9 85.5,33.2 85.2,32.7 84.8,33.5 84.5,32.9 84.1,32.2 83.8,31.0 83.4,29.2 83.0,28.7 82.7,28.2 82.3,28.0 82.0,26.1 81.6,29.4 81.3,31.8 80.9,33.2 80.6,30.1 80.2,29.1 79.9,29.0 79.5,29.6 79.1,29.0 78.8,28.5 78.4,31.9 78.1,34.4 77.7,35.3 77.4,32.2 77.0,30.9 76.7,33.0 76.3,34.1 75.9,34.4 75.6,33.0 75.2,31.1 74.9,28.5 74.5,35.3 74.2,43.0 73.8,51.9 73.5,51.9 73.1,51.8 72.8,51.8 72.4,51.8 72.0,51.8 71.7,51.8 71.3,51.8 71.0,51.8 70.6,51.7 70.3,51.7 69.9,51.7 69.6,51.7 69.2,51.6 68.9,51.6 68.5,51.5 68.1,51.5 67.8,51.5 67.4,51.4 67.1,51.4 66.7,51.3 66.4,51.2 66.0,51.1 65.7,51.0 65.3,50.9 64.9,50.7 64.6,50.5 64.2,50.2 63.9,48.7 63.5,46.9 63.2,44.5 62.8,44.3 62.5,44.3 62.1,44.6 61.8,43.3 61.4,41.9 61.0,39.7 60.7,36.3 60.3,38.6 60.0,42.0 59.6,47.2 59.3,47.0 58.9,46.8 58.6,46.4 58.2,45.8 57.8,44.8 57.5,43.1 57.1,42.5 56.8,41.4 56.4,42.1 56.1,41.2 55.7,42.1 55.4,41.9 55.0,42.0 54.7,40.2 54.3,39.6 53.9,39.1 53.6,38.6 53.2,36.2 52.9,34.8 52.5,33.8 52.2,33.8 51.8,33.0 51.5,31.8 51.1,31.9 50.8,32.1 50.4,32.5 50.0,30.9 49.7,27.4 49.3,26.6 49.0,26.2 48.6,28.4 48.3,28.0 47.9,28.9 47.6,29.0 47.2,28.9 46.8,27.3 46.5,26.2 46.1,25.6 45.8,25.4 45.4,28.0 45.1,30.2 44.7,32.0 44.4,31.9 44.0,31.9 43.7,32.3 43.3,31.5 42.9,30.4 42.6,28.7 42.2,28.2 41.9,27.9 41.5,27.9 41.2,26.2 40.8,23.8 40.5,22.5 40.1,21.9 39.7,26.1 39.4,29.3 39.0,31.9 38.7,29.3 38.3,26.5 38.0,23.3 37.6,22.3 37.3,21.9 36.9,22.6 36.6,26.1 36.2,29.3 35.8,32.0 35.5,28.5 35.1,25.3 34.8,22.7 34.4,22.5 34.1,25.9 33.7,29.0 33.4,31.4 33.0,31.2 32.7,30.8 32.3,28.6 31.9,25.4 31.6,22.7 31.2,26.0 30.9,29.2 30.5,31.8 30.2,28.1 29.8,28.3 29.5,28.7 29.1,30.8 28.7,26.3 28.4,28.5 28.0,32.6 27.7,38.7 27.3,36.6 27.0,38.0 26.6,40.6 26.3,44.9 25.9,44.8 25.6,44.6 25.2,44.5 24.8,44.3 24.5,44.1 24.1,43.8 23.8,43.5 23.4,43.1 23.1,42.5 22.7,41.5 22.4,39.9 22.0,39.4 21.6,38.7 21.3,37.6 20.9,36.0 20.6,35.7 20.2,35.6 19.9,36.1 19.5,35.3 19.2,34.7 18.8,32.3 18.5,29.8 18.1,29.4 17.7,31.9 17.4,34.8 17.0,36.2 16.7,35.3 16.3,33.8 16.0,33.7 15.6,33.8 15.3,34.3 14.9,33.6 14.6,32.7 14.2,31.6 13.8,30.1 13.5,28.2 13.1,25.9 12.8,23.5 12.4,25.8 12.1,28.4 11.7,30.7 11.4,29.8 11.0,31.0 10.6,32.5 10.3,32.5 9.9,31.4 9.6,29.8 9.2,29.8 8.9,32.8 8.5,35.6 8.2,36.1 7.8,35.6 7.5,36.2 7.1,38.6 6.7,38.3 6.4,38.0 6.0,37.7 5.7,37.3 5.3,36.8 5.0,36.1 4.6,35.2 4.3,34.0 3.9,32.2 3.5,34.1 3.2,34.8 2.8,35.6 2.5,35.6 2.1,37.0 1.8,38.5 1.4,38.8 1.1,39.5 0.7,40.7 0.4,40.7 0.0,40.7" fill="#e0569b" opacity=".92"/><polygon points="0.0,36.2 0.4,36.2 0.7,36.2 1.1,34.9 1.4,34.3 1.8,34.0 2.1,32.5 2.5,31.0 2.8,31.1 3.2,30.2 3.5,29.6 3.9,27.7 4.3,29.4 4.6,30.7 5.0,31.6 5.3,32.2 5.7,32.8 6.0,33.2 6.4,33.5 6.7,33.8 7.1,34.0 7.5,31.7 7.8,31.1 8.2,31.6 8.5,31.1 8.9,28.2 9.2,25.3 9.6,25.3 9.9,26.8 10.3,28.0 10.6,28.0 11.0,26.5 11.4,25.3 11.7,26.2 12.1,23.8 12.4,21.3 12.8,19.0 13.1,21.4 13.5,23.7 13.8,25.6 14.2,27.0 14.6,28.2 14.9,29.1 15.3,29.8 15.6,29.2 16.0,29.2 16.3,29.3 16.7,30.8 17.0,31.7 17.4,30.3 17.7,27.4 18.1,24.9 18.5,25.3 18.8,27.7 19.2,30.1 19.5,30.8 19.9,31.6 20.2,31.1 20.6,31.2 20.9,31.5 21.3,33.1 21.6,34.1 22.0,34.9 22.4,35.4 22.7,37.0 23.1,38.0 23.4,38.6 23.8,39.0 24.1,39.3 24.5,39.5 24.8,39.8 25.2,39.9 25.6,40.1 25.9,40.2 26.3,40.4 26.6,36.0 27.0,33.5 27.3,32.1 27.7,34.2 28.0,28.1 28.4,24.0 28.7,21.7 29.1,26.3 29.5,24.2 29.8,23.8 30.2,23.6 30.5,27.3 30.9,24.7 31.2,21.5 31.6,18.2 31.9,20.9 32.3,24.1 32.7,26.2 33.0,26.7 33.4,26.9 33.7,24.5 34.1,21.4 34.4,18.0 34.8,18.2 35.1,20.8 35.5,24.0 35.8,27.5 36.2,24.8 36.6,21.5 36.9,18.1 37.3,17.4 37.6,17.7 38.0,18.8 38.3,22.0 38.7,24.8 39.0,27.3 39.4,24.8 39.7,21.6 40.1,17.4 40.5,18.0 40.8,19.3 41.2,21.7 41.5,23.3 41.9,23.4 42.2,23.7 42.6,24.2 42.9,25.9 43.3,27.0 43.7,27.8 44.0,27.4 44.4,27.4 44.7,27.5 45.1,25.7 45.4,23.4 45.8,20.9 46.1,21.0 46.5,21.7 46.8,22.8 47.2,24.3 47.6,24.4 47.9,24.3 48.3,23.5 48.6,23.9 49.0,21.7 49.3,22.0 49.7,22.9 50.0,26.4 50.4,28.0 50.8,27.6 51.1,27.4 51.5,27.3 51.8,28.4 52.2,29.3 52.5,29.3 52.9,30.3 53.2,31.7 53.6,34.1 53.9,34.5 54.3,35.1 54.7,35.7 55.0,37.5 55.4,37.4 55.7,37.6 56.1,36.6 56.4,37.5 56.8,36.9 57.1,38.0 57.5,38.6 57.8,40.3 58.2,41.3 58.6,41.8 58.9,42.2 59.3,42.5 59.6,42.7 60.0,37.5 60.3,34.1 60.7,31.7 61.0,35.2 61.4,37.4 61.8,38.8 62.1,40.1 62.5,39.8 62.8,39.8 63.2,40.0 63.5,43.1 63.9,45.7 64.2,47.9 64.6,48.2 64.9,48.5 65.3,48.6 65.7,48.8 66.0,48.9 66.4,49.0 66.7,49.0 67.1,49.1 67.4,49.1 67.8,49.2 68.1,49.2 68.5,49.3 68.9,49.3 69.2,49.4 69.6,49.4 69.9,49.4 70.3,49.4 70.6,49.5 71.0,49.5 71.3,49.5 71.7,49.5 72.0,49.5 72.4,49.6 72.8,49.6 73.1,49.6 73.5,49.6 73.8,49.6 74.2,40.0 74.5,31.6 74.9,24.0 75.2,26.6 75.6,28.5 75.9,29.8 76.3,29.6 76.7,28.4 77.0,26.4 77.4,27.7 77.7,30.8 78.1,29.9 78.4,27.4 78.8,23.9 79.1,24.4 79.5,25.1 79.9,24.5 80.2,24.6 80.6,25.5 80.9,28.7 81.3,27.2 81.6,24.9 82.0,21.6 82.3,23.5 82.7,23.7 83.0,24.1 83.4,24.7 83.8,26.5 84.1,27.6 84.5,28.4 84.8,29.0 85.2,28.2 85.5,28.7 85.9,30.3 86.2,28.3 86.6,25.5 87.0,21.9 87.3,23.6 87.7,25.0 88.0,26.0 88.4,26.8 88.7,27.5 89.1,28.1 89.4,28.6 89.8,29.0 90.1,29.3 90.5,29.6 90.9,29.9 91.2,28.9 91.6,28.5 91.9,28.4 92.3,29.6 92.6,30.3 93.0,29.2 93.3,29.6 93.7,31.1 94.1,29.3 94.4,26.3 94.8,22.7 95.1,23.1 95.5,23.6 95.8,23.8 96.2,23.9 96.5,23.8 96.9,22.8 97.2,24.4 97.6,26.1 98.0,29.0 98.3,28.4 98.7,27.6 99.0,27.1 99.4,27.0 99.7,26.9 100.1,26.3 100.4,26.6 100.8,25.9 101.1,25.6 101.5,26.3 101.9,25.4 102.2,25.3 102.6,25.9 102.9,29.0 103.3,31.1 103.6,32.6 104.0,33.7 104.3,33.3 104.7,33.4 105.1,33.6 105.4,35.1 105.8,34.8 106.1,29.0 106.5,23.2 106.8,19.5 107.2,21.7 107.5,24.2 107.9,26.1 108.2,26.3 108.6,26.7 109.0,27.2 109.3,28.9 109.7,30.0 110.0,30.7 110.4,31.2 110.7,30.3 111.1,29.9 111.4,29.8 111.8,31.1 112.2,29.2 112.5,28.8 112.9,29.4 113.2,29.0 113.6,27.5 113.9,25.4 114.3,23.8 114.6,21.1 115.0,18.8 115.3,20.5 115.7,23.2 116.1,23.9 116.4,24.5 116.8,24.8 117.1,22.1 117.5,18.9 117.8,15.4 118.2,15.5 118.5,14.3 118.9,14.3 119.2,15.0 119.6,17.6 120.0,18.2 120.3,17.7 120.7,17.8 121.0,19.4 121.4,20.4 121.7,21.2 122.1,21.8 122.4,23.5 122.8,24.6 123.2,24.0 123.5,23.9 123.9,23.9 124.2,25.2 124.6,26.0 124.9,26.5 125.3,26.8 125.6,25.4 126.0,25.7 126.3,27.2 126.7,25.3 127.1,22.3 127.4,18.7 127.8,19.0 128.1,19.6 128.5,19.0 128.8,20.1 129.2,20.9 129.5,22.7 129.9,23.8 130.3,23.2 130.6,23.1 131.0,23.1 131.3,24.4 131.7,25.1 132.0,25.6 132.4,25.9 132.7,26.1 133.1,26.3 133.4,26.4 133.8,26.5 134.2,25.4 134.5,21.8 134.9,19.1 135.2,18.1 135.6,19.2 135.9,20.7 136.3,22.6 136.6,22.9 137.0,22.4 137.3,22.2 137.7,23.3 138.1,22.7 138.4,20.3 138.8,20.0 139.1,20.3 139.5,21.1 139.8,21.8 140.2,23.7 140.5,23.4 140.9,22.4 141.3,22.1 141.6,23.5 142.0,24.9 142.3,25.5 142.7,27.2 143.0,28.4 143.4,28.2 143.7,24.6 144.1,22.2 144.4,22.2 144.8,23.2 145.2,19.9 145.5,15.5 145.9,14.8 146.2,17.6 146.6,20.4 146.9,18.8 147.3,16.6 147.6,14.9 148.0,16.4 148.4,18.3 148.7,19.8 149.1,20.9 149.4,20.7 149.8,20.8 150.1,19.9 150.5,19.6 150.8,19.7 151.2,19.0 151.5,19.1 151.9,18.8 152.3,18.1 152.6,18.1 153.0,18.0 153.3,17.2 153.7,15.7 154.0,14.4 154.4,15.0 154.7,15.8 155.1,16.7 155.4,17.9 155.8,17.7 156.2,17.5 156.5,18.1 156.9,15.9 157.2,13.3 157.6,11.0 157.9,13.2 158.3,15.3 158.6,17.0 159.0,18.4 159.4,19.5 159.7,20.3 160.1,21.1 160.4,21.7 160.8,22.2 161.1,22.7 161.5,23.1 161.8,21.4 162.2,19.7 162.5,18.5 162.9,16.7 163.3,15.9 163.6,15.2 164.0,17.7 164.3,19.4 164.7,20.5 165.0,21.4 165.4,20.9 165.7,20.8 166.1,19.7 166.5,20.5 166.8,21.0 167.2,22.6 167.5,23.6 167.9,24.1 168.2,24.5 168.6,24.7 168.9,24.9 169.3,25.1 169.6,24.0 170.0,23.4 170.0,32.7 169.6,33.2 169.3,34.3 168.9,34.1 168.6,33.9 168.2,33.6 167.9,33.2 167.5,32.6 167.2,31.6 166.8,30.0 166.5,29.4 166.1,28.6 165.7,29.6 165.4,29.7 165.0,30.2 164.7,29.2 164.3,28.0 164.0,26.3 163.6,23.8 163.3,24.4 162.9,25.2 162.5,27.0 162.2,28.1 161.8,29.8 161.5,31.4 161.1,31.0 160.8,30.5 160.4,29.9 160.1,29.3 159.7,28.5 159.4,27.6 159.0,26.5 158.6,25.1 158.3,23.3 157.9,21.1 157.6,18.9 157.2,21.2 156.9,23.7 156.5,25.9 156.2,25.3 155.8,25.4 155.4,25.6 155.1,24.3 154.7,23.4 154.4,22.6 154.0,22.0 153.7,23.2 153.3,24.6 153.0,25.4 152.6,25.5 152.3,25.4 151.9,26.1 151.5,26.3 151.2,26.2 150.8,26.9 150.5,26.8 150.1,27.0 149.8,27.9 149.4,27.7 149.1,27.9 148.7,26.7 148.4,25.2 148.0,23.3 147.6,21.7 147.3,23.4 146.9,25.5 146.6,27.1 146.2,24.3 145.9,21.5 145.5,22.1 145.2,26.5 144.8,29.7 144.4,28.7 144.1,28.6 143.7,31.0 143.4,34.6 143.0,34.8 142.7,33.5 142.3,31.7 142.0,31.1 141.6,29.7 141.3,28.2 140.9,28.5 140.5,29.4 140.2,29.7 139.8,27.8 139.5,27.0 139.1,26.2 138.8,25.8 138.4,26.2 138.1,28.5 137.7,29.0 137.3,27.9 137.0,28.1 136.6,28.5 136.3,28.2 135.9,26.2 135.6,24.7 135.2,23.6 134.9,24.6 134.5,27.2 134.2,30.7 133.8,31.8 133.4,31.7 133.1,31.5 132.7,31.3 132.4,31.0 132.0,30.7 131.7,30.2 131.3,29.4 131.0,28.0 130.6,27.9 130.3,28.0 129.9,28.5 129.5,27.4 129.2,25.5 128.8,24.6 128.5,23.4 128.1,24.0 127.8,23.3 127.4,22.9 127.1,26.5 126.7,29.4 126.3,31.2 126.0,29.7 125.6,29.3 125.3,30.6 124.9,30.2 124.6,29.7 124.2,28.9 123.9,27.5 123.5,27.4 123.2,27.5 122.8,27.9 122.4,26.9 122.1,25.1 121.7,24.4 121.4,23.6 121.0,22.5 120.7,20.9 120.3,20.7 120.0,21.2 119.6,20.5 119.2,17.9 118.9,17.1 118.5,17.1 118.2,18.2 117.8,18.0 117.5,21.5 117.1,24.7 116.8,27.3 116.4,27.0 116.1,26.4 115.7,25.5 115.3,22.8 115.0,21.1 114.6,23.3 114.3,26.0 113.9,27.6 113.6,29.6 113.2,31.1 112.9,31.5 112.5,30.8 112.2,31.2 111.8,33.0 111.4,31.7 111.1,31.8 110.7,32.1 110.4,32.9 110.0,32.4 109.7,31.7 109.3,30.6 109.0,28.9 108.6,28.4 108.2,27.9 107.9,27.7 107.5,25.7 107.2,23.2 106.8,20.9 106.5,24.6 106.1,30.4 105.8,36.2 105.4,36.4 105.1,34.9 104.7,34.6 104.3,34.6 104.0,34.9 103.6,33.8 103.3,32.3 102.9,30.2 102.6,27.0 102.2,26.4 101.9,26.4 101.5,27.3 101.1,26.6 100.8,26.9 100.4,27.5 100.1,27.2 99.7,27.8 99.4,27.9 99.0,27.9 98.7,28.4 98.3,29.2 98.0,29.7 97.6,26.9 97.2,25.1 96.9,23.5 96.5,24.4 96.2,24.5 95.8,24.4 95.5,24.1 95.1,23.6 94.8,23.2 94.4,26.8 94.1,29.8 93.7,31.6 93.3,30.0 93.0,29.6 92.6,30.8 92.3,30.0 91.9,28.8 91.6,28.9 91.2,29.3 90.9,30.2 90.5,29.9 90.1,29.6 89.8,29.2 89.4,28.8 89.1,28.3 88.7,27.7 88.4,27.0 88.0,26.1 87.7,25.1 87.3,23.8 87.0,22.0 86.6,25.5 86.2,28.4 85.9,30.3 85.5,28.7 85.2,28.2 84.8,29.0 84.5,28.4 84.1,27.6 83.8,26.5 83.4,24.7 83.0,24.1 82.7,23.7 82.3,23.5 82.0,21.6 81.6,24.9 81.3,27.2 80.9,28.7 80.6,25.5 80.2,24.6 79.9,24.5 79.5,25.1 79.1,24.4 78.8,23.9 78.4,27.4 78.1,29.9 77.7,30.8 77.4,27.7 77.0,26.4 76.7,28.4 76.3,29.6 75.9,29.8 75.6,28.5 75.2,26.6 74.9,24.0 74.5,31.6 74.2,40.0 73.8,49.6 73.5,49.6 73.1,49.6 72.8,49.6 72.4,49.6 72.0,49.5 71.7,49.5 71.3,49.5 71.0,49.5 70.6,49.5 70.3,49.4 69.9,49.4 69.6,49.4 69.2,49.4 68.9,49.3 68.5,49.3 68.1,49.2 67.8,49.2 67.4,49.1 67.1,49.1 66.7,49.0 66.4,49.0 66.0,48.9 65.7,48.8 65.3,48.6 64.9,48.5 64.6,48.2 64.2,47.9 63.9,45.7 63.5,43.1 63.2,40.0 62.8,39.8 62.5,39.8 62.1,40.1 61.8,38.8 61.4,37.4 61.0,35.2 60.7,31.7 60.3,34.1 60.0,37.5 59.6,42.7 59.3,42.5 58.9,42.2 58.6,41.8 58.2,41.3 57.8,40.3 57.5,38.6 57.1,38.0 56.8,36.9 56.4,37.5 56.1,36.6 55.7,37.6 55.4,37.4 55.0,37.5 54.7,35.7 54.3,35.1 53.9,34.5 53.6,34.1 53.2,31.7 52.9,30.3 52.5,29.3 52.2,29.3 51.8,28.4 51.5,27.3 51.1,27.4 50.8,27.6 50.4,28.0 50.0,26.4 49.7,22.9 49.3,22.0 49.0,21.7 48.6,23.9 48.3,23.5 47.9,24.3 47.6,24.4 47.2,24.3 46.8,22.8 46.5,21.7 46.1,21.0 45.8,20.9 45.4,23.4 45.1,25.7 44.7,27.5 44.4,27.4 44.0,27.4 43.7,27.8 43.3,27.0 42.9,25.9 42.6,24.2 42.2,23.7 41.9,23.4 41.5,23.3 41.2,21.7 40.8,19.3 40.5,18.0 40.1,17.4 39.7,21.6 39.4,24.8 39.0,27.3 38.7,24.8 38.3,22.0 38.0,18.8 37.6,17.7 37.3,17.4 36.9,18.1 36.6,21.5 36.2,24.8 35.8,27.5 35.5,24.0 35.1,20.8 34.8,18.2 34.4,18.0 34.1,21.4 33.7,24.5 33.4,26.9 33.0,26.7 32.7,26.2 32.3,24.1 31.9,20.9 31.6,18.2 31.2,21.5 30.9,24.7 30.5,27.3 30.2,23.6 29.8,23.8 29.5,24.2 29.1,26.3 28.7,21.7 28.4,24.0 28.0,28.1 27.7,34.2 27.3,32.1 27.0,33.5 26.6,36.0 26.3,40.4 25.9,40.2 25.6,40.1 25.2,39.9 24.8,39.8 24.5,39.5 24.1,39.3 23.8,39.0 23.4,38.6 23.1,38.0 22.7,37.0 22.4,35.4 22.0,34.9 21.6,34.1 21.3,33.1 20.9,31.5 20.6,31.2 20.2,31.1 19.9,31.6 19.5,30.8 19.2,30.1 18.8,27.7 18.5,25.3 18.1,24.9 17.7,27.4 17.4,30.3 17.0,31.7 16.7,30.8 16.3,29.3 16.0,29.2 15.6,29.2 15.3,29.8 14.9,29.1 14.6,28.2 14.2,27.0 13.8,25.6 13.5,23.7 13.1,21.4 12.8,19.0 12.4,21.3 12.1,23.8 11.7,26.2 11.4,25.3 11.0,26.5 10.6,28.0 10.3,28.0 9.9,26.8 9.6,25.3 9.2,25.3 8.9,28.2 8.5,31.1 8.2,31.6 7.8,31.1 7.5,31.7 7.1,34.0 6.7,33.8 6.4,33.5 6.0,33.2 5.7,32.8 5.3,32.2 5.0,31.6 4.6,30.7 4.3,29.4 3.9,27.7 3.5,29.6 3.2,30.2 2.8,31.1 2.5,31.0 2.1,32.5 1.8,34.0 1.4,34.3 1.1,34.9 0.7,36.2 0.4,36.2 0.0,36.2" fill="#7b4fc9" opacity=".92"/><polygon points="0.0,36.1 0.4,36.1 0.7,36.1 1.1,34.9 1.4,34.2 1.8,33.9 2.1,32.3 2.5,30.8 2.8,30.8 3.2,30.0 3.5,29.3 3.9,27.4 4.3,29.1 4.6,30.3 5.0,31.1 5.3,31.8 5.7,32.3 6.0,32.7 6.4,33.0 6.7,33.2 7.1,33.4 7.5,31.1 7.8,30.4 8.2,30.9 8.5,30.4 8.9,27.5 9.2,24.5 9.6,24.4 9.9,26.0 10.3,27.1 10.6,27.1 11.0,25.5 11.4,24.3 11.7,25.2 12.1,22.8 12.4,20.2 12.8,17.9 13.1,20.3 13.5,22.5 13.8,24.4 14.2,25.8 14.6,26.9 14.9,27.8 15.3,28.5 15.6,27.9 16.0,27.8 16.3,27.9 16.7,29.3 17.0,30.2 17.4,28.8 17.7,25.9 18.1,23.3 18.5,23.7 18.8,26.1 19.2,28.5 19.5,29.1 19.9,29.8 20.2,29.4 20.6,29.4 20.9,29.7 21.3,31.3 21.6,32.3 22.0,33.0 22.4,33.5 22.7,35.1 23.1,36.0 23.4,36.6 23.8,37.0 24.1,37.3 24.5,37.5 24.8,37.7 25.2,37.9 25.6,38.0 25.9,38.1 26.3,38.2 26.6,33.9 27.0,31.3 27.3,29.9 27.7,31.9 28.0,25.8 28.4,21.7 28.7,19.4 29.1,24.0 29.5,21.8 29.8,21.4 30.2,21.2 30.5,24.8 30.9,22.2 31.2,19.0 31.6,15.6 31.9,18.3 32.3,21.5 32.7,23.6 33.0,24.0 33.4,24.2 33.7,21.8 34.1,18.7 34.4,15.2 34.8,15.4 35.1,18.0 35.5,21.1 35.8,24.6 36.2,21.9 36.6,18.6 36.9,15.1 37.3,14.4 37.6,14.7 38.0,15.7 38.3,18.9 38.7,21.7 39.0,24.2 39.4,21.6 39.7,18.4 40.1,14.1 40.5,14.7 40.8,16.0 41.2,18.4 41.5,20.0 41.9,20.0 42.2,20.3 42.6,20.7 42.9,22.4 43.3,23.5 43.7,24.3 44.0,23.9 44.4,23.8 44.7,23.9 45.1,22.1 45.4,19.8 45.8,17.3 46.1,17.4 46.5,18.0 46.8,19.1 47.2,20.6 47.6,20.7 47.9,20.5 48.3,19.7 48.6,20.0 49.0,17.8 49.3,18.1 49.7,19.0 50.0,22.5 50.4,24.0 50.8,23.6 51.1,23.4 51.5,23.3 51.8,24.4 52.2,25.2 52.5,25.2 52.9,26.2 53.2,27.6 53.6,30.0 53.9,30.4 54.3,30.9 54.7,31.5 55.0,33.3 55.4,33.2 55.7,33.4 56.1,32.4 56.4,33.3 56.8,32.6 57.1,33.7 57.5,34.3 57.8,36.0 58.2,36.9 58.6,37.5 58.9,37.9 59.3,38.1 59.6,38.3 60.0,33.1 60.3,29.6 60.7,27.3 61.0,30.7 61.4,32.9 61.8,34.3 62.1,35.5 62.5,35.2 62.8,35.3 63.2,35.4 63.5,38.6 63.9,41.2 64.2,43.6 64.6,44.3 64.9,44.8 65.3,45.2 65.7,45.5 66.0,45.9 66.4,46.2 66.7,46.4 67.1,46.7 67.4,46.9 67.8,47.1 68.1,47.3 68.5,47.5 68.9,47.6 69.2,47.8 69.6,47.9 69.9,48.1 70.3,48.2 70.6,48.3 71.0,48.4 71.3,48.5 71.7,48.6 72.0,48.7 72.4,48.7 72.8,48.8 73.1,48.9 73.5,48.9 73.8,49.0 74.2,39.4 74.5,31.0 74.9,23.4 75.2,26.0 75.6,27.8 75.9,29.2 76.3,28.9 76.7,27.7 77.0,25.6 77.4,26.8 77.7,30.0 78.1,29.0 78.4,26.5 78.8,23.0 79.1,23.5 79.5,24.1 79.9,23.4 80.2,23.5 80.6,24.4 80.9,27.5 81.3,26.1 81.6,23.7 82.0,20.4 82.3,22.2 82.7,22.4 83.0,22.8 83.4,23.3 83.8,25.1 84.1,26.2 84.5,27.0 84.8,27.5 85.2,26.6 85.5,27.1 85.9,28.7 86.2,26.7 86.6,23.8 87.0,20.3 87.3,21.9 87.7,23.2 88.0,24.2 88.4,25.0 88.7,25.7 89.1,26.2 89.4,26.7 89.8,27.1 90.1,27.4 90.5,27.7 90.9,27.9 91.2,26.9 91.6,26.5 91.9,26.3 92.3,27.5 92.6,28.2 93.0,27.0 93.3,27.4 93.7,28.9 94.1,27.0 94.4,24.1 94.8,20.4 95.1,20.8 95.5,21.2 95.8,21.4 96.2,21.4 96.5,21.3 96.9,20.4 97.2,21.9 97.6,23.6 98.0,26.4 98.3,25.8 98.7,25.0 99.0,24.5 99.4,24.3 99.7,24.3 100.1,23.6 100.4,23.8 100.8,23.2 101.1,22.8 101.5,23.5 101.9,22.6 102.2,22.5 102.6,23.0 102.9,26.1 103.3,28.2 103.6,29.6 104.0,30.7 104.3,30.3 104.7,30.3 105.1,30.5 105.4,32.0 105.8,31.7 106.1,25.8 106.5,20.0 106.8,16.3 107.2,18.5 107.5,21.0 107.9,22.9 108.2,23.0 108.6,23.4 109.0,23.9 109.3,25.6 109.7,26.6 110.0,27.3 110.4,27.7 110.7,26.8 111.1,26.5 111.4,26.3 111.8,27.5 112.2,25.7 112.5,25.3 112.9,25.9 113.2,25.4 113.6,23.8 113.9,21.8 114.3,20.1 114.6,17.4 115.0,15.1 115.3,16.8 115.7,19.4 116.1,20.1 116.4,20.7 116.8,21.0 117.1,18.3 117.5,15.0 117.8,11.5 118.2,11.5 118.5,10.3 118.9,10.3 119.2,11.0 119.6,13.6 120.0,14.2 120.3,13.6 120.7,13.7 121.0,15.2 121.4,16.3 121.7,17.0 122.1,17.6 122.4,19.3 122.8,20.3 123.2,19.7 123.5,19.6 123.9,19.6 124.2,20.9 124.6,21.6 124.9,22.1 125.3,22.4 125.6,21.0 126.0,21.3 126.3,22.7 126.7,20.8 127.1,17.8 127.4,14.1 127.8,14.5 128.1,15.0 128.5,14.4 128.8,15.5 129.2,16.3 129.5,18.0 129.9,19.1 130.3,18.5 130.6,18.3 131.0,18.3 131.3,19.6 131.7,20.3 132.0,20.8 132.4,21.0 132.7,21.2 133.1,21.4 133.4,21.5 133.8,21.6 134.2,20.4 134.5,16.9 134.9,14.2 135.2,13.1 135.6,14.1 135.9,15.6 136.3,17.6 136.6,17.8 137.0,17.3 137.3,17.1 137.7,18.2 138.1,17.5 138.4,15.2 138.8,14.8 139.1,15.1 139.5,15.8 139.8,16.6 140.2,18.4 140.5,18.1 140.9,17.1 141.3,16.8 141.6,18.1 142.0,19.6 142.3,20.1 142.7,21.8 143.0,23.0 143.4,22.8 143.7,19.1 144.1,16.7 144.4,16.7 144.8,17.7 145.2,14.4 145.5,9.9 145.9,9.3 146.2,12.1 146.6,14.8 146.9,13.2 147.3,11.0 147.6,9.3 148.0,10.8 148.4,12.6 148.7,14.1 149.1,15.2 149.4,14.9 149.8,15.0 150.1,14.1 150.5,13.8 150.8,13.9 151.2,13.2 151.5,13.2 151.9,13.0 152.3,12.2 152.6,12.2 153.0,12.1 153.3,11.3 153.7,9.8 154.0,8.5 154.4,9.0 154.7,9.8 155.1,10.6 155.4,11.9 155.8,11.6 156.2,11.5 156.5,12.1 156.9,9.8 157.2,7.2 157.6,4.8 157.9,7.0 158.3,9.1 158.6,10.9 159.0,12.2 159.4,13.3 159.7,14.1 160.1,14.8 160.4,15.4 160.8,16.0 161.1,16.4 161.5,16.8 161.8,15.1 162.2,13.4 162.5,12.2 162.9,10.4 163.3,9.5 163.6,8.9 164.0,11.3 164.3,12.9 164.7,14.1 165.0,15.0 165.4,14.4 165.7,14.3 166.1,13.2 166.5,14.0 166.8,14.5 167.2,16.1 167.5,17.0 167.9,17.6 168.2,17.9 168.6,18.2 168.9,18.4 169.3,18.5 169.6,17.4 170.0,16.8 170.0,23.4 169.6,24.0 169.3,25.1 168.9,24.9 168.6,24.7 168.2,24.5 167.9,24.1 167.5,23.6 167.2,22.6 166.8,21.0 166.5,20.5 166.1,19.7 165.7,20.8 165.4,20.9 165.0,21.4 164.7,20.5 164.3,19.4 164.0,17.7 163.6,15.2 163.3,15.9 162.9,16.7 162.5,18.5 162.2,19.7 161.8,21.4 161.5,23.1 161.1,22.7 160.8,22.2 160.4,21.7 160.1,21.1 159.7,20.3 159.4,19.5 159.0,18.4 158.6,17.0 158.3,15.3 157.9,13.2 157.6,11.0 157.2,13.3 156.9,15.9 156.5,18.1 156.2,17.5 155.8,17.7 155.4,17.9 155.1,16.7 154.7,15.8 154.4,15.0 154.0,14.4 153.7,15.7 153.3,17.2 153.0,18.0 152.6,18.1 152.3,18.1 151.9,18.8 151.5,19.1 151.2,19.0 150.8,19.7 150.5,19.6 150.1,19.9 149.8,20.8 149.4,20.7 149.1,20.9 148.7,19.8 148.4,18.3 148.0,16.4 147.6,14.9 147.3,16.6 146.9,18.8 146.6,20.4 146.2,17.6 145.9,14.8 145.5,15.5 145.2,19.9 144.8,23.2 144.4,22.2 144.1,22.2 143.7,24.6 143.4,28.2 143.0,28.4 142.7,27.2 142.3,25.5 142.0,24.9 141.6,23.5 141.3,22.1 140.9,22.4 140.5,23.4 140.2,23.7 139.8,21.8 139.5,21.1 139.1,20.3 138.8,20.0 138.4,20.3 138.1,22.7 137.7,23.3 137.3,22.2 137.0,22.4 136.6,22.9 136.3,22.6 135.9,20.7 135.6,19.2 135.2,18.1 134.9,19.1 134.5,21.8 134.2,25.4 133.8,26.5 133.4,26.4 133.1,26.3 132.7,26.1 132.4,25.9 132.0,25.6 131.7,25.1 131.3,24.4 131.0,23.1 130.6,23.1 130.3,23.2 129.9,23.8 129.5,22.7 129.2,20.9 128.8,20.1 128.5,19.0 128.1,19.6 127.8,19.0 127.4,18.7 127.1,22.3 126.7,25.3 126.3,27.2 126.0,25.7 125.6,25.4 125.3,26.8 124.9,26.5 124.6,26.0 124.2,25.2 123.9,23.9 123.5,23.9 123.2,24.0 122.8,24.6 122.4,23.5 122.1,21.8 121.7,21.2 121.4,20.4 121.0,19.4 120.7,17.8 120.3,17.7 120.0,18.2 119.6,17.6 119.2,15.0 118.9,14.3 118.5,14.3 118.2,15.5 117.8,15.4 117.5,18.9 117.1,22.1 116.8,24.8 116.4,24.5 116.1,23.9 115.7,23.2 115.3,20.5 115.0,18.8 114.6,21.1 114.3,23.8 113.9,25.4 113.6,27.5 113.2,29.0 112.9,29.4 112.5,28.8 112.2,29.2 111.8,31.1 111.4,29.8 111.1,29.9 110.7,30.3 110.4,31.2 110.0,30.7 109.7,30.0 109.3,28.9 109.0,27.2 108.6,26.7 108.2,26.3 107.9,26.1 107.5,24.2 107.2,21.7 106.8,19.5 106.5,23.2 106.1,29.0 105.8,34.8 105.4,35.1 105.1,33.6 104.7,33.4 104.3,33.3 104.0,33.7 103.6,32.6 103.3,31.1 102.9,29.0 102.6,25.9 102.2,25.3 101.9,25.4 101.5,26.3 101.1,25.6 100.8,25.9 100.4,26.6 100.1,26.3 99.7,26.9 99.4,27.0 99.0,27.1 98.7,27.6 98.3,28.4 98.0,29.0 97.6,26.1 97.2,24.4 96.9,22.8 96.5,23.8 96.2,23.9 95.8,23.8 95.5,23.6 95.1,23.1 94.8,22.7 94.4,26.3 94.1,29.3 93.7,31.1 93.3,29.6 93.0,29.2 92.6,30.3 92.3,29.6 91.9,28.4 91.6,28.5 91.2,28.9 90.9,29.9 90.5,29.6 90.1,29.3 89.8,29.0 89.4,28.6 89.1,28.1 88.7,27.5 88.4,26.8 88.0,26.0 87.7,25.0 87.3,23.6 87.0,21.9 86.6,25.5 86.2,28.3 85.9,30.3 85.5,28.7 85.2,28.2 84.8,29.0 84.5,28.4 84.1,27.6 83.8,26.5 83.4,24.7 83.0,24.1 82.7,23.7 82.3,23.5 82.0,21.6 81.6,24.9 81.3,27.2 80.9,28.7 80.6,25.5 80.2,24.6 79.9,24.5 79.5,25.1 79.1,24.4 78.8,23.9 78.4,27.4 78.1,29.9 77.7,30.8 77.4,27.7 77.0,26.4 76.7,28.4 76.3,29.6 75.9,29.8 75.6,28.5 75.2,26.6 74.9,24.0 74.5,31.6 74.2,40.0 73.8,49.6 73.5,49.6 73.1,49.6 72.8,49.6 72.4,49.6 72.0,49.5 71.7,49.5 71.3,49.5 71.0,49.5 70.6,49.5 70.3,49.4 69.9,49.4 69.6,49.4 69.2,49.4 68.9,49.3 68.5,49.3 68.1,49.2 67.8,49.2 67.4,49.1 67.1,49.1 66.7,49.0 66.4,49.0 66.0,48.9 65.7,48.8 65.3,48.6 64.9,48.5 64.6,48.2 64.2,47.9 63.9,45.7 63.5,43.1 63.2,40.0 62.8,39.8 62.5,39.8 62.1,40.1 61.8,38.8 61.4,37.4 61.0,35.2 60.7,31.7 60.3,34.1 60.0,37.5 59.6,42.7 59.3,42.5 58.9,42.2 58.6,41.8 58.2,41.3 57.8,40.3 57.5,38.6 57.1,38.0 56.8,36.9 56.4,37.5 56.1,36.6 55.7,37.6 55.4,37.4 55.0,37.5 54.7,35.7 54.3,35.1 53.9,34.5 53.6,34.1 53.2,31.7 52.9,30.3 52.5,29.3 52.2,29.3 51.8,28.4 51.5,27.3 51.1,27.4 50.8,27.6 50.4,28.0 50.0,26.4 49.7,22.9 49.3,22.0 49.0,21.7 48.6,23.9 48.3,23.5 47.9,24.3 47.6,24.4 47.2,24.3 46.8,22.8 46.5,21.7 46.1,21.0 45.8,20.9 45.4,23.4 45.1,25.7 44.7,27.5 44.4,27.4 44.0,27.4 43.7,27.8 43.3,27.0 42.9,25.9 42.6,24.2 42.2,23.7 41.9,23.4 41.5,23.3 41.2,21.7 40.8,19.3 40.5,18.0 40.1,17.4 39.7,21.6 39.4,24.8 39.0,27.3 38.7,24.8 38.3,22.0 38.0,18.8 37.6,17.7 37.3,17.4 36.9,18.1 36.6,21.5 36.2,24.8 35.8,27.5 35.5,24.0 35.1,20.8 34.8,18.2 34.4,18.0 34.1,21.4 33.7,24.5 33.4,26.9 33.0,26.7 32.7,26.2 32.3,24.1 31.9,20.9 31.6,18.2 31.2,21.5 30.9,24.7 30.5,27.3 30.2,23.6 29.8,23.8 29.5,24.2 29.1,26.3 28.7,21.7 28.4,24.0 28.0,28.1 27.7,34.2 27.3,32.1 27.0,33.5 26.6,36.0 26.3,40.4 25.9,40.2 25.6,40.1 25.2,39.9 24.8,39.8 24.5,39.5 24.1,39.3 23.8,39.0 23.4,38.6 23.1,38.0 22.7,37.0 22.4,35.4 22.0,34.9 21.6,34.1 21.3,33.1 20.9,31.5 20.6,31.2 20.2,31.1 19.9,31.6 19.5,30.8 19.2,30.1 18.8,27.7 18.5,25.3 18.1,24.9 17.7,27.4 17.4,30.3 17.0,31.7 16.7,30.8 16.3,29.3 16.0,29.2 15.6,29.2 15.3,29.8 14.9,29.1 14.6,28.2 14.2,27.0 13.8,25.6 13.5,23.7 13.1,21.4 12.8,19.0 12.4,21.3 12.1,23.8 11.7,26.2 11.4,25.3 11.0,26.5 10.6,28.0 10.3,28.0 9.9,26.8 9.6,25.3 9.2,25.3 8.9,28.2 8.5,31.1 8.2,31.6 7.8,31.1 7.5,31.7 7.1,34.0 6.7,33.8 6.4,33.5 6.0,33.2 5.7,32.8 5.3,32.2 5.0,31.6 4.6,30.7 4.3,29.4 3.9,27.7 3.5,29.6 3.2,30.2 2.8,31.1 2.5,31.0 2.1,32.5 1.8,34.0 1.4,34.3 1.1,34.9 0.7,36.2 0.4,36.2 0.0,36.2" fill="#2fa37a" opacity=".92"/><line x1="0" x2="170" y1="39.5" y2="39.5" stroke="#2fa37a" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="38.7" text-anchor="end" class="zl" fill="#2fa37a">FOCUS BAND ≥ 0.3</text><line x1="0" x2="170" y1="25.0" y2="25.0" stroke="#d98a1c" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="24.2" text-anchor="end" class="zl" fill="#d98a1c">STRAINED ≥ 0.65</text><line x1="0" x2="170" y1="16.6" y2="16.6" stroke="#e5452f" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="15.8" text-anchor="end" class="zl" fill="#e5452f">OVERLOADED ≥ 0.85</text><text x="0.0" y="55.4" text-anchor="start" class="ax">09:00</text><text x="21.3" y="55.4" text-anchor="middle" class="ax">10:00</text><text x="42.5" y="55.4" text-anchor="middle" class="ax">11:00</text><text x="63.8" y="55.4" text-anchor="middle" class="ax">12:00</text><text x="85.0" y="55.4" text-anchor="middle" class="ax">13:00</text><text x="106.3" y="55.4" text-anchor="middle" class="ax">14:00</text><text x="127.5" y="55.4" text-anchor="middle" class="ax">15:00</text><text x="148.8" y="55.4" text-anchor="middle" class="ax">16:00</text><text x="170.0" y="55.4" text-anchor="end" class="ax">17:00</text><text x="0" y="58.8" class="ax">▬ meeting   <tspan fill="#a8987f">▬ break</tspan></text></svg>
+    <figcaption>FIG. 1 · Prototype run on the sample day (09:00–17:00, three meetings, four tasks, 113 alerts, six open tasks, a 17:00 deadline). Each colour is one driver's share of the load.</figcaption>
+  </figure>
+
+  <div style="display:grid;grid-template-columns:37mm 1fr 68mm;gap:5mm;align-items:center">
+    <div><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block"><circle cx="20" cy="20" r="15" fill="none" stroke="#2f5bd3" stroke-width="6.5" stroke-dasharray="26.9 94.2" stroke-dashoffset="0.0" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="15" fill="none" stroke="#e5452f" stroke-width="6.5" stroke-dasharray="27.9 94.2" stroke-dashoffset="-27.3" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="15" fill="none" stroke="#f2b233" stroke-width="6.5" stroke-dasharray="5.1 94.2" stroke-dashoffset="-55.5" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="15" fill="none" stroke="#e0569b" stroke-width="6.5" stroke-dasharray="14.4 94.2" stroke-dashoffset="-61.0" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="15" fill="none" stroke="#7b4fc9" stroke-width="6.5" stroke-dasharray="6.8 94.2" stroke-dashoffset="-75.8" transform="rotate(-90 20 20)"/><circle cx="20" cy="20" r="15" fill="none" stroke="#2fa37a" stroke-width="6.5" stroke-dasharray="10.8 94.2" stroke-dashoffset="-83.0" transform="rotate(-90 20 20)"/><text x="20" y="19" text-anchor="middle" style="font:800 6px 'Big Shoulders Display',sans-serif;fill:#1c2240">LOAD</text><text x="20" y="24" text-anchor="middle" style="font:500 2.6px 'DM Mono',monospace;fill:#6f6457">BY DRIVER</text></svg></div>
+    <ul class="legend"><li><i style="background:#2f5bd3"></i>Task complexity<b>29%</b></li><li><i style="background:#e5452f"></i>Switching & residue<b>30%</b></li><li><i style="background:#f2b233"></i>Notifications<b>6%</b></li><li><i style="background:#e0569b"></i>Open loops<b>16%</b></li><li><i style="background:#7b4fc9"></i>Deadline pressure<b>8%</b></li><li><i style="background:#2fa37a"></i>Fatigue<b>12%</b></li></ul>
+    <div class="box blue" style="margin:0;font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Reading the sample day</h4>
+      <p style="margin:0">Mean load is <b>0.67</b> and <b>117 minutes</b> sit above 0.85. Switching and residue account for <b>30%</b> of all load, as much as the work itself: the late-morning spikes are switches between code and the report, not hard tasks.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:4mm">
+    <div class="box" style="font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Zones, stated carefully</h4>
+      <p style="margin:0">We shade four bands: under-loaded (&lt; 0.3), focus band, strained (≥ 0.65), overloaded (≥ 0.85). They echo the inverted-U idea that performance peaks at moderate arousal <span class="ref">Yerkes &amp; Dodson 1908</span>, but that "law" has been restated so many ways that it can't be treated as one <span class="ref">Teigen 1994</span>. So the bands are a display convention that calibration moves, not a claim.</p>
+    </div>
+    <div class="box" style="font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Calibration</h4>
+      <p style="margin:0">After a real block of work, a 30-second check-in asks the six raw NASA-TLX questions <span class="ref">Hart 2006</span>. From 8 check-ins on, we fit personal weights by non-negative ridge regression, pulled towards the defaults, and show a bootstrap interval around every curve. Fewer check-ins: defaults, labelled as such.</p>
+    </div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 04 WHAT-IF ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">04 · What-if experiments</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/><circle cx="60" cy="56" r="8" fill="#fff" opacity=".4"/></svg></div>
+  <h2>Try the day <i class="g">before you live it</i></h2>
+  <p class="lead" style="margin-bottom:3mm">The point of a simulator is the counterfactual. Same tasks, same total work, a different arrangement. We ran the prototype on the sample day with three levers from the research, alone and together. These numbers come from stand-in parameters on an invented day: they show the simulator moves in the direction the studies predict, not real effect sizes.</p>
+
+  <figure>
+    <svg viewBox="-1 -1 172 35" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block"><style>.ax{font:500 2.4px 'DM Mono',monospace;fill:#6f6457}.zl{font:700 2.3px 'DM Mono',monospace;letter-spacing:.2px;paint-order:stroke;stroke:#fffaf2;stroke-width:.9px}</style><rect x="0" y="0" width="170" height="30" fill="#fffaf2"/><rect x="0" y="14.4" width="170" height="8.4" fill="#2fa37a" opacity=".08"/><rect x="0" y="0" width="170" height="9.6" fill="#e5452f" opacity=".07"/><polyline points="0.0,20.9 0.4,20.8 0.7,20.8 1.1,20.1 1.4,19.7 1.8,19.5 2.1,18.7 2.5,17.8 2.8,17.8 3.2,17.3 3.5,16.9 3.9,15.8 4.3,16.8 4.6,17.5 5.0,18.0 5.3,18.3 5.7,18.6 6.0,18.8 6.4,19.0 6.7,19.2 7.1,19.3 7.5,17.9 7.8,17.6 8.2,17.8 8.5,17.5 8.9,15.9 9.2,14.1 9.6,14.1 9.9,15.0 10.3,15.6 10.6,15.6 11.0,14.7 11.4,14.0 11.7,14.5 12.1,13.2 12.4,11.6 12.8,10.3 13.1,11.7 13.5,13.0 13.8,14.1 14.2,14.9 14.6,15.5 14.9,16.0 15.3,16.4 15.6,16.1 16.0,16.0 16.3,16.1 16.7,16.9 17.0,17.4 17.4,16.6 17.7,14.9 18.1,13.5 18.5,13.7 18.8,15.1 19.2,16.4 19.5,16.8 19.9,17.2 20.2,16.9 20.6,17.0 20.9,17.1 21.3,18.1 21.6,18.6 22.0,19.0 22.4,19.3 22.7,20.2 23.1,20.8 23.4,21.1 23.8,21.3 24.1,21.5 24.5,21.6 24.8,21.8 25.2,21.8 25.6,21.9 25.9,22.0 26.3,22.1 26.6,19.6 27.0,18.1 27.3,17.2 27.7,18.4 28.0,14.9 28.4,12.5 28.7,11.2 29.1,13.8 29.5,12.6 29.8,12.3 30.2,12.2 30.5,14.3 30.9,12.8 31.2,11.0 31.6,9.0 31.9,10.6 32.3,12.4 32.7,13.6 33.0,13.9 33.4,14.0 33.7,12.6 34.1,10.8 34.4,8.8 34.8,8.9 35.1,10.4 35.5,12.2 35.8,14.2 36.2,12.6 36.6,10.7 36.9,8.7 37.3,8.3 37.6,8.5 38.0,9.1 38.3,10.9 38.7,12.5 39.0,14.0 39.4,12.5 39.7,10.6 40.1,8.2 40.5,8.5 40.8,9.2 41.2,10.6 41.5,11.5 41.9,11.5 42.2,11.7 42.6,12.0 42.9,12.9 43.3,13.6 43.7,14.0 44.0,13.8 44.4,13.7 44.7,13.8 45.1,12.8 45.4,11.4 45.8,10.0 46.1,10.0 46.5,10.4 46.8,11.0 47.2,11.9 47.6,11.9 47.9,11.9 48.3,11.4 48.6,11.6 49.0,10.3 49.3,10.5 49.7,10.9 50.0,13.0 50.4,13.9 50.8,13.6 51.1,13.5 51.5,13.4 51.8,14.1 52.2,14.6 52.5,14.5 52.9,15.1 53.2,15.9 53.6,17.3 53.9,17.5 54.3,17.9 54.7,18.2 55.0,19.2 55.4,19.2 55.7,19.2 56.1,18.7 56.4,19.2 56.8,18.8 57.1,19.4 57.5,19.8 57.8,20.7 58.2,21.3 58.6,21.6 58.9,21.8 59.3,22.0 59.6,22.1 60.0,19.1 60.3,17.1 60.7,15.7 61.0,17.7 61.4,19.0 61.8,19.8 62.1,20.5 62.5,20.3 62.8,20.4 63.2,20.5 63.5,22.3 63.9,23.8 64.2,25.2 64.6,25.5 64.9,25.8 65.3,26.1 65.7,26.3 66.0,26.5 66.4,26.6 66.7,26.8 67.1,26.9 67.4,27.1 67.8,27.2 68.1,27.3 68.5,27.4 68.9,27.5 69.2,27.6 69.6,27.6 69.9,27.7 70.3,27.8 70.6,27.9 71.0,27.9 71.3,28.0 71.7,28.0 72.0,28.1 72.4,28.1 72.8,28.2 73.1,28.2 73.5,28.2 73.8,28.3 74.2,22.7 74.5,17.9 74.9,13.5 75.2,15.0 75.6,16.1 75.9,16.8 76.3,16.7 76.7,16.0 77.0,14.8 77.4,15.5 77.7,17.3 78.1,16.7 78.4,15.3 78.8,13.3 79.1,13.5 79.5,13.9 79.9,13.5 80.2,13.6 80.6,14.1 80.9,15.9 81.3,15.1 81.6,13.7 82.0,11.8 82.3,12.8 82.7,12.9 83.0,13.2 83.4,13.5 83.8,14.5 84.1,15.1 84.5,15.6 84.8,15.9 85.2,15.4 85.5,15.7 85.9,16.6 86.2,15.4 86.6,13.7 87.0,11.7 87.3,12.7 87.7,13.4 88.0,14.0 88.4,14.4 88.7,14.8 89.1,15.1 89.4,15.4 89.8,15.6 90.1,15.8 90.5,16.0 90.9,16.1 91.2,15.5 91.6,15.3 91.9,15.2 92.3,15.9 92.6,16.3 93.0,15.6 93.3,15.8 93.7,16.7 94.1,15.6 94.4,13.9 94.8,11.8 95.1,12.0 95.5,12.2 95.8,12.4 96.2,12.4 96.5,12.3 96.9,11.8 97.2,12.6 97.6,13.6 98.0,15.3 98.3,14.9 98.7,14.4 99.0,14.1 99.4,14.0 99.7,14.0 100.1,13.6 100.4,13.7 100.8,13.4 101.1,13.2 101.5,13.6 101.9,13.0 102.2,13.0 102.6,13.3 102.9,15.1 103.3,16.3 103.6,17.1 104.0,17.7 104.3,17.5 104.7,17.5 105.1,17.6 105.4,18.5 105.8,18.3 106.1,14.9 106.5,11.5 106.8,9.4 107.2,10.7 107.5,12.1 107.9,13.2 108.2,13.3 108.6,13.5 109.0,13.8 109.3,14.8 109.7,15.4 110.0,15.7 110.4,16.0 110.7,15.5 111.1,15.3 111.4,15.2 111.8,15.9 112.2,14.8 112.5,14.6 112.9,14.9 113.2,14.7 113.6,13.8 113.9,12.6 114.3,11.6 114.6,10.0 115.0,8.7 115.3,9.7 115.7,11.2 116.1,11.6 116.4,11.9 116.8,12.1 117.1,10.5 117.5,8.7 117.8,6.6 118.2,6.7 118.5,6.0 118.9,5.9 119.2,6.4 119.6,7.8 120.0,8.2 120.3,7.9 120.7,7.9 121.0,8.8 121.4,9.4 121.7,9.8 122.1,10.2 122.4,11.1 122.8,11.7 123.2,11.4 123.5,11.3 123.9,11.3 124.2,12.0 124.6,12.5 124.9,12.7 125.3,12.9 125.6,12.1 126.0,12.3 126.3,13.1 126.7,12.0 127.1,10.3 127.4,8.2 127.8,8.4 128.1,8.7 128.5,8.3 128.8,8.9 129.2,9.4 129.5,10.4 129.9,11.0 130.3,10.7 130.6,10.6 131.0,10.6 131.3,11.3 131.7,11.7 132.0,12.0 132.4,12.1 132.7,12.2 133.1,12.3 133.4,12.4 133.8,12.4 134.2,11.8 134.5,9.7 134.9,8.2 135.2,7.6 135.6,8.2 135.9,9.0 136.3,10.1 136.6,10.3 137.0,10.0 137.3,9.9 137.7,10.5 138.1,10.1 138.4,8.8 138.8,8.5 139.1,8.7 139.5,9.1 139.8,9.6 140.2,10.6 140.5,10.4 140.9,9.9 141.3,9.7 141.6,10.5 142.0,11.3 142.3,11.6 142.7,12.6 143.0,13.3 143.4,13.1 143.7,11.0 144.1,9.6 144.4,9.6 144.8,10.2 145.2,8.3 145.5,5.7 145.9,5.3 146.2,7.0 146.6,8.6 146.9,7.6 147.3,6.3 147.6,5.3 148.0,6.2 148.4,7.3 148.7,8.1 149.1,8.8 149.4,8.6 149.8,8.7 150.1,8.1 150.5,8.0 150.8,8.0 151.2,7.6 151.5,7.6 151.9,7.5 152.3,7.1 152.6,7.1 153.0,7.0 153.3,6.5 153.7,5.7 154.0,4.9 154.4,5.2 154.7,5.6 155.1,6.1 155.4,6.9 155.8,6.7 156.2,6.6 156.5,7.0 156.9,5.6 157.2,4.2 157.6,2.8 157.9,4.1 158.3,5.2 158.6,6.3 159.0,7.0 159.4,7.7 159.7,8.1 160.1,8.6 160.4,8.9 160.8,9.2 161.1,9.5 161.5,9.7 161.8,8.7 162.2,7.7 162.5,7.0 162.9,6.0 163.3,5.5 163.6,5.1 164.0,6.5 164.3,7.5 164.7,8.1 165.0,8.6 165.4,8.3 165.7,8.3 166.1,7.6 166.5,8.1 166.8,8.4 167.2,9.3 167.5,9.8 167.9,10.1 168.2,10.3 168.6,10.5 168.9,10.6 169.3,10.7 169.6,10.0 170.0,9.7" fill="none" stroke="#1c2240" stroke-width=".35" opacity=".55"/><polyline points="0.0,20.5 0.4,20.5 0.7,20.5 1.1,20.5 1.4,20.5 1.8,20.5 2.1,20.4 2.5,20.4 2.8,20.4 3.2,20.4 3.5,20.4 3.9,20.4 4.3,20.3 4.6,20.3 5.0,20.3 5.3,20.3 5.7,20.3 6.0,20.3 6.4,20.2 6.7,20.2 7.1,20.2 7.5,20.2 7.8,20.2 8.2,20.2 8.5,20.2 8.9,20.1 9.2,20.1 9.6,20.1 9.9,20.1 10.3,20.1 10.6,20.1 11.0,20.1 11.4,20.0 11.7,20.0 12.1,20.0 12.4,20.0 12.8,20.0 13.1,20.0 13.5,19.9 13.8,19.9 14.2,19.9 14.6,19.9 14.9,19.9 15.3,19.9 15.6,19.9 16.0,19.8 16.3,19.8 16.7,19.8 17.0,19.8 17.4,19.8 17.7,19.8 18.1,19.8 18.5,19.7 18.8,19.7 19.2,19.7 19.5,19.7 19.9,19.7 20.2,19.7 20.6,19.7 20.9,19.6 21.3,19.6 21.6,19.6 22.0,19.6 22.4,19.6 22.7,19.6 23.1,19.6 23.4,19.5 23.8,19.5 24.1,19.5 24.5,19.5 24.8,19.5 25.2,19.5 25.6,19.5 25.9,19.5 26.3,19.4 26.6,19.4 27.0,19.4 27.3,19.4 27.7,19.4 28.0,19.4 28.4,19.4 28.7,19.3 29.1,19.3 29.5,19.3 29.8,19.3 30.2,19.3 30.5,19.3 30.9,19.3 31.2,19.3 31.6,19.2 31.9,19.2 32.3,19.2 32.7,19.2 33.0,19.2 33.4,19.2 33.7,19.2 34.1,19.1 34.4,19.1 34.8,19.1 35.1,19.1 35.5,19.1 35.8,19.1 36.2,19.1 36.6,19.1 36.9,19.0 37.3,19.0 37.6,19.0 38.0,19.0 38.3,19.0 38.7,21.9 39.0,24.9 39.4,27.9 39.7,28.0 40.1,28.1 40.5,28.2 40.8,28.3 41.2,28.3 41.5,28.4 41.9,28.5 42.2,23.8 42.6,19.6 42.9,16.1 43.3,15.6 43.7,15.3 44.0,14.7 44.4,16.2 44.7,17.2 45.1,17.9 45.4,18.5 45.8,18.9 46.1,19.3 46.5,19.5 46.8,19.7 47.2,19.9 47.6,20.0 47.9,20.1 48.3,20.2 48.6,20.3 49.0,20.3 49.3,20.4 49.7,20.5 50.0,20.5 50.4,20.5 50.8,20.6 51.1,20.6 51.5,20.6 51.8,20.6 52.2,20.7 52.5,20.7 52.9,20.7 53.2,20.7 53.6,20.7 53.9,20.7 54.3,20.7 54.7,20.7 55.0,20.7 55.4,20.7 55.7,20.7 56.1,20.7 56.4,20.7 56.8,20.7 57.1,20.7 57.5,20.7 57.8,20.7 58.2,20.7 58.6,20.7 58.9,20.7 59.3,20.7 59.6,20.7 60.0,20.7 60.3,20.7 60.7,20.7 61.0,20.7 61.4,20.7 61.8,20.7 62.1,20.6 62.5,20.6 62.8,20.6 63.2,20.6 63.5,23.0 63.9,25.4 64.2,27.9 64.6,28.0 64.9,28.1 65.3,28.2 65.7,28.2 66.0,28.3 66.4,28.4 66.7,28.5 67.1,28.5 67.4,28.6 67.8,28.6 68.1,28.7 68.5,28.7 68.9,28.8 69.2,28.8 69.6,28.8 69.9,28.9 70.3,28.9 70.6,28.9 71.0,29.0 71.3,29.0 71.7,29.0 72.0,29.0 72.4,29.1 72.8,29.1 73.1,29.1 73.5,29.1 73.8,29.1 74.2,25.4 74.5,22.4 74.9,19.9 75.2,21.4 75.6,22.5 75.9,23.2 76.3,23.8 76.7,24.1 77.0,24.4 77.4,24.6 77.7,24.8 78.1,24.8 78.4,24.9 78.8,25.0 79.1,25.0 79.5,25.0 79.9,25.0 80.2,25.0 80.6,25.0 80.9,25.0 81.3,25.0 81.6,25.0 82.0,25.0 82.3,25.0 82.7,25.0 83.0,25.0 83.4,24.9 83.8,24.9 84.1,24.9 84.5,24.9 84.8,21.4 85.2,18.5 85.5,15.8 85.9,16.4 86.2,17.0 86.6,17.8 87.0,19.3 87.3,20.3 87.7,21.1 88.0,21.6 88.4,22.1 88.7,22.4 89.1,22.7 89.4,22.9 89.8,23.1 90.1,23.2 90.5,23.3 90.9,23.4 91.2,23.5 91.6,23.5 91.9,23.6 92.3,23.6 92.6,23.7 93.0,23.7 93.3,23.7 93.7,23.8 94.1,23.8 94.4,23.8 94.8,23.8 95.1,23.8 95.5,21.1 95.8,18.7 96.2,16.8 96.5,18.2 96.9,19.4 97.2,20.3 97.6,21.0 98.0,21.5 98.3,21.8 98.7,22.1 99.0,22.4 99.4,22.5 99.7,22.7 100.1,22.8 100.4,22.9 100.8,22.9 101.1,23.0 101.5,23.0 101.9,23.1 102.2,23.1 102.6,23.1 102.9,23.1 103.3,23.1 103.6,23.1 104.0,23.2 104.3,23.2 104.7,23.2 105.1,23.2 105.4,23.1 105.8,23.1 106.1,20.9 106.5,19.0 106.8,17.7 107.2,19.0 107.5,20.3 107.9,21.2 108.2,21.8 108.6,22.3 109.0,22.7 109.3,23.0 109.7,23.2 110.0,23.3 110.4,23.5 110.7,23.6 111.1,23.7 111.4,23.7 111.8,23.8 112.2,23.8 112.5,23.8 112.9,23.8 113.2,23.9 113.6,23.9 113.9,23.9 114.3,23.9 114.6,23.9 115.0,23.9 115.3,23.9 115.7,23.9 116.1,23.8 116.4,23.8 116.8,23.8 117.1,23.8 117.5,23.8 117.8,23.8 118.2,23.7 118.5,23.7 118.9,23.7 119.2,23.6 119.6,23.6 120.0,23.6 120.3,19.2 120.7,15.5 121.0,12.2 121.4,13.8 121.7,14.9 122.1,15.7 122.4,16.3 122.8,16.7 123.2,17.0 123.5,17.2 123.9,17.4 124.2,17.5 124.6,17.5 124.9,17.6 125.3,17.6 125.6,17.6 126.0,17.6 126.3,17.6 126.7,17.6 127.1,17.6 127.4,15.7 127.8,15.0 128.1,15.0 128.5,15.0 128.8,14.1 129.2,12.7 129.5,13.6 129.9,14.2 130.3,14.6 130.6,14.9 131.0,15.2 131.3,15.4 131.7,15.5 132.0,15.7 132.4,15.8 132.7,15.9 133.1,15.9 133.4,16.0 133.8,16.0 134.2,16.1 134.5,16.1 134.9,16.1 135.2,16.2 135.6,16.2 135.9,16.2 136.3,16.2 136.6,16.2 137.0,16.2 137.3,16.2 137.7,16.2 138.1,16.2 138.4,16.2 138.8,16.2 139.1,16.2 139.5,16.2 139.8,16.1 140.2,16.1 140.5,16.1 140.9,16.1 141.3,16.1 141.6,16.1 142.0,16.0 142.3,16.0 142.7,16.0 143.0,16.0 143.4,15.9 143.7,15.9 144.1,15.9 144.4,15.9 144.8,15.8 145.2,15.8 145.5,15.8 145.9,15.7 146.2,15.7 146.6,15.7 146.9,15.7 147.3,15.6 147.6,15.6 148.0,15.6 148.4,15.5 148.7,15.5 149.1,15.5 149.4,15.4 149.8,15.4 150.1,15.4 150.5,15.4 150.8,15.3 151.2,15.3 151.5,15.3 151.9,15.2 152.3,15.2 152.6,15.2 153.0,15.1 153.3,15.1 153.7,15.1 154.0,15.0 154.4,15.0 154.7,15.0 155.1,14.9 155.4,14.9 155.8,14.9 156.2,14.8 156.5,14.8 156.9,14.8 157.2,14.8 157.6,14.7 157.9,14.7 158.3,14.7 158.6,14.6 159.0,14.6 159.4,14.6 159.7,14.5 160.1,14.5 160.4,14.5 160.8,14.4 161.1,14.4 161.5,14.4 161.8,14.3 162.2,14.3 162.5,14.3 162.9,14.2 163.3,14.2 163.6,14.2 164.0,14.2 164.3,14.1 164.7,14.1 165.0,14.1 165.4,14.0 165.7,14.0 166.1,14.0 166.5,16.3 166.8,18.8 167.2,21.3 167.5,21.4 167.9,21.6 168.2,21.8 168.6,21.9 168.9,22.0 169.3,22.1 169.6,22.3 170.0,22.3" fill="none" stroke="#2f5bd3" stroke-width=".6"/><line x1="0" x2="170" y1="22.8" y2="22.8" stroke="#2fa37a" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="22.0" text-anchor="end" class="zl" fill="#2fa37a">FOCUS BAND ≥ 0.3</text><line x1="0" x2="170" y1="14.4" y2="14.4" stroke="#d98a1c" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="13.6" text-anchor="end" class="zl" fill="#d98a1c">STRAINED ≥ 0.65</text><line x1="0" x2="170" y1="9.6" y2="9.6" stroke="#e5452f" stroke-width=".25" stroke-dasharray="1 .8"/><text x="169" y="8.8" text-anchor="end" class="zl" fill="#e5452f">OVERLOADED ≥ 0.85</text><text x="0.0" y="33.4" text-anchor="start" class="ax">09:00</text><text x="21.3" y="33.4" text-anchor="middle" class="ax">10:00</text><text x="42.5" y="33.4" text-anchor="middle" class="ax">11:00</text><text x="63.8" y="33.4" text-anchor="middle" class="ax">12:00</text><text x="85.0" y="33.4" text-anchor="middle" class="ax">13:00</text><text x="106.3" y="33.4" text-anchor="middle" class="ax">14:00</text><text x="127.5" y="33.4" text-anchor="middle" class="ax">15:00</text><text x="148.8" y="33.4" text-anchor="middle" class="ax">16:00</text><text x="170.0" y="33.4" text-anchor="end" class="ax">17:00</text></svg>
+    <figcaption>FIG. 2 · Load on the sample day as planned (grey) and with all three levers applied (blue).</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th style="width:40%">Variant</th><th>Mean load</th><th>Peak</th><th>Focus min</th><th>Strained min</th><th>Overloaded min</th><th>Under min</th></tr></thead>
+    <tbody><tr><td><b>As planned</b><br><span class="small">The sample day: three meetings, four tasks, alerts as they arrive</span></td><td class="num">0.67 </td><td class="num">1.19</td><td class="num">164</td><td class="num">169</td><td class="num">117</td><td class="num">30</td></tr><tr><td><b>Batch alerts</b><br><span class="small">Notifications held and delivered 4× a day (Fitz et al. 2019)</span></td><td class="num">0.53 <span class="delta">-20%</span></td><td class="num">1.02</td><td class="num">281</td><td class="num">145</td><td class="num">12</td><td class="num">42</td></tr><tr><td><b>Write plans</b><br><span class="small">A written next step for every open task (Masicampo &amp; Baumeister 2011)</span></td><td class="num">0.62 <span class="delta">-8%</span></td><td class="num">1.13</td><td class="num">207</td><td class="num">164</td><td class="num">66</td><td class="num">43</td></tr><tr><td><b>Cluster meetings</b><br><span class="small">All meetings after lunch, deep work in long morning blocks</span></td><td class="num">0.61 <span class="delta">-9%</span></td><td class="num">1.18</td><td class="num">242</td><td class="num">128</td><td class="num">79</td><td class="num">31</td></tr><tr><td><b>All three</b><br><span class="small">Clustered meetings + batched alerts + written plans</span></td><td class="num">0.41 <span class="delta">-39%</span></td><td class="num">0.82</td><td class="num">322</td><td class="num">25</td><td class="num">0</td><td class="num">133</td></tr></tbody>
+  </table>
+
+  <div class="grid3">
+    <div class="box yellow" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Batching wins alone</h4><p style="margin:0">In this model an acted-on alert becomes a switch, so batching removes dozens of small switches. That's why it beats the other two levers on its own. Whether that holds for a real person is what calibration finds out.</p></div>
+    <div class="box pink" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Levers stack</h4><p style="margin:0">Together the three levers do more than any one: long morning blocks leave fewer switches for alerts to multiply. The What-If Lab shows each lever's share of the gain, so the user knows which habit is worth keeping.</p></div>
+    <div class="box green" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Too calm is a result too</h4><p style="margin:0">The combined day moves a lot of time into the under-loaded band. CognitiveOS reports that instead of treating lower as always better. An under-loaded afternoon is a cue to schedule the hard task there.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 05 FEATURES ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">05 · What we'll build</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/><circle cx="60" cy="56" r="8" fill="#2f5bd3"/></svg></div>
+  <h2>Every <i class="y">module</i>, in order of need</h2>
+  <p class="lead" style="margin-bottom:3mm">Twelve modules. The MVP is a complete loop on its own: build a day, simulate it, understand it, change it, calibrate it.</p>
+  <table>
+    <thead><tr><th style="width:23%">Module</th><th>What it does</th><th style="width:11%">Scope</th></tr></thead>
+    <tbody>
+      <tr><td><b>Day Builder</b></td><td>Drag work blocks, meetings and breaks onto a timeline. Rate each task's complexity 1–5, set alert rate, open tasks and deadlines.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Simulation Engine</b></td><td>Minute-step model from section 03, deterministic from a seed, running in a Web Worker so the UI never stalls.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Load Dashboard</b></td><td>Stacked driver chart with zone bands, peak markers, minutes per zone and the driver donut.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>"Why?" Explainer</b></td><td>Click any minute: exact driver shares plus the events behind them ("switch from Code at 11:05 is still leaving residue").</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>What-If Lab</b></td><td>Levers: batch alerts, write plans, cluster meetings, add breaks, drop a task, lower alert rate. Overlay and diff table.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Scenario Library</b></td><td>Six ready-made days (section 06) to explore without entering anything personal.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Check-in</b></td><td>Six raw NASA-TLX sliders after a real block of work, stored locally against that block.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Model Card</b></td><td>One page listing every parameter: value, source, stand-in flag, and what changing it does.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Calibration</b></td><td>Fits personal weights from check-ins with intervals; shows how far they moved from defaults and how sure we are.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>Schedule Search</b></td><td>Searches reorderings of movable blocks (meetings stay fixed) for the fewest overloaded minutes, and explains the winner.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>AI Narrator</b></td><td>Opt-in. A language model turns the attribution data into a short plain-language summary. Every number it writes is checked against the data; if one doesn't match, the summary is dropped.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>Calendar import &amp; export</b></td><td>Import a day from an .ics file; export a day report as PNG or PDF.</td><td><span class="tag later">Later</span></td></tr>
+    </tbody>
+  </table>
+  <div class="box blue" style="margin:0;font-size:8.2pt">
+    <h4 style="margin-bottom:1.2mm">Where the "AI" is, honestly</h4>
+    <p style="margin:0">The core is an interpretable model, not a neural network, because a load estimate you can't explain is worse than none. The AI parts sit around it: <b>learning personal weights</b> from check-ins, <b>searching</b> for better schedules, and <b>narrating</b> results. None of them can change what the model says happened.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 06 SCENARIOS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">06 · Scenario library</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e0569b"/><use href="#hair" fill="#b83c79"/><circle cx="60" cy="56" r="8" fill="#2fa37a"/></svg></div>
+  <h2>Six people, <i class="p">six levers</i></h2>
+  <p class="lead" style="margin-bottom:3.5mm">Each scenario is a ready-made day plus one lever to try. The "expect" line is what the model should show if it's built right; these double as end-to-end tests.</p>
+  <div class="cards">
+    <div class="card" style="background:var(--blue-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/></svg>
+      <div class="who">S1 · Student</div><h4>Exam week</h4>
+      <p>Four subjects in one day, phone face-up, about 30 alerts an hour from group chats, a lab report due at 23:59.</p>
+      <div class="lever"><b>Lever</b> Batch alerts to the top of each hour. <b>Expect</b> switching share falls; deadline pressure unchanged.</div></div>
+    <div class="card" style="background:var(--red-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/></svg>
+      <div class="who">S2 · Developer</div><h4>The chopped-up maker</h4>
+      <p>Four 30-minute meetings spread evenly; no gap longer than 70 minutes for complexity-5 work.</p>
+      <div class="lever"><b>Lever</b> Cluster meetings after lunch. <b>Expect</b> fewer strained minutes in the morning; a dip in the meeting block.</div></div>
+    <div class="card" style="background:var(--yellow-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/></svg>
+      <div class="who">S3 · Engineer on call</div><h4>Pager day</h4>
+      <p>A high alert rate where most alerts must be acted on (p = 0.8), on top of a planned feature task.</p>
+      <div class="lever"><b>Lever</b> Hand the pager over for a 2-hour block. <b>Expect</b> one clean focus window; the model shows what the hand-over buys.</div></div>
+    <div class="card" style="background:var(--pink-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#e0569b"/><use href="#hair" fill="#b83c79"/></svg>
+      <div class="who">S4 · Team member</div><h4>The juggler</h4>
+      <p>Nine open tasks across three group projects, none finished today, each touched briefly.</p>
+      <div class="lever"><b>Lever</b> Write a next step for every open task. <b>Expect</b> open-loop load halves; switching unchanged.</div></div>
+    <div class="card" style="background:var(--green-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/></svg>
+      <div class="who">S5 · Researcher</div><h4>The marathon</h4>
+      <p>One complexity-4 task for five hours straight, few alerts, no breaks.</p>
+      <div class="lever"><b>Lever</b> A 5-minute break every 50 minutes. <b>Expect</b> fatigue stays lower all afternoon at the cost of 25 minutes of work.</div></div>
+    <div class="card" style="background:var(--purple-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/></svg>
+      <div class="who">S6 · Freelancer</div><h4>Deadline crunch</h4>
+      <p>Three client projects, two due tomorrow, more work left than hours in the day.</p>
+      <div class="lever"><b>Lever</b> Drop or renegotiate one project. <b>Expect</b> deadline pressure and open loops both fall; shows the cost of over-committing.</div></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 07 SCREENS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">07 · Screens we'll design</span></div>
+  <h2>Four <i>views</i></h2>
+  <div class="grid2" style="gap:4mm">
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>DAY BUILDER<span>THU · 09:00–17:00</span></div>
+      <div class="body">
+        <div style="display:flex;gap:1mm;margin-bottom:2.4mm"><span class="chip on">Work</span><span class="chip">Meeting</span><span class="chip">Break</span><span class="chip" style="margin-left:auto">Scenario: S2 ▾</span></div>
+        <div class="lane"><span class="lbl">CODE</span><div class="trk"><span style="left:18%;width:10%;background:var(--blue)">c5</span><span style="left:44%;width:13%;background:var(--blue)">c5</span><span style="left:63%;width:10%;background:var(--blue)">c5</span></div></div>
+        <div class="lane"><span class="lbl">REPORT</span><div class="trk"><span style="left:0;width:10%;background:#5f82e0">c4</span><span style="left:28%;width:3%;background:#5f82e0"></span><span style="left:85%;width:15%;background:#5f82e0">c4</span></div></div>
+        <div class="lane"><span class="lbl">ADMIN</span><div class="trk"><span style="left:30%;width:8%;background:#9bb2ee">c1</span></div></div>
+        <div class="lane"><span class="lbl">MEET</span><div class="trk"><span style="left:10%;width:6%;background:var(--ink)">stand</span><span style="left:57%;width:6%;background:var(--ink)">rev</span><span style="left:79%;width:6%;background:var(--ink)">sync</span></div></div>
+        <div class="lane"><span class="lbl">BREAK</span><div class="trk"><span style="left:38%;width:6%;background:#c9bba6">lunch</span></div></div>
+        <div style="margin-top:3mm;display:grid;grid-template-columns:1fr 1fr;gap:2.5mm">
+          <div class="slider">Alerts / hour · <b>14</b><div><i style="left:35%"></i></div></div>
+          <div class="slider">Act on alerts · <b>35%</b><div><i style="left:33%"></i></div></div>
+          <div class="slider">Open tasks · <b>6</b><div><i style="left:50%"></i></div></div>
+          <div class="slider">Deadline · <b>17:00</b><div><i style="left:90%;background:var(--purple)"></i></div></div>
+        </div>
+        <div style="position:absolute;bottom:3mm;right:3mm"><span class="pill" style="font-size:5.6pt">Simulate ▸</span></div>
+      </div>
+      <div class="note">Blocks snap to 5 minutes. Complexity is set by a 1–5 chip on each block; colour depth follows it.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>LOAD DASHBOARD<span>MEAN 0.67 · PEAK 1.19</span></div>
+      <div class="body">
+        <svg viewBox="0 0 100 46" style="width:100%"><rect width="100" height="46" fill="#fbf4e9"/><rect y="8" width="100" height="14" fill="#2fa37a" opacity=".08"/>
+          <path d="M0 46 L0 30 C10 26 14 14 20 18 C26 22 30 8 36 12 C42 16 44 28 50 30 C56 26 60 14 66 16 C72 18 76 6 82 10 C88 14 94 18 100 16 L100 46Z" fill="#2fa37a"/>
+          <path d="M0 46 L0 34 C10 30 14 20 20 24 C26 28 30 16 36 20 C42 24 44 34 50 36 C56 32 60 22 66 24 C72 26 76 16 82 20 C88 24 94 26 100 24 L100 46Z" fill="#e0569b"/>
+          <path d="M0 46 L0 37 C10 34 14 24 20 30 C26 34 30 24 36 28 C42 32 44 38 50 40 C56 36 60 30 66 32 C72 34 76 26 82 30 C88 32 94 34 100 32 L100 46Z" fill="#e5452f"/>
+          <path d="M0 46 L0 40 C14 38 30 38 36 38 C44 40 46 44 50 44 C56 40 70 39 82 40 C90 40 96 40 100 40 L100 46Z" fill="#2f5bd3"/>
+          <line x1="0" x2="100" y1="8" y2="8" stroke="#e5452f" stroke-width=".3" stroke-dasharray="1 .8"/><line x1="50" x2="50" y1="0" y2="46" stroke="#1c2240" stroke-width=".3"/></svg>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5mm;margin-top:2.4mm;text-align:center">
+          <div style="background:var(--yellow-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">30</b><br>under</div>
+          <div style="background:var(--green-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">164</b><br>focus</div>
+          <div style="background:#fbe3c6;border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">169</b><br>strained</div>
+          <div style="background:var(--red-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">117</b><br>over</div>
+        </div>
+        <div style="margin-top:2.4mm;background:var(--ink);color:var(--paper);border-radius:2mm;padding:2mm;font-size:6.4pt;line-height:1.45">
+          <b style="color:var(--yellow)">WHY? · 13:00</b><br>Switching 38% — left <i>Code</i> unfinished at 12:45<br>Complexity 27% · Open loops 16% · Fatigue 12%</div>
+      </div>
+      <div class="note">The cursor line pins a minute; the "Why?" card updates live. Zone counts are in minutes.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>WHAT-IF LAB<span>A vs B</span></div>
+      <div class="body">
+        <div style="margin-bottom:2mm"><span class="chip on">Batch alerts ×4</span><span class="chip on">Write plans</span><span class="chip on">Cluster meetings</span><span class="chip">+ Breaks</span><span class="chip">Drop a task</span></div>
+        <svg viewBox="0 0 100 34" style="width:100%"><rect width="100" height="34" fill="#fbf4e9"/>
+          <path d="M0 18 C8 10 12 4 18 8 C24 12 28 2 34 6 C40 10 44 20 50 22 C56 18 60 6 66 8 C72 10 76 2 82 6 C88 10 94 12 100 10" fill="none" stroke="#1c2240" stroke-width=".5" opacity=".5"/>
+          <path d="M0 22 C10 20 20 18 30 19 C40 20 44 24 50 26 C58 24 66 20 74 20 C82 20 90 18 100 18" fill="none" stroke="#2f5bd3" stroke-width=".9"/></svg>
+        <table style="font-size:6.2pt;margin-top:2mm"><tbody>
+          <tr><td>Mean load</td><td class="num" style="font-size:6.2pt">0.67 → 0.41</td></tr>
+          <tr><td>Overloaded minutes</td><td class="num" style="font-size:6.2pt">117 → 0</td></tr>
+          <tr><td>Largest single lever</td><td class="num" style="font-size:6.2pt">Batch alerts</td></tr>
+          <tr><td>New under-loaded time</td><td class="num" style="font-size:6.2pt">+103 min</td></tr>
+        </tbody></table>
+      </div>
+      <div class="note">Each lever is a reversible transform on the day; the diff shows what each one contributed.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>CHECK-IN<span>NASA-TLX · RAW</span></div>
+      <div class="body">
+        <p style="font-size:7pt;margin-bottom:2.5mm"><b>How was 10:20–11:30 (Code)?</b> Six sliders, about 30 seconds.</p>
+        <div class="slider">Mental demand<div><i style="left:78%"></i></div></div>
+        <div class="slider">Physical demand<div><i style="left:8%"></i></div></div>
+        <div class="slider">Temporal demand<div><i style="left:62%;background:var(--purple)"></i></div></div>
+        <div class="slider">Performance (good → poor)<div><i style="left:40%"></i></div></div>
+        <div class="slider">Effort<div><i style="left:70%"></i></div></div>
+        <div class="slider">Frustration<div><i style="left:55%;background:var(--red)"></i></div></div>
+        <div style="font-size:6.2pt;color:var(--mute);margin-top:1mm">Model predicted 0.74 for this block · you said 0.52 · 5 of 8 check-ins before personal weights</div>
+      </div>
+      <div class="note">Shows prediction and rating side by side, so the user can see the model being wrong.</div></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 08 STACK ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">08 · Tech stack</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/><rect x="48" y="48" width="22" height="16" rx="3" fill="#f2b233"/></svg></div>
+  <h2>Browser-first, <i>local-first</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Everything runs on the user's device. A day is a small JSON document and a simulation is a few hundred thousand arithmetic operations, so there's no reason to send either to a server. The only network call is the optional AI narrator.</p>
+  <table style="font-size:8.6pt">
+    <thead><tr><th style="width:18%">Layer</th><th style="width:26%">Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><b>UI</b></td><td>React 19 · TypeScript · Vite</td><td>Same toolchain as SignalSafe, so components, lint and CI setup carry over.</td></tr>
+      <tr><td><b>State</b></td><td>Zustand</td><td>Small store for the day being edited, the active what-if and the selected minute.</td></tr>
+      <tr><td><b>Timeline editing</b></td><td>dnd-kit</td><td>Accessible drag and drop with keyboard support, needed for snapping blocks.</td></tr>
+      <tr><td><b>Charts</b></td><td>D3 scales &amp; shapes → React SVG</td><td>Stacked areas, donuts and overlays with full control over the design language; SVG exports cleanly.</td></tr>
+      <tr><td><b>Engine</b></td><td>Pure TypeScript in a Web Worker (Comlink)</td><td>No DOM, no dates, no randomness except a seeded PRNG: easy to test and identical on every machine.</td></tr>
+      <tr><td><b>Schemas</b></td><td>Zod</td><td>One schema validates days, scenarios and imported files, and generates the TypeScript types.</td></tr>
+      <tr><td><b>Storage</b></td><td>IndexedDB via Dexie</td><td>Days, check-ins and fitted weights stay in the browser. Export and import as JSON.</td></tr>
+      <tr><td><b>Fitting</b></td><td>Small NNLS ridge solver in TS</td><td>Six weights, a few dozen check-ins: no ML library needed, and the fit is fully inspectable.</td></tr>
+      <tr><td><b>AI narrator</b></td><td>Claude API (Haiku 4.5) via a serverless proxy</td><td>Opt-in. Only the attribution summary is sent, never the raw day. The proxy keeps the API key off the client.</td></tr>
+      <tr><td><b>Testing</b></td><td>Vitest · fast-check · Playwright</td><td>Unit and property tests for the engine; scenario tests from section 06; end-to-end tests for the main flows.</td></tr>
+      <tr><td><b>Delivery</b></td><td>GitHub Actions · Vercel</td><td>Tests and type checks on every push; preview deploy per pull request.</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="box green" style="font-size:8.1pt"><h4 style="margin-bottom:1.2mm">What we deliberately skip</h4><p style="margin:0">No accounts, no backend database, no analytics SDK, no browser extension that watches activity. Each would make the tool more powerful and less trustworthy.</p></div>
+    <div class="box yellow" style="font-size:8.1pt"><h4 style="margin-bottom:1.2mm">Performance budget</h4><p style="margin:0">A full 16-hour day (960 ticks) simulates in under 20 ms, so dragging a block re-runs the model live. Schedule Search runs thousands of these in the worker.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 09 ARCHITECTURE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">09 · Architecture</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/><circle cx="58" cy="50" r="5" fill="#fff"/><circle cx="70" cy="62" r="5" fill="#fff"/></svg></div>
+  <h2>Four layers, <i class="r">one direction</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Data flows down as a day description and back up as a trace. The engine never knows there is a UI, which is what lets the same code power the dashboard, the What-If Lab, the tests and Schedule Search.</p>
+
+  <div class="layer l1"><b>Presentation · React</b><div class="mods"><span>Day Builder</span><span>Load Dashboard</span><span>"Why?" card</span><span>What-If Lab</span><span>Check-in</span><span>Model Card</span><span>Scenario picker</span></div></div>
+  <div class="arrow">▼ day JSON · lever list          ▲ trace · attribution · summary</div>
+  <div class="layer l2"><b>Application · Zustand store + services</b><div class="mods"><span>dayStore</span><span>levers → day transforms</span><span>attribution(minute)</span><span>calibration fit</span><span>narrator client (opt-in)</span></div></div>
+  <div class="arrow">▼ postMessage via Comlink          ▲ typed arrays</div>
+  <div class="layer l3"><b>Engine · Web Worker, pure TypeScript</b><div class="mods"><span>params.ts (every value + source)</span><span>alert generator (seeded)</span><span>six driver functions</span><span>fatigue integrator</span><span>tick loop</span><span>schedule search</span></div></div>
+  <div class="arrow">▼ save · load</div>
+  <div class="layer l4"><b>Storage · IndexedDB (Dexie)</b><div class="mods"><span>days</span><span>check-ins</span><span>fitted weights + intervals</span><span>JSON export / import</span></div></div>
+
+  <h3 style="margin-top:4mm">Data model</h3>
+  <pre><span class="k">type</span> Block    = { from: <span class="k">number</span>; to: <span class="k">number</span>; task: <span class="k">string</span>; kind: <span class="s">'work' | 'meeting' | 'break'</span>; c: 1 | 2 | 3 | 4 | 5 }
+<span class="k">type</span> Day      = { minutes: <span class="k">number</span>; blocks: Block[]; alertsPerHour: <span class="k">number</span>; actOnAlerts: <span class="k">number</span>;
+                batchAt: <span class="k">number</span>[] | <span class="k">null</span>; openTasks: { name: <span class="k">string</span>; planned: <span class="k">boolean</span> }[];
+                deadlines: { at: <span class="k">number</span>; workLeft: <span class="k">number</span> }[]; seed: <span class="k">number</span> }
+<span class="k">type</span> Tick     = { t: <span class="k">number</span>; load: <span class="k">number</span>; parts: Record&lt;Driver, <span class="k">number</span>&gt;; events: Event[] }
+<span class="k">type</span> Lever    = (day: Day) =&gt; Day            <span class="c">// batch alerts, write plans, cluster meetings, add breaks…</span>
+<span class="k">type</span> CheckIn  = { blockId: <span class="k">string</span>; tlx: [<span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>]; at: <span class="k">string</span> }
+<span class="k">type</span> Param    = { value: <span class="k">number</span>; source: <span class="k">string</span>; standIn: <span class="k">boolean</span>; note: <span class="k">string</span> }</pre>
+
+  <div class="grid2">
+    <div class="box" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">The tick loop</h4><p style="margin:0">For each minute: find the active block, register switches and delivered alerts as events, evaluate the six drivers, weight and sum them, then advance fatigue. Events are kept so the "Why?" card can name the cause, not just the share.</p></div>
+    <div class="box" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Levers are pure functions</h4><p style="margin:0">A what-if never edits the user's day. It applies a list of <code>Lever</code> transforms to a copy, so variants can be combined, reordered and attributed one lever at a time.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 10 PRINCIPLES ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">10 · Principles</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/><path d="M52 58 l6 6 l12 -12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg></div>
+  <h2>Built to be <i class="g">trusted</i></h2>
+  <p class="lead" style="margin-bottom:3.5mm">The weakest version of this project is a to-do app with a made-up score. These rules are what keep it from becoming that.</p>
+  <div class="grid2 gap">
+    <div class="box blue"><h3>1 · Every number has a source</h3><p style="margin:0;font-size:8.3pt">Each parameter lives in <code>params.ts</code> with its value, citation, a stand-in flag and a note. The Model Card renders that file directly, so the docs can't drift from the code.</p></div>
+    <div class="box red"><h3>2 · Explanations are exact</h3><p style="margin:0;font-size:8.3pt">Load is a sum, so driver shares are exact arithmetic, not an approximation like SHAP. The "Why?" card can't contradict the model because it is the model.</p></div>
+    <div class="box yellow"><h3>3 · Uncertainty is shown</h3><p style="margin:0;font-size:8.3pt">Default weights are labelled as defaults. Calibrated curves carry a bootstrap band. The check-in screen shows where the model was wrong.</p></div>
+    <div class="box pink"><h3>4 · A simulator, not a diagnosis</h3><p style="margin:0;font-size:8.3pt">No clinical words (burnout, ADHD, stress disorder), no scores about a person's ability, and nothing to hand to an employer. It's a planning aid for your own day.</p></div>
+    <div class="box green"><h3>5 · Private by construction</h3><p style="margin:0;font-size:8.3pt">No accounts, no tracking, no server storage. The AI narrator is off by default; when on, it sees only the six-number summary, never task names.</p></div>
+    <div class="box purple"><h3>6 · Lower isn't always better</h3><p style="margin:0;font-size:8.3pt">Under-load is reported as clearly as overload. The goal is time in the focus band, not an empty calendar.</p></div>
+  </div>
+
+  <h3>Properties the engine must always satisfy</h3>
+  <table style="margin-bottom:0">
+    <thead><tr><th style="width:30%">Property</th><th>Test (fast-check, random valid days)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Deterministic</b></td><td>Same day + same seed → identical trace, bit for bit.</td></tr>
+      <tr><td><b>More alerts never help</b></td><td>Adding an alert never lowers load at any minute.</td></tr>
+      <tr><td><b>Breaks never add fatigue</b></td><td>Turning any work minute into a break never raises fatigue later.</td></tr>
+      <tr><td><b>Plans never hurt</b></td><td>Marking an open task as planned never raises open-loop load.</td></tr>
+      <tr><td><b>Shares add up</b></td><td>At every minute the six parts sum to the total within 1e-9.</td></tr>
+      <tr><td><b>Bounded</b></td><td>Every driver stays in [0, 1.2]; load is finite for days up to 24 h.</td></tr>
+    </tbody>
+  </table>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 11 PLAN ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">11 · Build plan</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/><circle cx="62" cy="56" r="10" fill="none" stroke="#fff" stroke-width="3"/><path d="M62 50 v6 l4 3" stroke="#fff" stroke-width="3" fill="none"/></svg></div>
+  <h2>Six weeks, <i class="v">one loop at a time</i></h2>
+  <p class="lead" style="margin-bottom:4mm">Each week ends with something that runs. Week 2 already has a working headless simulator; everything after it is ways to see, change and trust it.</p>
+  <div class="timeline">
+    <div class="t" style="--c:var(--blue)"><span class="mono">WEEK 1 · MODEL &amp; RESEARCH</span><h4>Parameters with sources</h4>
+      <p>Read the 19 sources properly; write <code>params.ts</code> with every value, citation and stand-in flag. Port the prototype from this doc to TypeScript. Write the six scenario days as JSON.</p>
+      <p class="done"><b>DONE WHEN</b> the Model Card can be generated from the file, and every scenario loads and validates.</p></div>
+    <div class="t" style="--c:var(--red)"><span class="mono">WEEK 2 · ENGINE</span><h4>Deterministic simulator in a worker</h4>
+      <p>Tick loop, seeded alert generator, six drivers, fatigue, event log. Property tests from section 10. Scenario "expect" lines as tests.</p>
+      <p class="done"><b>DONE WHEN</b> all properties pass on 1,000 random days and a 16-hour day runs in under 20 ms.</p></div>
+    <div class="t" style="--c:#d9951a"><span class="mono">WEEK 3 · DAY BUILDER</span><h4>Editing a day</h4>
+      <p>Timeline with drag, resize and snap; complexity chips; alert, open-task and deadline controls; keyboard support; IndexedDB save and JSON import/export.</p>
+      <p class="done"><b>DONE WHEN</b> each scenario can be rebuilt by hand, and edits re-simulate live.</p></div>
+    <div class="t" style="--c:var(--pink)"><span class="mono">WEEK 4 · DASHBOARD &amp; WHY</span><h4>Seeing and understanding load</h4>
+      <p>Stacked driver chart, zones, donut, zone minutes; cursor and "Why?" card with events; Model Card page.</p>
+      <p class="done"><b>DONE WHEN</b> clicking any spike names the event that caused it.</p></div>
+    <div class="t" style="--c:var(--green)"><span class="mono">WEEK 5 · WHAT-IF LAB</span><h4>Counterfactuals</h4>
+      <p>Six levers as pure transforms; overlay chart; diff table with each lever's share of the change; scenario library screen.</p>
+      <p class="done"><b>DONE WHEN</b> section 04's table can be reproduced in the app.</p></div>
+    <div class="t" style="--c:var(--purple)"><span class="mono">WEEK 6 · CHECK-IN, POLISH, SHIP</span><h4>Closing the loop</h4>
+      <p>NASA-TLX check-in and prediction-vs-rating view; accessibility pass (contrast, keyboard, reduced motion); deploy; README and a portfolio case study written from this document.</p>
+      <p class="done"><b>DONE WHEN</b> it's live, and a first-time visitor can go from a scenario to a what-if in under a minute.</p></div>
+  </div>
+  <div class="box ink" style="margin:1mm 0 0">
+    <p class="small" style="margin:0;font-size:8.1pt"><b style="color:#fff">After v1:</b> Calibration fit, Schedule Search and the AI Narrator (all v2) need real check-in data to be worth building, so they come after a few weeks of using v1 on real days.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 12 FUTURE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">12 · Future features</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/><path d="M60 44 l3 8 h8 l-6 5 l2 8 l-7 -5 l-7 5 l2 -8 l-6 -5 h8z" fill="#fff"/></svg></div>
+  <h2>What could <i class="y">come next</i></h2>
+  <p class="lead" style="margin-bottom:4mm">Planned in rough order of value. Anything that touches more personal data stays opt-in and local.</p>
+  <div class="grid2" style="gap:4mm">
+    <div class="box blue"><h3>Schedule Search <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">Given fixed meetings and movable work, search arrangements for the fewest overloaded minutes and the most focus-band time on hard tasks. Simulated annealing over block orderings, all in the worker, with the winning schedule explained lever by lever.</p></div>
+    <div class="box red"><h3>Personal calibration <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">Weights fitted from check-ins, with intervals and a "how much has this changed my model" view. Later: hierarchical priors so a new user starts from what others' data suggests, without sharing anyone's data.</p></div>
+    <div class="box yellow"><h3>AI Narrator <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">A weekly plain-language summary ("your Tuesdays are heavy because of three switches before 11:00"), generated from attribution data and rejected automatically if any number doesn't match it.</p></div>
+    <div class="box pink"><h3>Calendar import <span class="tag later">Later</span></h3><p style="margin:0;font-size:8.2pt">Read an .ics file or a calendar export to build tomorrow's day in one step, then ask the user to rate complexity, since a calendar can't know that.</p></div>
+    <div class="box green"><h3>A small validation study <span class="tag later">Later</span></h3><p style="margin:0;font-size:8.2pt">With consent, a handful of volunteers rate real blocks for two weeks. Compare default and calibrated predictions against their TLX ratings, report error honestly, and publish the protocol and results.</p></div>
+    <div class="box purple"><h3>Physiological signals <span class="tag later">Research</span></h3><p style="margin:0;font-size:8.2pt">Heart-rate variability from a wearable as an optional extra input for calibration. Kept as research until it is clear it adds signal and not just noise and privacy risk.</p></div>
+  </div>
+  <div class="box" style="margin-top:4mm;margin-bottom:0;font-size:8.2pt">
+    <h4 style="margin-bottom:1.2mm">Ruled out on purpose</h4>
+    <p style="margin:0">Team dashboards that rank people, automatic activity tracking, and employer-facing reports. They would turn a tool for understanding your own day into a tool for watching other people's.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ APPENDIX A ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Appendix A</span></div>
+  <h2>Glossary &amp; <i>design language</i></h2>
+  <table>
+    <thead><tr><th style="width:24%">Term</th><th>Meaning in this project</th></tr></thead>
+    <tbody>
+      <tr><td><b>Cognitive load</b></td><td>The demand a situation places on limited working memory. Here: the model's output L(t), an estimate, not a measurement.</td></tr>
+      <tr><td><b>Intrinsic load</b></td><td>Load from the task itself: how many elements must be held in mind at once <span class="ref">Sweller et al. 1998</span>.</td></tr>
+      <tr><td><b>Switch cost</b></td><td>The extra time and errors that come with changing tasks, even when the change is expected <span class="ref">Monsell 2003</span>.</td></tr>
+      <tr><td><b>Attention residue</b></td><td>Thoughts about a previous, unfinished task that carry into the next one <span class="ref">Leroy 2009</span>.</td></tr>
+      <tr><td><b>Working sphere</b></td><td>A unit of work with a shared goal, used in field studies of fragmented work <span class="ref">Mark et al. 2005</span>.</td></tr>
+      <tr><td><b>Open loop</b></td><td>A task started and not finished, which keeps drawing attention until it is done or planned.</td></tr>
+      <tr><td><b>NASA-TLX</b></td><td>A six-question workload scale: mental, physical and temporal demand, performance, effort, frustration. "Raw" TLX averages the six without weighting <span class="ref">Hart 2006</span>.</td></tr>
+      <tr><td><b>Lever</b></td><td>A what-if change to a day, written as a pure function from one day to another.</td></tr>
+      <tr><td><b>Stand-in</b></td><td>A parameter value we chose because the literature doesn't give a usable number at a one-minute scale. Flagged everywhere it appears.</td></tr>
+      <tr><td><b>Focus band</b></td><td>The middle zone, 0.3 to 0.65 by default. A display convention, moved by calibration.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Colour: one hue per driver</h3>
+  <div class="sw" style="margin-bottom:4mm">
+    <div style="background:var(--blue)"><b>Complexity</b>#2F5BD3</div>
+    <div style="background:var(--red)"><b>Switching</b>#E5452F</div>
+    <div style="background:var(--yellow);color:var(--ink)"><b>Alerts</b>#F2B233</div>
+    <div style="background:var(--pink)"><b>Open loops</b>#E0569B</div>
+    <div style="background:var(--purple)"><b>Deadline</b>#7B4FC9</div>
+    <div style="background:var(--green)"><b>Fatigue</b>#2FA37A</div>
+  </div>
+  <div class="grid2">
+    <div class="box" style="font-size:8pt;margin:0"><h4 style="margin-bottom:1.2mm">Where it comes from</h4><p style="margin:0">Three references: the <b>Inside Out</b> infographic (one saturated colour per feeling, thought orbs, donut charts), the <b>"Standing on the shoulders of giants"</b> poster (layered flat profile heads, leader-line labels) and a <b>self-confidence slide deck</b> (warm beige paper, tall condensed capitals, black pill labels).</p></div>
+    <div class="box" style="font-size:8pt;margin:0"><h4 style="margin-bottom:1.2mm">Type &amp; shapes</h4><p style="margin:0"><b>Big Shoulders Display</b> for headings, <b>DM Sans</b> for text, <b>DM Mono</b> for labels and numbers. Beige paper <code>#F6EAD8</code>, navy ink <code>#1C2240</code>. Rounded 4 mm corners, pill labels, and the profile head as the recurring mark. The app uses the same tokens, with a dark mode that keeps the six driver colours.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ APPENDIX B ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Appendix B</span></div>
+  <h2>References</h2>
+  <p class="lead" style="margin-bottom:4mm">Grouped by the driver or method they support. Week 1 of the build plan is reading each one in full and recording, in <code>params.ts</code>, exactly which finding each parameter leans on.</p>
+  <ol class="refs">
+    <li><b>[1]</b> Altmann, E. M., &amp; Trafton, J. G. (2002). Memory for goals: An activation-based model. <i>Cognitive Science, 26</i>(1), 39–83.</li>
+    <li><b>[2]</b> Ariga, A., &amp; Lleras, A. (2011). Brief and rare mental "breaks" keep you focused: Deactivation and reactivation of task goals preempt vigilance decrements. <i>Cognition, 118</i>(3), 439–443.</li>
+    <li><b>[3]</b> Boksem, M. A. S., &amp; Tops, M. (2008). Mental fatigue: Costs and benefits. <i>Brain Research Reviews, 59</i>(1), 125–139.</li>
+    <li><b>[4]</b> Cowan, N. (2001). The magical number 4 in short-term memory: A reconsideration of mental storage capacity. <i>Behavioral and Brain Sciences, 24</i>(1), 87–114.</li>
+    <li><b>[5]</b> Fitz, N., Kushlev, K., Jagannathan, R., Lewis, T., Paliwal, D., &amp; Ariely, D. (2019). Batching smartphone notifications can improve well-being. <i>Computers in Human Behavior, 101</i>, 84–94.</li>
+    <li><b>[6]</b> Hart, S. G. (2006). NASA-Task Load Index (NASA-TLX); 20 years later. <i>Proceedings of the Human Factors and Ergonomics Society Annual Meeting, 50</i>(9), 904–908.</li>
+    <li><b>[7]</b> Hart, S. G., &amp; Staveland, L. E. (1988). Development of NASA-TLX (Task Load Index): Results of empirical and theoretical research. In P. A. Hancock &amp; N. Meshkati (Eds.), <i>Human Mental Workload</i> (pp. 139–183). North-Holland.</li>
+    <li><b>[8]</b> Leroy, S. (2009). Why is it so hard to do my work? The challenge of attention residue when switching between work tasks. <i>Organizational Behavior and Human Decision Processes, 109</i>(2), 168–181.</li>
+    <li><b>[9]</b> Mark, G., González, V. M., &amp; Harris, J. (2005). No task left behind? Examining the nature of fragmented work. <i>Proceedings of CHI 2005</i>, 321–330.</li>
+    <li><b>[10]</b> Mark, G., Gudith, D., &amp; Klocke, U. (2008). The cost of interrupted work: More speed and stress. <i>Proceedings of CHI 2008</i>, 107–110.</li>
+    <li><b>[11]</b> Masicampo, E. J., &amp; Baumeister, R. F. (2011). Consider it done! Plan making can eliminate the cognitive effects of unfulfilled goals. <i>Journal of Personality and Social Psychology, 101</i>(4), 667–683.</li>
+    <li><b>[12]</b> Monsell, S. (2003). Task switching. <i>Trends in Cognitive Sciences, 7</i>(3), 134–140.</li>
+    <li><b>[13]</b> Rogers, R. D., &amp; Monsell, S. (1995). Costs of a predictable switch between simple cognitive tasks. <i>Journal of Experimental Psychology: General, 124</i>(2), 207–231.</li>
+    <li><b>[14]</b> Rubinstein, J. S., Meyer, D. E., &amp; Evans, J. E. (2001). Executive control of cognitive processes in task switching. <i>Journal of Experimental Psychology: Human Perception and Performance, 27</i>(4), 763–797.</li>
+    <li><b>[15]</b> Stothart, C., Mitchum, A., &amp; Yehnert, C. (2015). The attentional cost of receiving a cell phone notification. <i>Journal of Experimental Psychology: Human Perception and Performance, 41</i>(4), 893–897.</li>
+    <li><b>[16]</b> Sweller, J. (1988). Cognitive load during problem solving: Effects on learning. <i>Cognitive Science, 12</i>(2), 257–285.</li>
+    <li><b>[17]</b> Sweller, J., van Merriënboer, J. J. G., &amp; Paas, F. G. W. C. (1998). Cognitive architecture and instructional design. <i>Educational Psychology Review, 10</i>(3), 251–296.</li>
+    <li><b>[18]</b> Teigen, K. H. (1994). Yerkes-Dodson: A law for all seasons. <i>Theory &amp; Psychology, 4</i>(4), 525–547.</li>
+    <li><b>[19]</b> Yerkes, R. M., &amp; Dodson, J. D. (1908). The relation of strength of stimulus to rapidity of habit-formation. <i>Journal of Comparative Neurology and Psychology, 18</i>(5), 459–482.</li>
+  </ol>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+</body>
+</html>

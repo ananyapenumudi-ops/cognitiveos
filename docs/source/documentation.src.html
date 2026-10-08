@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CognitiveOS · Project Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=DM+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f6ead8; --paper-2: #fbf4e9; --paper-3: #efdfc6; --card: #fffaf2;
+    --ink: #1c2240; --ink-soft: #464a5e; --mute: #8a7f73; --black: #141414;
+    /* one colour per load driver, after the Inside Out emotion palette */
+    --blue: #2f5bd3; --red: #e5452f; --yellow: #f2b233; --pink: #e0569b; --purple: #7b4fc9; --green: #2fa37a;
+    --blue-soft: #dbe3f8; --red-soft: #fadcd5; --yellow-soft: #fcebc4; --pink-soft: #f8d9e8; --purple-soft: #e6dcf6; --green-soft: #d3eee2;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); font-family: 'DM Sans', 'Segoe UI', sans-serif; font-size: 9.2pt; line-height: 1.48; background: var(--paper); counter-reset: pg; }
+  h1, h2, h3, h4 { font-family: 'Big Shoulders Display', 'Arial Narrow', sans-serif; line-height: .98; margin: 0; text-transform: uppercase; }
+  .mono, .pill, th, .tag, .ref, td.num { font-family: 'DM Mono', Consolas, monospace; font-weight: 500; }
+  p { margin: 0 0 6.5pt; }
+  b, strong { font-weight: 700; }
+
+  /* every page is exactly one A4 sheet */
+  .page { width: 210mm; height: 297mm; position: relative; overflow: hidden; padding: 15mm 16mm 22mm; break-after: page; background: var(--paper); counter-increment: pg; }
+  .page:last-child { break-after: auto; }
+  .foot { position: absolute; left: 16mm; right: 16mm; bottom: 9mm; display: flex; justify-content: space-between; align-items: center; font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .14em; color: var(--mute); border-top: 1px solid rgba(28,34,64,.18); padding-top: 2.4mm; }
+  .foot .n::before { content: counter(pg, decimal-leading-zero) ' / 16'; }
+
+  /* deck-style black pills */
+  .pill { display: inline-block; background: var(--black); color: var(--paper); border-radius: 99px; font-size: 6.6pt; letter-spacing: .14em; text-transform: uppercase; padding: 1.3mm 3.6mm; }
+  .pill.blue { background: var(--blue); } .pill.red { background: var(--red); } .pill.outline { background: transparent; color: var(--ink); border: 1.2px solid var(--ink); }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4mm; }
+  h2 { font-size: 33pt; font-weight: 800; letter-spacing: .002em; margin: 3mm 0 3.5mm; max-width: 150mm; }
+  h2 i { font-style: normal; color: var(--blue); }
+  h2 i.r { color: var(--red); } h2 i.p { color: var(--pink); } h2 i.g { color: var(--green); } h2 i.y { color: #d9951a; } h2 i.v { color: var(--purple); }
+  h3 { font-size: 13.5pt; font-weight: 800; margin: 4.5mm 0 1.8mm; letter-spacing: .01em; }
+  h4 { font-size: 11pt; font-weight: 800; letter-spacing: .02em; }
+  .lead { font-size: 10.6pt; color: var(--ink-soft); margin-bottom: 4mm; line-height: 1.5; max-width: 165mm; }
+  ul { margin: 0 0 6pt; padding-left: 4.2mm; }
+  li { margin: 0 0 2.2pt; }
+  li::marker { color: var(--red); }
+  .small { font-size: 7.9pt; color: var(--ink-soft); }
+  .mark { width: 22mm; height: 26mm; flex: none; }
+
+  .box { border-radius: 4mm; padding: 4mm 5mm; margin: 0 0 4mm; break-inside: avoid; background: var(--card); position: relative; }
+  .box.blue { background: var(--blue-soft); } .box.red { background: var(--red-soft); } .box.yellow { background: var(--yellow-soft); } .box.pink { background: var(--pink-soft); } .box.green { background: var(--green-soft); } .box.purple { background: var(--purple-soft); }
+  .box.ink { background: var(--ink); color: var(--paper); } .box.ink h3, .box.ink h4 { color: var(--paper); } .box.ink li::marker { color: var(--yellow); } .box.ink .small { color: #c9c3d6; }
+  .box h3 { margin-top: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  .grid2 > .box, .grid3 > .box { margin: 0; }
+  .gap { margin-bottom: 4mm; }
+
+  table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 0 0 4mm; font-size: 8.1pt; }
+  th { text-align: left; font-size: 6.2pt; letter-spacing: .13em; text-transform: uppercase; padding: 2.2mm 2.6mm; color: var(--paper); background: var(--ink); }
+  th:first-child { border-radius: 2mm 0 0 2mm; } th:last-child { border-radius: 0 2mm 2mm 0; }
+  td { padding: 1.9mm 2.6mm; border-bottom: 1px solid rgba(28,34,64,.13); vertical-align: top; }
+  tr { break-inside: avoid; }
+  td.num { white-space: nowrap; font-size: 7.6pt; }
+  .ref { font-size: 6.9pt; color: var(--red); white-space: nowrap; }
+  .delta { display: inline-block; margin-left: 1mm; font-size: 6.6pt; background: var(--green); color: #fff; border-radius: 99px; padding: 0 1.5mm; }
+  .dot { display: inline-block; width: 3mm; height: 3mm; border-radius: 50%; vertical-align: -.5mm; margin-right: 1.5mm; }
+  .tag { display: inline-block; font-size: 6pt; letter-spacing: .08em; text-transform: uppercase; border-radius: 99px; padding: .5mm 2mm; white-space: nowrap; }
+  .tag.mvp { background: var(--ink); color: var(--paper); } .tag.v2 { background: var(--yellow); color: var(--ink); } .tag.later { background: var(--pink-soft); color: var(--ink); border: 1px solid var(--pink); }
+  .tag.stand { background: var(--paper-3); color: var(--ink); border: 1px dashed var(--mute); }
+
+  figure { margin: 0 0 3.5mm; break-inside: avoid; }
+  figcaption { font-family: 'DM Mono', monospace; font-size: 6.6pt; letter-spacing: .04em; color: var(--mute); margin-top: 1.8mm; }
+
+  .toc { list-style: none; padding: 0; margin: 0; }
+  .toc li { display: flex; gap: 4mm; align-items: baseline; padding: 1.95mm 0; border-bottom: 1px solid rgba(28,34,64,.16); font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: 15pt; line-height: 1.05; }
+  .toc li span { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 7.6pt; color: var(--red); width: 9mm; }
+  .toc li em { font-family: 'DM Sans', sans-serif; font-weight: 400; text-transform: none; font-style: normal; color: var(--mute); font-size: 8.4pt; margin-left: auto; }
+
+  .stat { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3.5mm; margin-bottom: 5mm; }
+  .stat div { border-radius: 4mm; padding: 4mm; color: #fff; }
+  .stat div:nth-child(1) { background: var(--blue); } .stat div:nth-child(2) { background: var(--red); } .stat div:nth-child(3) { background: var(--yellow); color: var(--ink); } .stat div:nth-child(4) { background: var(--green); }
+  .stat b { display: block; font-family: 'Big Shoulders Display', sans-serif; font-weight: 900; font-size: 34pt; line-height: .9; margin-bottom: 1.5mm; }
+  .stat span { font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .12em; text-transform: uppercase; }
+
+  .flow { display: flex; gap: 2mm; margin: 1.5mm 0 4mm; }
+  .flow div { flex: 1 1 0; background: var(--card); border-radius: 3mm; padding: 2.6mm 2.8mm; font-size: 7.9pt; line-height: 1.38; border-top: 3px solid var(--blue); }
+  .flow div:nth-child(2) { border-color: var(--red); } .flow div:nth-child(3) { border-color: var(--yellow); } .flow div:nth-child(4) { border-color: var(--pink); } .flow div:nth-child(5) { border-color: var(--purple); } .flow div:nth-child(6) { border-color: var(--green); }
+  .flow div b { display: block; font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; text-transform: uppercase; font-size: 10pt; margin-bottom: .8mm; }
+
+  .eq { background: var(--ink); color: var(--paper); border-radius: 4mm; padding: 3.6mm 5mm; font-family: 'DM Mono', monospace; font-size: 7.7pt; line-height: 1.65; margin: 0 0 4mm; }
+  .eq .c { color: #9aa3c7; } .eq b { color: var(--yellow); font-weight: 500; } .eq .k { color: #f39a8b; }
+  pre { font-family: 'DM Mono', monospace; font-size: 7.1pt; line-height: 1.5; background: var(--ink); color: var(--paper); border-radius: 4mm; padding: 3.6mm 5mm; margin: 0 0 4mm; white-space: pre-wrap; }
+  pre .c { color: #9aa3c7; } pre .k { color: var(--yellow); } pre .s { color: #f39a8b; }
+  code { font-family: 'DM Mono', monospace; font-size: 7.7pt; background: var(--paper-3); border-radius: 1mm; padding: 0 1mm; }
+
+  .legend { list-style: none; padding: 0; margin: 0; font-size: 8pt; }
+  .legend li { display: flex; align-items: center; gap: 2mm; padding: 1.1mm 0; border-bottom: 1px dashed rgba(28,34,64,.18); }
+  .legend li i { width: 3.2mm; height: 3.2mm; border-radius: 50%; flex: none; }
+  .legend li b { margin-left: auto; font-family: 'DM Mono', monospace; font-weight: 500; }
+
+  /* driver rows on the science page */
+  .drv { display: grid; grid-template-columns: 30mm 1fr 52mm; gap: 4mm; padding: 2.7mm 0; border-bottom: 1px solid rgba(28,34,64,.14); break-inside: avoid; font-size: 8.15pt; line-height: 1.42; }
+  .drv h4 { font-size: 12pt; line-height: 1; }
+  .drv .num { font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .1em; color: var(--mute); display: block; margin-bottom: 1mm; }
+  .drv .how { background: var(--card); border-radius: 2.5mm; padding: 2mm 2.6mm; font-size: 7.7pt; }
+  .drv .how b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); display: block; }
+  .drv p { margin: 0 0 1.2mm; }
+
+  /* cards */
+  .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 3.6mm; }
+  .card { border-radius: 4mm; padding: 3.4mm 4mm 3.2mm; background: var(--card); break-inside: avoid; position: relative; overflow: hidden; }
+  .card h4 { font-size: 13pt; margin: 0 0 1.4mm; padding-right: 16mm; }
+  .card .who { font-family: 'DM Mono', monospace; font-size: 6.3pt; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); margin-bottom: 1.4mm; }
+  .card p { font-size: 7.9pt; margin: 0 0 1.4mm; line-height: 1.42; }
+  .card .lever { font-size: 7.7pt; border-top: 1px dashed rgba(28,34,64,.25); padding-top: 1.5mm; color: var(--ink-soft); }
+  .card .lever b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .1em; text-transform: uppercase; color: var(--red); }
+  .card .face { position: absolute; right: -2mm; top: 2mm; width: 15mm; height: 18mm; }
+
+  /* architecture */
+  .layer { border-radius: 4mm; padding: 2.8mm 4mm; margin-bottom: 1.8mm; break-inside: avoid; }
+  .layer > b { display: block; font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.4pt; letter-spacing: .16em; text-transform: uppercase; margin-bottom: 1.5mm; }
+  .layer .mods { display: flex; flex-wrap: wrap; gap: 1.6mm; }
+  .layer .mods span { font-size: 7.4pt; padding: .9mm 2.4mm; border-radius: 99px; background: rgba(255,255,255,.8); }
+  .l1 { background: var(--blue-soft); } .l2 { background: var(--yellow-soft); } .l3 { background: var(--pink-soft); } .l4 { background: var(--ink); color: var(--paper); }
+  .l4 .mods span { background: rgba(246,234,216,.13); color: var(--paper); }
+  .arrow { text-align: center; font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .14em; color: var(--mute); margin: -.6mm 0 1.2mm; }
+
+  /* wireframes */
+  .wf { border: 1.4px solid var(--ink); border-radius: 3.5mm; overflow: hidden; background: var(--card); break-inside: avoid; }
+  .wf .bar { background: var(--ink); color: var(--paper); font-family: 'DM Mono', monospace; font-size: 6.1pt; letter-spacing: .1em; padding: 1.6mm 3mm; display: flex; gap: 2.5mm; align-items: center; }
+  .wf .bar i { width: 2mm; height: 2mm; border-radius: 50%; background: var(--red); } .wf .bar i + i { background: var(--yellow); } .wf .bar i + i + i { background: var(--green); }
+  .wf .bar span { margin-left: auto; color: #9aa3c7; }
+  .wf .body { padding: 3mm; height: 84mm; position: relative; font-size: 6.6pt; }
+  .wf .note { font-size: 7.6pt; color: var(--ink-soft); padding: 2.2mm 3mm; border-top: 1px dashed rgba(28,34,64,.3); line-height: 1.4; }
+  .lane { display: flex; align-items: center; gap: 1.5mm; margin-bottom: 1.6mm; }
+  .lane .lbl { width: 12mm; font-family: 'DM Mono', monospace; font-size: 5.6pt; color: var(--mute); }
+  .lane .trk { flex: 1; height: 5mm; position: relative; background: var(--paper-2); border-radius: 1.2mm; }
+  .lane .trk span { position: absolute; top: .5mm; bottom: .5mm; border-radius: 1mm; color: #fff; font-size: 5.4pt; padding: .4mm 1mm; overflow: hidden; white-space: nowrap; }
+  .slider { margin-bottom: 2.6mm; }
+  .slider div { height: 1.6mm; background: var(--paper-3); border-radius: 99px; position: relative; margin-top: .8mm; }
+  .slider div i { position: absolute; top: -1.1mm; width: 3.8mm; height: 3.8mm; border-radius: 50%; background: var(--blue); border: 1px solid #fff; }
+  .chip { display: inline-block; border-radius: 99px; padding: .5mm 2mm; font-size: 5.8pt; margin: 0 .8mm 1mm 0; background: var(--paper-3); }
+  .chip.on { background: var(--ink); color: var(--paper); }
+
+  .timeline { border-left: 2px solid var(--ink); margin-left: 2mm; padding-left: 6mm; }
+  .timeline .t { position: relative; margin-bottom: 5.4mm; font-size: 9pt; break-inside: avoid; }
+  .timeline .t p { margin: 0; }
+  .timeline .t::before { content: ''; position: absolute; left: -8.6mm; top: .6mm; width: 4.2mm; height: 4.2mm; border-radius: 50%; background: var(--c, var(--blue)); border: 1.5px solid var(--paper); }
+  .timeline .t h4 { font-size: 12.5pt; margin-bottom: .8mm; }
+  .timeline .t .mono { font-size: 6.6pt; color: var(--red); letter-spacing: .1em; }
+  .timeline .t .done { font-size: 7.6pt; color: var(--ink-soft); margin-top: .8mm; }
+  .timeline .t .done b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.2pt; letter-spacing: .1em; color: var(--green); }
+
+  .refs { font-size: 8.3pt; line-height: 1.42; padding-left: 0; list-style: none; columns: 2; column-gap: 7mm; }
+  .refs li { break-inside: avoid; margin-bottom: 2.8mm; padding-left: 7mm; text-indent: -7mm; }
+  .refs li b { font-family: 'DM Mono', monospace; font-weight: 500; font-size: 6.4pt; color: var(--red); display: inline-block; width: 7mm; text-indent: 0; }
+  .sw { display: grid; grid-template-columns: repeat(6, 1fr); gap: 2.4mm; }
+  .sw div { border-radius: 3mm; height: 17mm; padding: 2mm; color: #fff; font-family: 'DM Mono', monospace; font-size: 5.8pt; letter-spacing: .06em; display: flex; flex-direction: column; justify-content: flex-end; }
+  .sw div b { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 9pt; letter-spacing: .02em; text-transform: uppercase; }
+
+  /* ── cover ── */
+  .cover { padding: 0; }
+  .cover .pills { position: absolute; top: 12mm; left: 14mm; right: 14mm; display: flex; justify-content: space-between; }
+  .cover .art { position: absolute; top: 20mm; left: 0; width: 210mm; height: 170mm; }
+  .cover h1 { position: absolute; left: 14mm; top: 184mm; font-size: 92pt; font-weight: 900; letter-spacing: -.005em; line-height: .82; color: var(--ink); }
+  .cover h1 span { display: inline-block; background: var(--red); color: var(--paper); border-radius: 7mm; padding: 1.5mm 4mm 0; margin-left: 2mm; transform: rotate(-3deg); }
+  .cover .tagline { position: absolute; left: 14mm; width: 118mm; top: 215mm; font-size: 10.6pt; line-height: 1.5; color: var(--ink-soft); }
+  .cover .tagline b { color: var(--ink); }
+  .cover .stamp { position: absolute; right: 14mm; top: 213mm; width: 50mm; font-family: 'DM Mono', monospace; font-size: 6.4pt; letter-spacing: .14em; text-align: center; line-height: 1.5; color: var(--ink); border: 1.4px solid var(--ink); border-radius: 99px; padding: 2.2mm 3mm; transform: rotate(-4deg); background: var(--yellow); }
+  .cover .meta { position: absolute; left: 14mm; right: 14mm; bottom: 13mm; display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 5mm; }
+  .cover .meta div { border-top: 1.6px solid var(--ink); padding-top: 2.6mm; }
+  .cover .meta span { display: block; font-family: 'DM Mono', monospace; font-size: 6.2pt; letter-spacing: .16em; text-transform: uppercase; color: var(--red); margin-bottom: 1.2mm; }
+  .cover .meta b { font-family: 'Big Shoulders Display', sans-serif; font-weight: 800; font-size: 13pt; text-transform: uppercase; line-height: 1.05; display: block; }
+  .cover .meta small { display: block; font-size: 7.6pt; color: var(--ink-soft); margin-top: .8mm; }
+</style>
+</head>
+<body>
+
+<!-- Shared illustration parts: a head in profile (facing right), its hair, and a thought orb. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="head" viewBox="0 0 110 130">
+      <path d="M18 130 C19 116 16 104 11 92 C3 72 4 44 20 26 C34 9 62 4 80 16 C92 24 96 38 95 50 C95 54 97 57 99 61 L106 73 C107 76 105 78 101 78 L101 82 C103 83 103 86 100 87 C102 89 101 92 98 93 C98 99 95 103 88 104 C83 104 80 106 80 110 L82 130 Z"/>
+    </symbol>
+    <symbol id="hair" viewBox="0 0 110 130">
+      <path d="M11 92 C3 72 4 44 20 26 C34 9 62 4 80 16 C88 21 93 28 95 37 C82 29 64 31 55 45 C48 57 46 72 32 86 C26 92 18 95 11 92 Z"/>
+    </symbol>
+    <symbol id="eye" viewBox="0 0 110 130"><path d="M80 57 q4 -3 8 0" fill="none" stroke="#1c2240" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <radialGradient id="orb" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></radialGradient>
+  </defs>
+</svg>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<div class="page cover">
+  <div class="pills"><span class="pill">CognitiveOS · Project documentation</span><span class="pill outline">v0.1 · 08 Oct 2026</span></div>
+
+  <!-- layered profile heads (after the "Standing on the shoulders of giants" poster) with thought orbs (after Inside Out) -->
+  <svg class="art" viewBox="0 0 210 170" xmlns="http://www.w3.org/2000/svg">
+    <style>.lab{font:500 2.7px 'DM Mono',monospace;fill:#1c2240;letter-spacing:.35px}.labs{font:400 2.5px 'DM Sans',sans-serif;fill:#464a5e}</style>
+    <!-- soft backdrop rays, like the emotion wedges -->
+    <g opacity=".9">
+      <path d="M105 92 L20 0 L52 0 Z" fill="#fadcd5"/><path d="M105 92 L60 0 L92 0 Z" fill="#fcebc4"/><path d="M105 92 L100 0 L132 0 Z" fill="#dbe3f8"/>
+      <path d="M105 92 L140 0 L172 0 Z" fill="#e6dcf6"/><path d="M105 92 L180 0 L210 0 L210 14 Z" fill="#d3eee2"/>
+    </g>
+    <!-- back head: marigold, facing right -->
+    <g transform="translate(96 8) scale(.78)"><use href="#head" width="110" height="130" fill="#f2b233"/><use href="#hair" width="110" height="130" fill="#d9951a"/><use href="#eye" width="110" height="130"/></g>
+    <!-- pink head, mirrored, facing left -->
+    <g transform="translate(120 66) scale(.74)"><use href="#head" width="110" height="130" fill="#e0569b"/><use href="#hair" width="110" height="130" fill="#b83c79"/><use href="#eye" width="110" height="130"/></g>
+    <!-- front head: cobalt, facing right -->
+    <g transform="translate(26 26) scale(1.06)"><use href="#head" width="110" height="130" fill="#2f5bd3"/><use href="#hair" width="110" height="130" fill="#1f3f9e"/><use href="#eye" width="110" height="130"/></g>
+
+    <!-- thought orbs inside the front head: one per load driver -->
+    <g>
+      <circle cx="70" cy="58" r="11" fill="#e5452f"/><circle cx="70" cy="58" r="11" fill="url(#orb)"/>
+      <!-- switching: two overlapping tabs -->
+      <rect x="63.5" y="53" width="9" height="7" rx="1" fill="none" stroke="#fff" stroke-width=".9"/><rect x="67.5" y="56.5" width="9" height="7" rx="1" fill="#e5452f" stroke="#fff" stroke-width=".9"/>
+      <circle cx="93" cy="46" r="8" fill="#f2b233"/><circle cx="93" cy="46" r="8" fill="url(#orb)"/>
+      <!-- notification bell -->
+      <path d="M89.4 49 h7.2 l-1.2 -1.6 v-3 a2.4 2.4 0 0 0 -4.8 0 v3 z" fill="#fff"/><circle cx="93" cy="50.3" r=".9" fill="#fff"/>
+      <circle cx="86" cy="74" r="7" fill="#7b4fc9"/><circle cx="86" cy="74" r="7" fill="url(#orb)"/>
+      <!-- deadline clock -->
+      <circle cx="86" cy="74" r="3.6" fill="none" stroke="#fff" stroke-width=".8"/><path d="M86 71.6 V74 L87.8 75.2" fill="none" stroke="#fff" stroke-width=".8" stroke-linecap="round"/>
+      <circle cx="52" cy="80" r="7.5" fill="#e0569b"/><circle cx="52" cy="80" r="7.5" fill="url(#orb)"/>
+      <!-- open loops: three open rings -->
+      <g fill="none" stroke="#fff" stroke-width=".8"><path d="M48.5 80 a1.8 1.8 0 1 1 1 1.6"/><path d="M52 80 a1.8 1.8 0 1 1 1 1.6"/><path d="M55.5 80 a1.8 1.8 0 1 1 1 1.6"/></g>
+      <circle cx="108" cy="64" r="6" fill="#2fa37a"/><circle cx="108" cy="64" r="6" fill="url(#orb)"/>
+      <!-- fatigue: battery -->
+      <rect x="104.6" y="62.2" width="6" height="3.6" rx=".6" fill="none" stroke="#fff" stroke-width=".7"/><rect x="105.3" y="62.9" width="1.8" height="2.2" fill="#fff"/><rect x="110.8" y="63.3" width=".8" height="1.4" fill="#fff"/>
+      <circle cx="58" cy="44" r="9" fill="#fff" opacity=".18"/>
+      <!-- complexity: a little lattice of linked nodes -->
+      <g stroke="#fff" stroke-width=".6" opacity=".95"><line x1="54" y1="41" x2="60" y2="39"/><line x1="60" y1="39" x2="62" y2="46"/><line x1="54" y1="41" x2="56" y2="48"/><line x1="56" y1="48" x2="62" y2="46"/><line x1="54" y1="41" x2="62" y2="46"/></g>
+      <g fill="#fff"><circle cx="54" cy="41" r="1.1"/><circle cx="60" cy="39" r="1.1"/><circle cx="62" cy="46" r="1.1"/><circle cx="56" cy="48" r="1.1"/></g>
+    </g>
+    <!-- floating memory bubbles -->
+    <g opacity=".85">
+      <circle cx="16" cy="120" r="4" fill="#dbe3f8"/><circle cx="16" cy="120" r="4" fill="url(#orb)"/>
+      <circle cx="24" cy="132" r="2.4" fill="#fcebc4"/><circle cx="196" cy="40" r="3.5" fill="#fadcd5"/><circle cx="190" cy="52" r="2" fill="#d3eee2"/><circle cx="12" cy="66" r="2.6" fill="#e6dcf6"/>
+    </g>
+    <!-- poster-style leader lines and labels -->
+    <g fill="none" stroke="#1c2240" stroke-width=".3"><polyline points="59,58 34,40 8,40"/><polyline points="45,80 22,108 8,108"/><polyline points="101,46 122,30 150,30"/><polyline points="114,64 150,64"/></g>
+    <g fill="#1c2240"><circle cx="8" cy="40" r=".9"/><circle cx="8" cy="108" r=".9"/><circle cx="150" cy="30" r=".9"/><circle cx="150" cy="64" r=".9"/></g>
+    <text x="8" y="37.6" class="lab">CONTEXT SWITCHING</text><text x="8" y="44" class="labs">residue lingers</text><text x="8" y="47.4" class="labs">after you leave</text>
+    <text x="8" y="105.6" class="lab">OPEN LOOPS</text><text x="8" y="112" class="labs">unfinished tasks</text><text x="8" y="115.4" class="labs">keep knocking</text>
+    <text x="152" y="31" class="lab">NOTIFICATIONS</text><text x="152" y="35" class="labs">cost attention even unread</text>
+    <text x="152" y="65" class="lab">FATIGUE</text><text x="152" y="69" class="labs">builds with time on task</text>
+  </svg>
+
+  <h1>Cognitive<span>OS</span></h1>
+  <p class="tagline">A <b>cognitive load simulator</b>, not another to-do app. Lay out a day of tasks, meetings, alerts and deadlines; CognitiveOS estimates minute by minute how loaded your mind is, shows <b>what is driving it</b>, and lets you test a different way of working before you live it.</p>
+  <div class="stamp">DOCUMENTATION FIRST<br>PRE-BUILD SPEC</div>
+  <div class="meta">
+    <div><span>Grounded in</span><b>Cognitive load &amp; interruption research</b><small>19 peer-reviewed sources, appendix B</small></div>
+    <div><span>Fields</span><b>Psychology · HCI · AI</b><small>Behavioural analytics, visualisation</small></div>
+    <div><span>Status</span><b>Design draft</b><small>Build starts after sign-off</small></div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONTENTS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Contents</span></div>
+  <h2>What's <i>inside</i></h2>
+  <ol class="toc">
+    <li><span>01</span> Project overview <em>the problem, the idea, who it's for</em></li>
+    <li><span>02</span> The science <em>six drivers of load, and the evidence for each</em></li>
+    <li><span>03</span> The model <em>equations, zones, calibration</em></li>
+    <li><span>04</span> What-if experiments <em>the prototype run on a sample day</em></li>
+    <li><span>05</span> What we'll build <em>every module, MVP and later</em></li>
+    <li><span>06</span> Scenario library <em>six people, six levers</em></li>
+    <li><span>07</span> Screens we'll design <em>wireframes of the four main views</em></li>
+    <li><span>08</span> Tech stack <em>frontend, engine, storage, AI</em></li>
+    <li><span>09</span> Architecture <em>layers, tick loop, data model</em></li>
+    <li><span>10</span> Principles <em>honesty, privacy, determinism</em></li>
+    <li><span>11</span> Build plan <em>six weeks, milestone by milestone</em></li>
+    <li><span>12</span> Future features <em>what could come after v1</em></li>
+    <li><span>A·B</span> Appendices <em>glossary, design language, references</em></li>
+  </ol>
+
+  <div class="stat" style="margin-top: 6mm">
+    <div><b>6</b><span>load drivers</span></div>
+    <div><b>19</b><span>cited studies</span></div>
+    <div><b>1 min</b><span>simulation step</span></div>
+    <div><b>0</b><span>trackers or accounts</span></div>
+  </div>
+
+  <div class="box yellow" style="margin:0">
+    <h3>How to read this document</h3>
+    <p style="margin:0">This is written <b>before any code</b>, so it is a specification and a plan, not a report. Citations in red (for example <span class="ref">Leroy 2009</span>) point to appendix B. Every coefficient the model uses is either tied to a source or tagged <span class="tag stand">stand-in</span>, meaning we picked a sensible value that calibration will replace. The charts in sections 03 and 04 come from a 90-line prototype of the model, run on a made-up sample day, so they show <b>how the simulator will behave</b>, not findings about real people. Items tagged <span class="tag mvp">MVP</span> are committed for v1; <span class="tag v2">v2</span> and <span class="tag later">Later</span> are planned, not promised.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 01 OVERVIEW ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">01 · Project overview</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/><circle cx="60" cy="58" r="10" fill="#f2b233"/><circle cx="76" cy="44" r="6" fill="#e5452f"/></svg></div>
+  <h2>Model the <i>mind</i>, not the <i class="r">to-do list</i></h2>
+  <p class="lead">Productivity apps count tasks. But two days with the same task list can feel completely different: one with long quiet blocks, one chopped up by meetings and pings. CognitiveOS models that difference. It treats a day as a sequence of demands on limited working memory and simulates how they add up.</p>
+
+  <div class="grid2 gap">
+    <div class="box red">
+      <h3>The problem</h3>
+      <ul>
+        <li>Knowledge work is fragmented. In one field study, people spent on average about <b>11 minutes</b> on a project before switching or being interrupted, and <b>57%</b> of those stretches were interrupted <span class="ref">Mark et al. 2005</span>.</li>
+        <li>The costs are invisible. A switch leaves <b>attention residue</b> on the old task <span class="ref">Leroy 2009</span>; an alert hurts focus even if you never pick up the phone <span class="ref">Stothart et al. 2015</span>.</li>
+        <li>Tools show <i>what</i> you did, not <i>why</i> the day felt heavy, and they never let you try a different pattern before committing to it.</li>
+      </ul>
+    </div>
+    <div class="box blue">
+      <h3>Our answer</h3>
+      <ul>
+        <li>A <b>transparent load model</b>: six drivers, each tied to published research, combined with weights you can see and change.</li>
+        <li>A <b>simulator, not a tracker</b>. You describe a day; nothing watches you. Then you ask "what if I batch my notifications?" and watch the curve change.</li>
+        <li><b>Exact explanations</b>. Because the model is additive, every minute splits cleanly into its drivers. No black box to reverse-engineer.</li>
+        <li><b>Personal calibration</b> from short NASA-TLX check-ins, with the uncertainty shown.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Who it's for</h3>
+  <p><b>Students</b> planning exam weeks and group projects. <b>Developers and designers</b> whose deep work keeps getting cut by meetings. <b>Team leads</b> who want to understand the cost of the interruptions they create, on their own schedule, not anyone else's. <b>HCI and psychology learners</b> who want to see interruption research run as a model rather than read it as a list of findings.</p>
+
+  <h3>A user's journey</h3>
+  <div class="flow">
+    <div><b>1 · Build a day</b>Drag tasks and meetings onto a timeline, rate how complex each is.</div>
+    <div><b>2 · Add the noise</b>Alert rate, open tasks, deadlines, planned breaks.</div>
+    <div><b>3 · Simulate</b>Minute-by-minute load curve, coloured by driver.</div>
+    <div><b>4 · Ask why</b>Click a spike: which drivers, which events caused it.</div>
+    <div><b>5 · Try a what-if</b>Pull a lever, compare the two days side by side.</div>
+    <div><b>6 · Calibrate</b>Rate real days with NASA-TLX; the weights become yours.</div>
+  </div>
+
+  <div class="box ink" style="margin-top:1mm">
+    <h4 style="font-size:12.5pt;margin-bottom:1.5mm">What it is not</h4>
+    <p class="small" style="margin:0;font-size:8.2pt">Not a diagnostic tool, not a measure of anyone's ability, and not a way for employers to monitor staff. It produces an <b style="color:#fff">estimate under stated assumptions</b>, and says so on every screen.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 02 SCIENCE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">02 · The science</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/><circle cx="58" cy="56" r="9" fill="#fff" opacity=".3"/></svg></div>
+  <h2>Six things that <i class="r">load</i> a mind</h2>
+  <p class="lead" style="margin-bottom:2mm">Working memory holds only about four chunks at once <span class="ref">Cowan 2001</span>. Everything below competes for that space. For each driver: what happens, the evidence, and how CognitiveOS turns it into a number.</p>
+
+  <div class="drv">
+    <div><span class="num">x₁ · intrinsic</span><h4 style="color:var(--blue)">Task complexity</h4></div>
+    <div><p>Tasks whose parts must be held in mind together impose more load than tasks that can be done piece by piece <span class="ref">Sweller 1988</span>. Cognitive Load Theory calls this <b>intrinsic load</b> and separates it from load added by how work is presented <span class="ref">Sweller et al. 1998</span>.</p></div>
+    <div class="how"><b>How we model it</b>Each block gets a complexity rating c from 1 (sorting email) to 5 (debugging a race condition). x₁ = c / 5 while working on it.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₂ · switching</span><h4 style="color:var(--red)">Switching &amp; residue</h4></div>
+    <div><p>Switching between tasks costs time even when the switch is predictable <span class="ref">Rogers &amp; Monsell 1995</span>, and the cost grows with how complex the tasks are <span class="ref">Rubinstein et al. 2001</span>. Leaving a task unfinished keeps part of your attention on it: <b>attention residue</b> <span class="ref">Leroy 2009</span>. Resuming means re-activating the old goal <span class="ref">Altmann &amp; Trafton 2002</span>.</p></div>
+    <div class="how"><b>How we model it</b>A spike at each switch (decay τ = 3 min) plus residue proportional to the old task's complexity (τ = 12 min). <span class="tag stand">stand-in τs</span></div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₃ · alerts</span><h4 style="color:#c98a12">Notifications</h4></div>
+    <div><p>Just receiving a phone notification, without answering it, impaired performance on a sustained-attention task about as much as using the phone did <span class="ref">Stothart et al. 2015</span>. In a field experiment, people whose notifications were batched three times a day reported more focus and less stress <span class="ref">Fitz et al. 2019</span>.</p></div>
+    <div class="how"><b>How we model it</b>Each alert adds a short spike (τ = 1.5 min). With probability p = 0.35 you act on it: a 3-minute detour that counts as a switch. Batching holds alerts until set times.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₄ · open loops</span><h4 style="color:var(--pink)">Open loops</h4></div>
+    <div><p>Unfinished goals keep intruding on unrelated work. Making a specific plan for the goal, without finishing it, removed that interference <span class="ref">Masicampo &amp; Baumeister 2011</span>.</p></div>
+    <div class="how"><b>How we model it</b>Background load that saturates with the number of open tasks n: 1 − e<sup>−n/4</sup>. Halved when each task has a written next step.</div>
+  </div>
+  <div class="drv">
+    <div><span class="num">x₅ · time</span><h4 style="color:var(--purple)">Deadline pressure</h4></div>
+    <div><p><b>Temporal demand</b> is one of the six dimensions of the NASA-TLX workload scale <span class="ref">Hart &amp; Staveland 1988</span>. Interrupted people finished tasks faster but reported more stress, frustration, time pressure and effort <span class="ref">Mark et al. 2008</span>.</p></div>
+    <div class="how"><b>How we model it</b>Work left ÷ time left for each deadline, ramping in over the last 4 hours. The tightest deadline wins.</div>
+  </div>
+  <div class="drv" style="border-bottom:0">
+    <div><span class="num">x₆ · fatigue</span><h4 style="color:var(--green)">Fatigue</h4></div>
+    <div><p>Mental fatigue builds with time on a demanding task and reduces engagement <span class="ref">Boksem &amp; Tops 2008</span>. Brief, occasional breaks from a task prevented the usual drop in vigilance <span class="ref">Ariga &amp; Lleras 2011</span>.</p></div>
+    <div class="how"><b>How we model it</b>An accumulator that grows faster under high load and recovers during breaks (τ = 14 min). It lags, so a heavy morning shows up after lunch.</div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 03 MODEL ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">03 · The model</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/><circle cx="60" cy="56" r="8" fill="#f2b233"/></svg></div>
+  <h2>One number, <i class="v">six honest parts</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Load at minute t is a weighted sum of the six drivers. Simple on purpose: a sum can be explained exactly, tested for sensible behaviour, and fitted to a person with very little data.</p>
+
+  <div class="eq">
+    <span class="c">// load at minute t, from the six drivers in section 02</span><br>
+    <b>L(t)</b> = w₁·complexity + w₂·switching + w₃·alerts + w₄·openLoops + w₅·deadline + w₆·fatigue<br>
+    <span class="k">switching(t)</span> = Σ<sub>switches s</sub> e<sup>−(t−s)/3</sup> + 0.75 · Σ<sub>s</sub> (c<sub>prev</sub>/5) · e<sup>−(t−s)/12</sup><br>
+    <span class="k">fatigue</span>(t+1) = F + (0.4 + L)(1 − F)/260 <span class="c">while working</span> · F · e<sup>−1/14</sup> <span class="c">during breaks</span><br>
+    <span class="c">// default weights (stand-ins until calibration):</span> w = (0.34, 0.30, 0.16, 0.14, 0.14, 0.22)
+  </div>
+
+  <figure>
+    {{FIG_LOAD}}
+    <figcaption>FIG. 1 · Prototype run on the sample day (09:00–17:00, three meetings, four tasks, {{ALERTS}} alerts, six open tasks, a 17:00 deadline). Each colour is one driver's share of the load.</figcaption>
+  </figure>
+
+  <div style="display:grid;grid-template-columns:37mm 1fr 68mm;gap:5mm;align-items:center">
+    <div>{{FIG_DONUT}}</div>
+    <ul class="legend">{{LEGEND}}</ul>
+    <div class="box blue" style="margin:0;font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Reading the sample day</h4>
+      <p style="margin:0">Mean load is <b>{{BASE_MEAN}}</b> and <b>{{BASE_OVER}} minutes</b> sit above 0.85. Switching and residue account for <b>{{BASE_SWITCH}}%</b> of all load, as much as the work itself: the late-morning spikes are switches between code and the report, not hard tasks.</p>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:4mm">
+    <div class="box" style="font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Zones, stated carefully</h4>
+      <p style="margin:0">We shade four bands: under-loaded (&lt; 0.3), focus band, strained (≥ 0.65), overloaded (≥ 0.85). They echo the inverted-U idea that performance peaks at moderate arousal <span class="ref">Yerkes &amp; Dodson 1908</span>, but that "law" has been restated so many ways that it can't be treated as one <span class="ref">Teigen 1994</span>. So the bands are a display convention that calibration moves, not a claim.</p>
+    </div>
+    <div class="box" style="font-size:8pt">
+      <h4 style="margin-bottom:1.2mm">Calibration</h4>
+      <p style="margin:0">After a real block of work, a 30-second check-in asks the six raw NASA-TLX questions <span class="ref">Hart 2006</span>. From 8 check-ins on, we fit personal weights by non-negative ridge regression, pulled towards the defaults, and show a bootstrap interval around every curve. Fewer check-ins: defaults, labelled as such.</p>
+    </div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 04 WHAT-IF ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">04 · What-if experiments</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/><circle cx="60" cy="56" r="8" fill="#fff" opacity=".4"/></svg></div>
+  <h2>Try the day <i class="g">before you live it</i></h2>
+  <p class="lead" style="margin-bottom:3mm">The point of a simulator is the counterfactual. Same tasks, same total work, a different arrangement. We ran the prototype on the sample day with three levers from the research, alone and together. These numbers come from stand-in parameters on an invented day: they show the simulator moves in the direction the studies predict, not real effect sizes.</p>
+
+  <figure>
+    {{FIG_WHATIF}}
+    <figcaption>FIG. 2 · Load on the sample day as planned (grey) and with all three levers applied (blue).</figcaption>
+  </figure>
+
+  <table>
+    <thead><tr><th style="width:40%">Variant</th><th>Mean load</th><th>Peak</th><th>Focus min</th><th>Strained min</th><th>Overloaded min</th><th>Under min</th></tr></thead>
+    <tbody>{{WHATIF_ROWS}}</tbody>
+  </table>
+
+  <div class="grid3">
+    <div class="box yellow" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Batching wins alone</h4><p style="margin:0">In this model an acted-on alert becomes a switch, so batching removes dozens of small switches. That's why it beats the other two levers on its own. Whether that holds for a real person is what calibration finds out.</p></div>
+    <div class="box pink" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Levers stack</h4><p style="margin:0">Together the three levers do more than any one: long morning blocks leave fewer switches for alerts to multiply. The What-If Lab shows each lever's share of the gain, so the user knows which habit is worth keeping.</p></div>
+    <div class="box green" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Too calm is a result too</h4><p style="margin:0">The combined day moves a lot of time into the under-loaded band. CognitiveOS reports that instead of treating lower as always better. An under-loaded afternoon is a cue to schedule the hard task there.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 05 FEATURES ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">05 · What we'll build</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/><circle cx="60" cy="56" r="8" fill="#2f5bd3"/></svg></div>
+  <h2>Every <i class="y">module</i>, in order of need</h2>
+  <p class="lead" style="margin-bottom:3mm">Twelve modules. The MVP is a complete loop on its own: build a day, simulate it, understand it, change it, calibrate it.</p>
+  <table>
+    <thead><tr><th style="width:23%">Module</th><th>What it does</th><th style="width:11%">Scope</th></tr></thead>
+    <tbody>
+      <tr><td><b>Day Builder</b></td><td>Drag work blocks, meetings and breaks onto a timeline. Rate each task's complexity 1–5, set alert rate, open tasks and deadlines.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Simulation Engine</b></td><td>Minute-step model from section 03, deterministic from a seed, running in a Web Worker so the UI never stalls.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Load Dashboard</b></td><td>Stacked driver chart with zone bands, peak markers, minutes per zone and the driver donut.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>"Why?" Explainer</b></td><td>Click any minute: exact driver shares plus the events behind them ("switch from Code at 11:05 is still leaving residue").</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>What-If Lab</b></td><td>Levers: batch alerts, write plans, cluster meetings, add breaks, drop a task, lower alert rate. Overlay and diff table.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Scenario Library</b></td><td>Six ready-made days (section 06) to explore without entering anything personal.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Check-in</b></td><td>Six raw NASA-TLX sliders after a real block of work, stored locally against that block.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Model Card</b></td><td>One page listing every parameter: value, source, stand-in flag, and what changing it does.</td><td><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><b>Calibration</b></td><td>Fits personal weights from check-ins with intervals; shows how far they moved from defaults and how sure we are.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>Schedule Search</b></td><td>Searches reorderings of movable blocks (meetings stay fixed) for the fewest overloaded minutes, and explains the winner.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>AI Narrator</b></td><td>Opt-in. A language model turns the attribution data into a short plain-language summary. Every number it writes is checked against the data; if one doesn't match, the summary is dropped.</td><td><span class="tag v2">v2</span></td></tr>
+      <tr><td><b>Calendar import &amp; export</b></td><td>Import a day from an .ics file; export a day report as PNG or PDF.</td><td><span class="tag later">Later</span></td></tr>
+    </tbody>
+  </table>
+  <div class="box blue" style="margin:0;font-size:8.2pt">
+    <h4 style="margin-bottom:1.2mm">Where the "AI" is, honestly</h4>
+    <p style="margin:0">The core is an interpretable model, not a neural network, because a load estimate you can't explain is worse than none. The AI parts sit around it: <b>learning personal weights</b> from check-ins, <b>searching</b> for better schedules, and <b>narrating</b> results. None of them can change what the model says happened.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 06 SCENARIOS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">06 · Scenario library</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e0569b"/><use href="#hair" fill="#b83c79"/><circle cx="60" cy="56" r="8" fill="#2fa37a"/></svg></div>
+  <h2>Six people, <i class="p">six levers</i></h2>
+  <p class="lead" style="margin-bottom:3.5mm">Each scenario is a ready-made day plus one lever to try. The "expect" line is what the model should show if it's built right; these double as end-to-end tests.</p>
+  <div class="cards">
+    <div class="card" style="background:var(--blue-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/></svg>
+      <div class="who">S1 · Student</div><h4>Exam week</h4>
+      <p>Four subjects in one day, phone face-up, about 30 alerts an hour from group chats, a lab report due at 23:59.</p>
+      <div class="lever"><b>Lever</b> Batch alerts to the top of each hour. <b>Expect</b> switching share falls; deadline pressure unchanged.</div></div>
+    <div class="card" style="background:var(--red-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/></svg>
+      <div class="who">S2 · Developer</div><h4>The chopped-up maker</h4>
+      <p>Four 30-minute meetings spread evenly; no gap longer than 70 minutes for complexity-5 work.</p>
+      <div class="lever"><b>Lever</b> Cluster meetings after lunch. <b>Expect</b> fewer strained minutes in the morning; a dip in the meeting block.</div></div>
+    <div class="card" style="background:var(--yellow-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/></svg>
+      <div class="who">S3 · Engineer on call</div><h4>Pager day</h4>
+      <p>A high alert rate where most alerts must be acted on (p = 0.8), on top of a planned feature task.</p>
+      <div class="lever"><b>Lever</b> Hand the pager over for a 2-hour block. <b>Expect</b> one clean focus window; the model shows what the hand-over buys.</div></div>
+    <div class="card" style="background:var(--pink-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#e0569b"/><use href="#hair" fill="#b83c79"/></svg>
+      <div class="who">S4 · Team member</div><h4>The juggler</h4>
+      <p>Nine open tasks across three group projects, none finished today, each touched briefly.</p>
+      <div class="lever"><b>Lever</b> Write a next step for every open task. <b>Expect</b> open-loop load halves; switching unchanged.</div></div>
+    <div class="card" style="background:var(--green-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/></svg>
+      <div class="who">S5 · Researcher</div><h4>The marathon</h4>
+      <p>One complexity-4 task for five hours straight, few alerts, no breaks.</p>
+      <div class="lever"><b>Lever</b> A 5-minute break every 50 minutes. <b>Expect</b> fatigue stays lower all afternoon at the cost of 25 minutes of work.</div></div>
+    <div class="card" style="background:var(--purple-soft)"><svg class="face" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/></svg>
+      <div class="who">S6 · Freelancer</div><h4>Deadline crunch</h4>
+      <p>Three client projects, two due tomorrow, more work left than hours in the day.</p>
+      <div class="lever"><b>Lever</b> Drop or renegotiate one project. <b>Expect</b> deadline pressure and open loops both fall; shows the cost of over-committing.</div></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 07 SCREENS ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">07 · Screens we'll design</span></div>
+  <h2>Four <i>views</i></h2>
+  <div class="grid2" style="gap:4mm">
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>DAY BUILDER<span>THU · 09:00–17:00</span></div>
+      <div class="body">
+        <div style="display:flex;gap:1mm;margin-bottom:2.4mm"><span class="chip on">Work</span><span class="chip">Meeting</span><span class="chip">Break</span><span class="chip" style="margin-left:auto">Scenario: S2 ▾</span></div>
+        <div class="lane"><span class="lbl">CODE</span><div class="trk"><span style="left:18%;width:10%;background:var(--blue)">c5</span><span style="left:44%;width:13%;background:var(--blue)">c5</span><span style="left:63%;width:10%;background:var(--blue)">c5</span></div></div>
+        <div class="lane"><span class="lbl">REPORT</span><div class="trk"><span style="left:0;width:10%;background:#5f82e0">c4</span><span style="left:28%;width:3%;background:#5f82e0"></span><span style="left:85%;width:15%;background:#5f82e0">c4</span></div></div>
+        <div class="lane"><span class="lbl">ADMIN</span><div class="trk"><span style="left:30%;width:8%;background:#9bb2ee">c1</span></div></div>
+        <div class="lane"><span class="lbl">MEET</span><div class="trk"><span style="left:10%;width:6%;background:var(--ink)">stand</span><span style="left:57%;width:6%;background:var(--ink)">rev</span><span style="left:79%;width:6%;background:var(--ink)">sync</span></div></div>
+        <div class="lane"><span class="lbl">BREAK</span><div class="trk"><span style="left:38%;width:6%;background:#c9bba6">lunch</span></div></div>
+        <div style="margin-top:3mm;display:grid;grid-template-columns:1fr 1fr;gap:2.5mm">
+          <div class="slider">Alerts / hour · <b>14</b><div><i style="left:35%"></i></div></div>
+          <div class="slider">Act on alerts · <b>35%</b><div><i style="left:33%"></i></div></div>
+          <div class="slider">Open tasks · <b>6</b><div><i style="left:50%"></i></div></div>
+          <div class="slider">Deadline · <b>17:00</b><div><i style="left:90%;background:var(--purple)"></i></div></div>
+        </div>
+        <div style="position:absolute;bottom:3mm;right:3mm"><span class="pill" style="font-size:5.6pt">Simulate ▸</span></div>
+      </div>
+      <div class="note">Blocks snap to 5 minutes. Complexity is set by a 1–5 chip on each block; colour depth follows it.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>LOAD DASHBOARD<span>MEAN 0.67 · PEAK 1.19</span></div>
+      <div class="body">
+        <svg viewBox="0 0 100 46" style="width:100%"><rect width="100" height="46" fill="#fbf4e9"/><rect y="8" width="100" height="14" fill="#2fa37a" opacity=".08"/>
+          <path d="M0 46 L0 30 C10 26 14 14 20 18 C26 22 30 8 36 12 C42 16 44 28 50 30 C56 26 60 14 66 16 C72 18 76 6 82 10 C88 14 94 18 100 16 L100 46Z" fill="#2fa37a"/>
+          <path d="M0 46 L0 34 C10 30 14 20 20 24 C26 28 30 16 36 20 C42 24 44 34 50 36 C56 32 60 22 66 24 C72 26 76 16 82 20 C88 24 94 26 100 24 L100 46Z" fill="#e0569b"/>
+          <path d="M0 46 L0 37 C10 34 14 24 20 30 C26 34 30 24 36 28 C42 32 44 38 50 40 C56 36 60 30 66 32 C72 34 76 26 82 30 C88 32 94 34 100 32 L100 46Z" fill="#e5452f"/>
+          <path d="M0 46 L0 40 C14 38 30 38 36 38 C44 40 46 44 50 44 C56 40 70 39 82 40 C90 40 96 40 100 40 L100 46Z" fill="#2f5bd3"/>
+          <line x1="0" x2="100" y1="8" y2="8" stroke="#e5452f" stroke-width=".3" stroke-dasharray="1 .8"/><line x1="50" x2="50" y1="0" y2="46" stroke="#1c2240" stroke-width=".3"/></svg>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5mm;margin-top:2.4mm;text-align:center">
+          <div style="background:var(--yellow-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">30</b><br>under</div>
+          <div style="background:var(--green-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">164</b><br>focus</div>
+          <div style="background:#fbe3c6;border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">169</b><br>strained</div>
+          <div style="background:var(--red-soft);border-radius:1.5mm;padding:1.2mm"><b style="font-size:9pt">117</b><br>over</div>
+        </div>
+        <div style="margin-top:2.4mm;background:var(--ink);color:var(--paper);border-radius:2mm;padding:2mm;font-size:6.4pt;line-height:1.45">
+          <b style="color:var(--yellow)">WHY? · 13:00</b><br>Switching 38% — left <i>Code</i> unfinished at 12:45<br>Complexity 27% · Open loops 16% · Fatigue 12%</div>
+      </div>
+      <div class="note">The cursor line pins a minute; the "Why?" card updates live. Zone counts are in minutes.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>WHAT-IF LAB<span>A vs B</span></div>
+      <div class="body">
+        <div style="margin-bottom:2mm"><span class="chip on">Batch alerts ×4</span><span class="chip on">Write plans</span><span class="chip on">Cluster meetings</span><span class="chip">+ Breaks</span><span class="chip">Drop a task</span></div>
+        <svg viewBox="0 0 100 34" style="width:100%"><rect width="100" height="34" fill="#fbf4e9"/>
+          <path d="M0 18 C8 10 12 4 18 8 C24 12 28 2 34 6 C40 10 44 20 50 22 C56 18 60 6 66 8 C72 10 76 2 82 6 C88 10 94 12 100 10" fill="none" stroke="#1c2240" stroke-width=".5" opacity=".5"/>
+          <path d="M0 22 C10 20 20 18 30 19 C40 20 44 24 50 26 C58 24 66 20 74 20 C82 20 90 18 100 18" fill="none" stroke="#2f5bd3" stroke-width=".9"/></svg>
+        <table style="font-size:6.2pt;margin-top:2mm"><tbody>
+          <tr><td>Mean load</td><td class="num" style="font-size:6.2pt">0.67 → 0.41</td></tr>
+          <tr><td>Overloaded minutes</td><td class="num" style="font-size:6.2pt">117 → 0</td></tr>
+          <tr><td>Largest single lever</td><td class="num" style="font-size:6.2pt">Batch alerts</td></tr>
+          <tr><td>New under-loaded time</td><td class="num" style="font-size:6.2pt">+103 min</td></tr>
+        </tbody></table>
+      </div>
+      <div class="note">Each lever is a reversible transform on the day; the diff shows what each one contributed.</div></div>
+
+    <div class="wf"><div class="bar"><i></i><i></i><i></i>CHECK-IN<span>NASA-TLX · RAW</span></div>
+      <div class="body">
+        <p style="font-size:7pt;margin-bottom:2.5mm"><b>How was 10:20–11:30 (Code)?</b> Six sliders, about 30 seconds.</p>
+        <div class="slider">Mental demand<div><i style="left:78%"></i></div></div>
+        <div class="slider">Physical demand<div><i style="left:8%"></i></div></div>
+        <div class="slider">Temporal demand<div><i style="left:62%;background:var(--purple)"></i></div></div>
+        <div class="slider">Performance (good → poor)<div><i style="left:40%"></i></div></div>
+        <div class="slider">Effort<div><i style="left:70%"></i></div></div>
+        <div class="slider">Frustration<div><i style="left:55%;background:var(--red)"></i></div></div>
+        <div style="font-size:6.2pt;color:var(--mute);margin-top:1mm">Model predicted 0.74 for this block · you said 0.52 · 5 of 8 check-ins before personal weights</div>
+      </div>
+      <div class="note">Shows prediction and rating side by side, so the user can see the model being wrong.</div></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 08 STACK ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">08 · Tech stack</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2f5bd3"/><use href="#hair" fill="#1f3f9e"/><rect x="48" y="48" width="22" height="16" rx="3" fill="#f2b233"/></svg></div>
+  <h2>Browser-first, <i>local-first</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Everything runs on the user's device. A day is a small JSON document and a simulation is a few hundred thousand arithmetic operations, so there's no reason to send either to a server. The only network call is the optional AI narrator.</p>
+  <table style="font-size:8.6pt">
+    <thead><tr><th style="width:18%">Layer</th><th style="width:26%">Choice</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><b>UI</b></td><td>React 19 · TypeScript · Vite</td><td>Same toolchain as SignalSafe, so components, lint and CI setup carry over.</td></tr>
+      <tr><td><b>State</b></td><td>Zustand</td><td>Small store for the day being edited, the active what-if and the selected minute.</td></tr>
+      <tr><td><b>Timeline editing</b></td><td>dnd-kit</td><td>Accessible drag and drop with keyboard support, needed for snapping blocks.</td></tr>
+      <tr><td><b>Charts</b></td><td>D3 scales &amp; shapes → React SVG</td><td>Stacked areas, donuts and overlays with full control over the design language; SVG exports cleanly.</td></tr>
+      <tr><td><b>Engine</b></td><td>Pure TypeScript in a Web Worker (Comlink)</td><td>No DOM, no dates, no randomness except a seeded PRNG: easy to test and identical on every machine.</td></tr>
+      <tr><td><b>Schemas</b></td><td>Zod</td><td>One schema validates days, scenarios and imported files, and generates the TypeScript types.</td></tr>
+      <tr><td><b>Storage</b></td><td>IndexedDB via Dexie</td><td>Days, check-ins and fitted weights stay in the browser. Export and import as JSON.</td></tr>
+      <tr><td><b>Fitting</b></td><td>Small NNLS ridge solver in TS</td><td>Six weights, a few dozen check-ins: no ML library needed, and the fit is fully inspectable.</td></tr>
+      <tr><td><b>AI narrator</b></td><td>Claude API (Haiku 4.5) via a serverless proxy</td><td>Opt-in. Only the attribution summary is sent, never the raw day. The proxy keeps the API key off the client.</td></tr>
+      <tr><td><b>Testing</b></td><td>Vitest · fast-check · Playwright</td><td>Unit and property tests for the engine; scenario tests from section 06; end-to-end tests for the main flows.</td></tr>
+      <tr><td><b>Delivery</b></td><td>GitHub Actions · Vercel</td><td>Tests and type checks on every push; preview deploy per pull request.</td></tr>
+    </tbody>
+  </table>
+  <div class="grid2">
+    <div class="box green" style="font-size:8.1pt"><h4 style="margin-bottom:1.2mm">What we deliberately skip</h4><p style="margin:0">No accounts, no backend database, no analytics SDK, no browser extension that watches activity. Each would make the tool more powerful and less trustworthy.</p></div>
+    <div class="box yellow" style="font-size:8.1pt"><h4 style="margin-bottom:1.2mm">Performance budget</h4><p style="margin:0">A full 16-hour day (960 ticks) simulates in under 20 ms, so dragging a block re-runs the model live. Schedule Search runs thousands of these in the worker.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 09 ARCHITECTURE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">09 · Architecture</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#e5452f"/><use href="#hair" fill="#b8321f"/><circle cx="58" cy="50" r="5" fill="#fff"/><circle cx="70" cy="62" r="5" fill="#fff"/></svg></div>
+  <h2>Four layers, <i class="r">one direction</i></h2>
+  <p class="lead" style="margin-bottom:3mm">Data flows down as a day description and back up as a trace. The engine never knows there is a UI, which is what lets the same code power the dashboard, the What-If Lab, the tests and Schedule Search.</p>
+
+  <div class="layer l1"><b>Presentation · React</b><div class="mods"><span>Day Builder</span><span>Load Dashboard</span><span>"Why?" card</span><span>What-If Lab</span><span>Check-in</span><span>Model Card</span><span>Scenario picker</span></div></div>
+  <div class="arrow">▼ day JSON · lever list          ▲ trace · attribution · summary</div>
+  <div class="layer l2"><b>Application · Zustand store + services</b><div class="mods"><span>dayStore</span><span>levers → day transforms</span><span>attribution(minute)</span><span>calibration fit</span><span>narrator client (opt-in)</span></div></div>
+  <div class="arrow">▼ postMessage via Comlink          ▲ typed arrays</div>
+  <div class="layer l3"><b>Engine · Web Worker, pure TypeScript</b><div class="mods"><span>params.ts (every value + source)</span><span>alert generator (seeded)</span><span>six driver functions</span><span>fatigue integrator</span><span>tick loop</span><span>schedule search</span></div></div>
+  <div class="arrow">▼ save · load</div>
+  <div class="layer l4"><b>Storage · IndexedDB (Dexie)</b><div class="mods"><span>days</span><span>check-ins</span><span>fitted weights + intervals</span><span>JSON export / import</span></div></div>
+
+  <h3 style="margin-top:4mm">Data model</h3>
+  <pre><span class="k">type</span> Block    = { from: <span class="k">number</span>; to: <span class="k">number</span>; task: <span class="k">string</span>; kind: <span class="s">'work' | 'meeting' | 'break'</span>; c: 1 | 2 | 3 | 4 | 5 }
+<span class="k">type</span> Day      = { minutes: <span class="k">number</span>; blocks: Block[]; alertsPerHour: <span class="k">number</span>; actOnAlerts: <span class="k">number</span>;
+                batchAt: <span class="k">number</span>[] | <span class="k">null</span>; openTasks: { name: <span class="k">string</span>; planned: <span class="k">boolean</span> }[];
+                deadlines: { at: <span class="k">number</span>; workLeft: <span class="k">number</span> }[]; seed: <span class="k">number</span> }
+<span class="k">type</span> Tick     = { t: <span class="k">number</span>; load: <span class="k">number</span>; parts: Record&lt;Driver, <span class="k">number</span>&gt;; events: Event[] }
+<span class="k">type</span> Lever    = (day: Day) =&gt; Day            <span class="c">// batch alerts, write plans, cluster meetings, add breaks…</span>
+<span class="k">type</span> CheckIn  = { blockId: <span class="k">string</span>; tlx: [<span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>, <span class="k">number</span>]; at: <span class="k">string</span> }
+<span class="k">type</span> Param    = { value: <span class="k">number</span>; source: <span class="k">string</span>; standIn: <span class="k">boolean</span>; note: <span class="k">string</span> }</pre>
+
+  <div class="grid2">
+    <div class="box" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">The tick loop</h4><p style="margin:0">For each minute: find the active block, register switches and delivered alerts as events, evaluate the six drivers, weight and sum them, then advance fatigue. Events are kept so the "Why?" card can name the cause, not just the share.</p></div>
+    <div class="box" style="font-size:8pt"><h4 style="margin-bottom:1.2mm">Levers are pure functions</h4><p style="margin:0">A what-if never edits the user's day. It applies a list of <code>Lever</code> transforms to a copy, so variants can be combined, reordered and attributed one lever at a time.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 10 PRINCIPLES ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">10 · Principles</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#2fa37a"/><use href="#hair" fill="#1f7c5a"/><path d="M52 58 l6 6 l12 -12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg></div>
+  <h2>Built to be <i class="g">trusted</i></h2>
+  <p class="lead" style="margin-bottom:3.5mm">The weakest version of this project is a to-do app with a made-up score. These rules are what keep it from becoming that.</p>
+  <div class="grid2 gap">
+    <div class="box blue"><h3>1 · Every number has a source</h3><p style="margin:0;font-size:8.3pt">Each parameter lives in <code>params.ts</code> with its value, citation, a stand-in flag and a note. The Model Card renders that file directly, so the docs can't drift from the code.</p></div>
+    <div class="box red"><h3>2 · Explanations are exact</h3><p style="margin:0;font-size:8.3pt">Load is a sum, so driver shares are exact arithmetic, not an approximation like SHAP. The "Why?" card can't contradict the model because it is the model.</p></div>
+    <div class="box yellow"><h3>3 · Uncertainty is shown</h3><p style="margin:0;font-size:8.3pt">Default weights are labelled as defaults. Calibrated curves carry a bootstrap band. The check-in screen shows where the model was wrong.</p></div>
+    <div class="box pink"><h3>4 · A simulator, not a diagnosis</h3><p style="margin:0;font-size:8.3pt">No clinical words (burnout, ADHD, stress disorder), no scores about a person's ability, and nothing to hand to an employer. It's a planning aid for your own day.</p></div>
+    <div class="box green"><h3>5 · Private by construction</h3><p style="margin:0;font-size:8.3pt">No accounts, no tracking, no server storage. The AI narrator is off by default; when on, it sees only the six-number summary, never task names.</p></div>
+    <div class="box purple"><h3>6 · Lower isn't always better</h3><p style="margin:0;font-size:8.3pt">Under-load is reported as clearly as overload. The goal is time in the focus band, not an empty calendar.</p></div>
+  </div>
+
+  <h3>Properties the engine must always satisfy</h3>
+  <table style="margin-bottom:0">
+    <thead><tr><th style="width:30%">Property</th><th>Test (fast-check, random valid days)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Deterministic</b></td><td>Same day + same seed → identical trace, bit for bit.</td></tr>
+      <tr><td><b>More alerts never help</b></td><td>Adding an alert never lowers load at any minute.</td></tr>
+      <tr><td><b>Breaks never add fatigue</b></td><td>Turning any work minute into a break never raises fatigue later.</td></tr>
+      <tr><td><b>Plans never hurt</b></td><td>Marking an open task as planned never raises open-loop load.</td></tr>
+      <tr><td><b>Shares add up</b></td><td>At every minute the six parts sum to the total within 1e-9.</td></tr>
+      <tr><td><b>Bounded</b></td><td>Every driver stays in [0, 1.2]; load is finite for days up to 24 h.</td></tr>
+    </tbody>
+  </table>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 11 PLAN ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">11 · Build plan</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#7b4fc9"/><use href="#hair" fill="#5a33a3"/><circle cx="62" cy="56" r="10" fill="none" stroke="#fff" stroke-width="3"/><path d="M62 50 v6 l4 3" stroke="#fff" stroke-width="3" fill="none"/></svg></div>
+  <h2>Six weeks, <i class="v">one loop at a time</i></h2>
+  <p class="lead" style="margin-bottom:4mm">Each week ends with something that runs. Week 2 already has a working headless simulator; everything after it is ways to see, change and trust it.</p>
+  <div class="timeline">
+    <div class="t" style="--c:var(--blue)"><span class="mono">WEEK 1 · MODEL &amp; RESEARCH</span><h4>Parameters with sources</h4>
+      <p>Read the 19 sources properly; write <code>params.ts</code> with every value, citation and stand-in flag. Port the prototype from this doc to TypeScript. Write the six scenario days as JSON.</p>
+      <p class="done"><b>DONE WHEN</b> the Model Card can be generated from the file, and every scenario loads and validates.</p></div>
+    <div class="t" style="--c:var(--red)"><span class="mono">WEEK 2 · ENGINE</span><h4>Deterministic simulator in a worker</h4>
+      <p>Tick loop, seeded alert generator, six drivers, fatigue, event log. Property tests from section 10. Scenario "expect" lines as tests.</p>
+      <p class="done"><b>DONE WHEN</b> all properties pass on 1,000 random days and a 16-hour day runs in under 20 ms.</p></div>
+    <div class="t" style="--c:#d9951a"><span class="mono">WEEK 3 · DAY BUILDER</span><h4>Editing a day</h4>
+      <p>Timeline with drag, resize and snap; complexity chips; alert, open-task and deadline controls; keyboard support; IndexedDB save and JSON import/export.</p>
+      <p class="done"><b>DONE WHEN</b> each scenario can be rebuilt by hand, and edits re-simulate live.</p></div>
+    <div class="t" style="--c:var(--pink)"><span class="mono">WEEK 4 · DASHBOARD &amp; WHY</span><h4>Seeing and understanding load</h4>
+      <p>Stacked driver chart, zones, donut, zone minutes; cursor and "Why?" card with events; Model Card page.</p>
+      <p class="done"><b>DONE WHEN</b> clicking any spike names the event that caused it.</p></div>
+    <div class="t" style="--c:var(--green)"><span class="mono">WEEK 5 · WHAT-IF LAB</span><h4>Counterfactuals</h4>
+      <p>Six levers as pure transforms; overlay chart; diff table with each lever's share of the change; scenario library screen.</p>
+      <p class="done"><b>DONE WHEN</b> section 04's table can be reproduced in the app.</p></div>
+    <div class="t" style="--c:var(--purple)"><span class="mono">WEEK 6 · CHECK-IN, POLISH, SHIP</span><h4>Closing the loop</h4>
+      <p>NASA-TLX check-in and prediction-vs-rating view; accessibility pass (contrast, keyboard, reduced motion); deploy; README and a portfolio case study written from this document.</p>
+      <p class="done"><b>DONE WHEN</b> it's live, and a first-time visitor can go from a scenario to a what-if in under a minute.</p></div>
+  </div>
+  <div class="box ink" style="margin:1mm 0 0">
+    <p class="small" style="margin:0;font-size:8.1pt"><b style="color:#fff">After v1:</b> Calibration fit, Schedule Search and the AI Narrator (all v2) need real check-in data to be worth building, so they come after a few weeks of using v1 on real days.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ 12 FUTURE ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">12 · Future features</span>
+    <svg class="mark" viewBox="0 0 110 130"><use href="#head" fill="#f2b233"/><use href="#hair" fill="#d9951a"/><path d="M60 44 l3 8 h8 l-6 5 l2 8 l-7 -5 l-7 5 l2 -8 l-6 -5 h8z" fill="#fff"/></svg></div>
+  <h2>What could <i class="y">come next</i></h2>
+  <p class="lead" style="margin-bottom:4mm">Planned in rough order of value. Anything that touches more personal data stays opt-in and local.</p>
+  <div class="grid2" style="gap:4mm">
+    <div class="box blue"><h3>Schedule Search <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">Given fixed meetings and movable work, search arrangements for the fewest overloaded minutes and the most focus-band time on hard tasks. Simulated annealing over block orderings, all in the worker, with the winning schedule explained lever by lever.</p></div>
+    <div class="box red"><h3>Personal calibration <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">Weights fitted from check-ins, with intervals and a "how much has this changed my model" view. Later: hierarchical priors so a new user starts from what others' data suggests, without sharing anyone's data.</p></div>
+    <div class="box yellow"><h3>AI Narrator <span class="tag v2">v2</span></h3><p style="margin:0;font-size:8.2pt">A weekly plain-language summary ("your Tuesdays are heavy because of three switches before 11:00"), generated from attribution data and rejected automatically if any number doesn't match it.</p></div>
+    <div class="box pink"><h3>Calendar import <span class="tag later">Later</span></h3><p style="margin:0;font-size:8.2pt">Read an .ics file or a calendar export to build tomorrow's day in one step, then ask the user to rate complexity, since a calendar can't know that.</p></div>
+    <div class="box green"><h3>A small validation study <span class="tag later">Later</span></h3><p style="margin:0;font-size:8.2pt">With consent, a handful of volunteers rate real blocks for two weeks. Compare default and calibrated predictions against their TLX ratings, report error honestly, and publish the protocol and results.</p></div>
+    <div class="box purple"><h3>Physiological signals <span class="tag later">Research</span></h3><p style="margin:0;font-size:8.2pt">Heart-rate variability from a wearable as an optional extra input for calibration. Kept as research until it is clear it adds signal and not just noise and privacy risk.</p></div>
+  </div>
+  <div class="box" style="margin-top:4mm;margin-bottom:0;font-size:8.2pt">
+    <h4 style="margin-bottom:1.2mm">Ruled out on purpose</h4>
+    <p style="margin:0">Team dashboards that rank people, automatic activity tracking, and employer-facing reports. They would turn a tool for understanding your own day into a tool for watching other people's.</p>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ APPENDIX A ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Appendix A</span></div>
+  <h2>Glossary &amp; <i>design language</i></h2>
+  <table>
+    <thead><tr><th style="width:24%">Term</th><th>Meaning in this project</th></tr></thead>
+    <tbody>
+      <tr><td><b>Cognitive load</b></td><td>The demand a situation places on limited working memory. Here: the model's output L(t), an estimate, not a measurement.</td></tr>
+      <tr><td><b>Intrinsic load</b></td><td>Load from the task itself: how many elements must be held in mind at once <span class="ref">Sweller et al. 1998</span>.</td></tr>
+      <tr><td><b>Switch cost</b></td><td>The extra time and errors that come with changing tasks, even when the change is expected <span class="ref">Monsell 2003</span>.</td></tr>
+      <tr><td><b>Attention residue</b></td><td>Thoughts about a previous, unfinished task that carry into the next one <span class="ref">Leroy 2009</span>.</td></tr>
+      <tr><td><b>Working sphere</b></td><td>A unit of work with a shared goal, used in field studies of fragmented work <span class="ref">Mark et al. 2005</span>.</td></tr>
+      <tr><td><b>Open loop</b></td><td>A task started and not finished, which keeps drawing attention until it is done or planned.</td></tr>
+      <tr><td><b>NASA-TLX</b></td><td>A six-question workload scale: mental, physical and temporal demand, performance, effort, frustration. "Raw" TLX averages the six without weighting <span class="ref">Hart 2006</span>.</td></tr>
+      <tr><td><b>Lever</b></td><td>A what-if change to a day, written as a pure function from one day to another.</td></tr>
+      <tr><td><b>Stand-in</b></td><td>A parameter value we chose because the literature doesn't give a usable number at a one-minute scale. Flagged everywhere it appears.</td></tr>
+      <tr><td><b>Focus band</b></td><td>The middle zone, 0.3 to 0.65 by default. A display convention, moved by calibration.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Colour: one hue per driver</h3>
+  <div class="sw" style="margin-bottom:4mm">
+    <div style="background:var(--blue)"><b>Complexity</b>#2F5BD3</div>
+    <div style="background:var(--red)"><b>Switching</b>#E5452F</div>
+    <div style="background:var(--yellow);color:var(--ink)"><b>Alerts</b>#F2B233</div>
+    <div style="background:var(--pink)"><b>Open loops</b>#E0569B</div>
+    <div style="background:var(--purple)"><b>Deadline</b>#7B4FC9</div>
+    <div style="background:var(--green)"><b>Fatigue</b>#2FA37A</div>
+  </div>
+  <div class="grid2">
+    <div class="box" style="font-size:8pt;margin:0"><h4 style="margin-bottom:1.2mm">Where it comes from</h4><p style="margin:0">Three references: the <b>Inside Out</b> infographic (one saturated colour per feeling, thought orbs, donut charts), the <b>"Standing on the shoulders of giants"</b> poster (layered flat profile heads, leader-line labels) and a <b>self-confidence slide deck</b> (warm beige paper, tall condensed capitals, black pill labels).</p></div>
+    <div class="box" style="font-size:8pt;margin:0"><h4 style="margin-bottom:1.2mm">Type &amp; shapes</h4><p style="margin:0"><b>Big Shoulders Display</b> for headings, <b>DM Sans</b> for text, <b>DM Mono</b> for labels and numbers. Beige paper <code>#F6EAD8</code>, navy ink <code>#1C2240</code>. Rounded 4 mm corners, pill labels, and the profile head as the recurring mark. The app uses the same tokens, with a dark mode that keeps the six driver colours.</p></div>
+  </div>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+<!-- ═══════════════ APPENDIX B ═══════════════ -->
+<div class="page">
+  <div class="head"><span class="pill">Appendix B</span></div>
+  <h2>References</h2>
+  <p class="lead" style="margin-bottom:4mm">Grouped by the driver or method they support. Week 1 of the build plan is reading each one in full and recording, in <code>params.ts</code>, exactly which finding each parameter leans on.</p>
+  <ol class="refs">
+    <li><b>[1]</b> Altmann, E. M., &amp; Trafton, J. G. (2002). Memory for goals: An activation-based model. <i>Cognitive Science, 26</i>(1), 39–83.</li>
+    <li><b>[2]</b> Ariga, A., &amp; Lleras, A. (2011). Brief and rare mental "breaks" keep you focused: Deactivation and reactivation of task goals preempt vigilance decrements. <i>Cognition, 118</i>(3), 439–443.</li>
+    <li><b>[3]</b> Boksem, M. A. S., &amp; Tops, M. (2008). Mental fatigue: Costs and benefits. <i>Brain Research Reviews, 59</i>(1), 125–139.</li>
+    <li><b>[4]</b> Cowan, N. (2001). The magical number 4 in short-term memory: A reconsideration of mental storage capacity. <i>Behavioral and Brain Sciences, 24</i>(1), 87–114.</li>
+    <li><b>[5]</b> Fitz, N., Kushlev, K., Jagannathan, R., Lewis, T., Paliwal, D., &amp; Ariely, D. (2019). Batching smartphone notifications can improve well-being. <i>Computers in Human Behavior, 101</i>, 84–94.</li>
+    <li><b>[6]</b> Hart, S. G. (2006). NASA-Task Load Index (NASA-TLX); 20 years later. <i>Proceedings of the Human Factors and Ergonomics Society Annual Meeting, 50</i>(9), 904–908.</li>
+    <li><b>[7]</b> Hart, S. G., &amp; Staveland, L. E. (1988). Development of NASA-TLX (Task Load Index): Results of empirical and theoretical research. In P. A. Hancock &amp; N. Meshkati (Eds.), <i>Human Mental Workload</i> (pp. 139–183). North-Holland.</li>
+    <li><b>[8]</b> Leroy, S. (2009). Why is it so hard to do my work? The challenge of attention residue when switching between work tasks. <i>Organizational Behavior and Human Decision Processes, 109</i>(2), 168–181.</li>
+    <li><b>[9]</b> Mark, G., González, V. M., &amp; Harris, J. (2005). No task left behind? Examining the nature of fragmented work. <i>Proceedings of CHI 2005</i>, 321–330.</li>
+    <li><b>[10]</b> Mark, G., Gudith, D., &amp; Klocke, U. (2008). The cost of interrupted work: More speed and stress. <i>Proceedings of CHI 2008</i>, 107–110.</li>
+    <li><b>[11]</b> Masicampo, E. J., &amp; Baumeister, R. F. (2011). Consider it done! Plan making can eliminate the cognitive effects of unfulfilled goals. <i>Journal of Personality and Social Psychology, 101</i>(4), 667–683.</li>
+    <li><b>[12]</b> Monsell, S. (2003). Task switching. <i>Trends in Cognitive Sciences, 7</i>(3), 134–140.</li>
+    <li><b>[13]</b> Rogers, R. D., &amp; Monsell, S. (1995). Costs of a predictable switch between simple cognitive tasks. <i>Journal of Experimental Psychology: General, 124</i>(2), 207–231.</li>
+    <li><b>[14]</b> Rubinstein, J. S., Meyer, D. E., &amp; Evans, J. E. (2001). Executive control of cognitive processes in task switching. <i>Journal of Experimental Psychology: Human Perception and Performance, 27</i>(4), 763–797.</li>
+    <li><b>[15]</b> Stothart, C., Mitchum, A., &amp; Yehnert, C. (2015). The attentional cost of receiving a cell phone notification. <i>Journal of Experimental Psychology: Human Perception and Performance, 41</i>(4), 893–897.</li>
+    <li><b>[16]</b> Sweller, J. (1988). Cognitive load during problem solving: Effects on learning. <i>Cognitive Science, 12</i>(2), 257–285.</li>
+    <li><b>[17]</b> Sweller, J., van Merriënboer, J. J. G., &amp; Paas, F. G. W. C. (1998). Cognitive architecture and instructional design. <i>Educational Psychology Review, 10</i>(3), 251–296.</li>
+    <li><b>[18]</b> Teigen, K. H. (1994). Yerkes-Dodson: A law for all seasons. <i>Theory &amp; Psychology, 4</i>(4), 525–547.</li>
+    <li><b>[19]</b> Yerkes, R. M., &amp; Dodson, J. D. (1908). The relation of strength of stimulus to rapidity of habit-formation. <i>Journal of Comparative Neurology and Psychology, 18</i>(5), 459–482.</li>
+  </ol>
+  <div class="foot"><span>COGNITIVEOS · PROJECT DOCUMENTATION</span><span class="n"></span></div>
+</div>
+
+</body>
+</html>
