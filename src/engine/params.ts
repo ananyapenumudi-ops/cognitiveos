@@ -18,12 +18,12 @@ export const DRIVERS = ['complexity', 'switching', 'alerts', 'openLoops', 'deadl
 export type Driver = (typeof DRIVERS)[number]
 
 export const DRIVER_INFO: Record<Driver, { name: string; color: string; blurb: string }> = {
-  complexity: { name: 'Task complexity', color: '#2f5bd3', blurb: 'How much of the task has to be held in mind at once.' },
-  switching: { name: 'Switching & residue', color: '#e5452f', blurb: 'Re-orienting after a switch, and thoughts left on the old task.' },
-  alerts: { name: 'Notifications', color: '#f2b233', blurb: 'The pull of an alert, even one you ignore.' },
-  openLoops: { name: 'Open loops', color: '#e0569b', blurb: 'Unfinished tasks that keep knocking.' },
-  deadline: { name: 'Deadline pressure', color: '#7b4fc9', blurb: 'Work left compared with time left.' },
-  fatigue: { name: 'Fatigue', color: '#2fa37a', blurb: 'Builds with time on task, drains during breaks.' },
+  complexity: { name: 'Task complexity', color: '#2f6b6b', blurb: 'How much of the task has to be held in mind at once.' },
+  switching: { name: 'Switching & residue', color: '#d81e2c', blurb: 'Re-orienting after a switch, and thoughts left on the old task.' },
+  alerts: { name: 'Notifications', color: '#f2b632', blurb: 'The pull of an alert, even one you ignore.' },
+  openLoops: { name: 'Open loops', color: '#ee8fa8', blurb: 'Unfinished tasks that keep knocking.' },
+  deadline: { name: 'Deadline pressure', color: '#f37a1f', blurb: 'Work left compared with time left.' },
+  fatigue: { name: 'Fatigue', color: '#8fa37a', blurb: 'Builds with time on task, drains during breaks.' },
 }
 
 export const PARAM_SPECS = {
@@ -86,10 +86,10 @@ export const ZONES = ['under', 'focus', 'strained', 'overloaded'] as const
 export type Zone = (typeof ZONES)[number]
 
 export const ZONE_INFO: Record<Zone, { name: string; color: string }> = {
-  under: { name: 'Under-loaded', color: '#c9bba6' },
-  focus: { name: 'Focus band', color: '#2fa37a' },
-  strained: { name: 'Strained', color: '#e8902a' },
-  overloaded: { name: 'Overloaded', color: '#e5452f' },
+  under: { name: 'Under-loaded', color: '#b9a98c' },
+  focus: { name: 'Focus band', color: '#2f6b6b' },
+  strained: { name: 'Strained', color: '#f37a1f' },
+  overloaded: { name: 'Overloaded', color: '#d81e2c' },
 }
 
 export function zoneOf(load: number, p: Params): Zone {

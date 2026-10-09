@@ -3,6 +3,7 @@ import { DRIVERS, DRIVER_INFO, defaultParams } from '../engine/params'
 import { simulate } from '../engine/simulate'
 import { summarize } from '../engine/summary'
 import { SAMPLE } from '../scenarios'
+import { CrowdCanvas } from '../characters/CrowdCanvas'
 import { World, type WorldData } from './scene/World'
 
 const REPO = 'https://github.com/ananyapenumudi-ops/cognitiveos'
@@ -38,7 +39,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
   const top = [...DRIVERS].sort((x, y) => a.share[y] - a.share[x])
   return [
     {
-      n: '01', eyebrow: 'Load is a sum', color: 'var(--blue)', title: ['One number, ', 'six honest parts'], side: 'right',
+      n: '01', eyebrow: 'Load is a sum', color: 'var(--teal)', title: ['One number, ', 'six honest parts'], side: 'right',
       status: { kind: 'live', text: 'Live in the engine' },
       body: [
         'Working memory holds about four chunks at once. Six things compete for that space: the task itself, switching, notifications, unfinished tasks, deadlines and fatigue.',
@@ -64,7 +65,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
       ],
     },
     {
-      n: '03', eyebrow: 'Notifications', color: 'var(--yellow-ink)', title: ['Even unread, ', 'an alert makes ripples'], side: 'right',
+      n: '03', eyebrow: 'Notifications', color: 'var(--mustard-ink)', title: ['Even unread, ', 'an alert makes ripples'], side: 'right',
       status: { kind: 'live', text: 'Live in the engine' },
       body: [
         'Just receiving a notification hurt focus about as much as using the phone, even when people never picked it up. Some alerts you act on, and those become switches too.',
@@ -77,7 +78,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
       ],
     },
     {
-      n: '04', eyebrow: 'Open loops', color: 'var(--pink)', title: ['Unfinished tasks ', 'keep knocking'], side: 'left',
+      n: '04', eyebrow: 'Open loops', color: 'var(--pink-ink)', title: ['Unfinished tasks ', 'keep knocking'], side: 'left',
       status: { kind: 'live', text: 'Live in the engine' },
       body: [
         'Goals you have not finished intrude on whatever you are doing now. The surprise: you do not have to finish them. Writing a specific plan was enough to stop the interference.',
@@ -90,7 +91,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
       ],
     },
     {
-      n: '05', eyebrow: 'Deadlines & fatigue', color: 'var(--purple)', title: ['Time runs out, ', 'energy runs down'], side: 'right',
+      n: '05', eyebrow: 'Deadlines & fatigue', color: 'var(--orange)', title: ['Time runs out, ', 'energy runs down'], side: 'right',
       status: { kind: 'live', text: 'Live in the engine' },
       body: [
         'Deadline pressure is work left divided by time left, felt only in the last few hours. Interrupted people work faster but report more stress and time pressure.',
@@ -103,7 +104,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
       ],
     },
     {
-      n: '06', eyebrow: 'Your day, in 3D', color: 'var(--blue)', title: ['A whole day ', 'as a landscape'], side: 'left',
+      n: '06', eyebrow: 'Your day, in 3D', color: 'var(--teal)', title: ['A whole day ', 'as a landscape'], side: 'left',
       status: { kind: 'live', text: 'Real engine output' },
       body: [
         'This is not a drawing. It is the engine running on the sample day: three meetings, four tasks, a report due at five. Time runs left to right; each colour is one driver.',
@@ -116,7 +117,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
       ],
     },
     {
-      n: '07', eyebrow: 'What if?', color: 'var(--green)', title: ['Try the day ', 'before you live it'], side: 'right',
+      n: '07', eyebrow: 'What if?', color: 'var(--sage-ink)', title: ['Try the day ', 'before you live it'], side: 'right',
       status: { kind: 'building', text: 'Levers live · What-If Lab week 5' },
       body: [
         'Same tasks, same total work, a different arrangement. The landscape eases between the day as planned and the day with three levers: meetings clustered, alerts batched, plans written.',
@@ -130,7 +131,7 @@ function chapters(a: ReturnType<typeof summarize>, b: ReturnType<typeof summariz
     },
     {
       n: '08', eyebrow: 'Built to be trusted', color: 'var(--ink)', title: ['Every number ', 'has a source'], side: 'left',
-      status: { kind: 'live', text: '15 tests · CI on every push' },
+      status: { kind: 'live', text: '18 tests · CI on every push' },
       body: [
         'Every value the model uses lives in one file with its citation. When the research gives no usable number at a one-minute scale, the value is flagged as a stand-in, never hidden. The cards are real entries from that file.',
         'Property tests run hundreds of random days: same seed, same trace; more alerts never help; plans never hurt; breaks never add fatigue. Nothing leaves your browser.',
@@ -151,6 +152,20 @@ function hasWebGL(): boolean {
   } catch {
     return false
   }
+}
+
+/** Big Shoulders letters that wave, like the portfolio's name. */
+function Wavy({ text }: { text: string }) {
+  return (
+    <span className="wavy">
+      <span className="sr-only">{text}</span>
+      {text.split('').map((c, i) => (
+        <span key={i} aria-hidden style={{ ['--i' as string]: i }}>
+          {c === ' ' ? ' ' : c}
+        </span>
+      ))}
+    </span>
+  )
 }
 
 const STATUS_LABEL: Record<Status, string> = { live: '●', building: '◐', planned: '○' }
@@ -217,30 +232,26 @@ export default function Landing() {
 
       <nav className="nav">
         <a className="brand" href="#top" onClick={(e) => (e.preventDefault(), goTo(0))}>
-          <svg viewBox="0 0 110 130" className="mark" aria-hidden>
-            <path d="M18 130 C19 116 16 104 11 92 C3 72 4 44 20 26 C34 9 62 4 80 16 C92 24 96 38 95 50 C95 54 97 57 99 61 L106 73 C107 76 105 78 101 78 L101 82 C103 83 103 86 100 87 C102 89 101 92 98 93 C98 99 95 103 88 104 C83 104 80 106 80 110 L82 130 Z" fill="#2f5bd3" />
-            <circle cx="58" cy="52" r="11" fill="#f2b233" />
-            <circle cx="76" cy="40" r="6" fill="#e5452f" />
-          </svg>
-          <span className="wordmark">
-            Cognitive<b>OS</b>
-          </span>
+          Cognitive<span>OS</span>
         </a>
         <div className="nav-links">
           <a href="#how" onClick={(e) => (e.preventDefault(), goTo(1))}>
             How it works
           </a>
           <a href={DOCS} target="_blank" rel="noreferrer">
-            Spec (PDF)
+            Spec
           </a>
-          <a className="cta" href={REPO} target="_blank" rel="noreferrer">
-            GitHub ↗
+          <a href={REPO} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          <a className="pill pill-red pill-sm" href="./app.html">
+            Simulator
           </a>
         </div>
       </nav>
 
       <ol className="rail" aria-label="Chapters">
-        {['Intro', ...CH.map((c) => c.eyebrow), 'Start'].map((name, i) => (
+        {['Intro', ...CH.map((c) => c.eyebrow), 'Try it'].map((name, i) => (
           <li key={name}>
             <button type="button" className={i === active ? 'on' : ''} onClick={() => goTo(i)} aria-label={name} aria-current={i === active ? 'step' : undefined}>
               <span>{name}</span>
@@ -251,40 +262,45 @@ export default function Landing() {
 
       <main>
         <section className="hero" id="top" ref={reg(0)}>
-          <p className="pill">A cognitive load simulator · not another to-do app</p>
-          <h1>
-            Cognitive<span>OS</span>
-          </h1>
-          <p className="lede">
-            Lay out a day of tasks, meetings, alerts and deadlines. CognitiveOS estimates, minute by minute, how loaded your mind is, shows <b>what is driving it</b>, and
-            lets you try a different way of working before you live it.
-          </p>
-          <div className="actions">
-            <a className="btn primary" href="#how" onClick={(e) => (e.preventDefault(), goTo(1))}>
-              See how it works ↓
-            </a>
-            <a className="btn ghost" href={DOCS} target="_blank" rel="noreferrer">
-              Read the spec
-            </a>
+          <div className="hero-copy">
+            <span className="hello">hi there, meet your</span>
+            <h1>
+              <Wavy text="COGNITIVE" />
+              <span className="os groovy">OS</span>
+            </h1>
+            <p className="lede">
+              A <b>cognitive load simulator</b>, not another to-do app. Lay out a day of tasks, meetings, alerts and deadlines; it shows, minute by minute, how loaded your
+              mind is, <b>what is driving it</b>, and what a different day would feel like.
+            </p>
+            <div className="actions">
+              <a className="pill pill-red" href="./app.html">
+                Try the simulator →
+              </a>
+              <a className="pill pill-cream" href="#how" onClick={(e) => (e.preventDefault(), goTo(1))}>
+                How it works ↓
+              </a>
+            </div>
+            <ul className="stickers" aria-label="At a glance">
+              {['6 load drivers', '19 cited studies', '1-minute steps', '0 trackers'].map((t, i) => (
+                <li key={t} style={{ ['--r' as string]: `${[-3, 2, -2, 3][i]}deg` }}>
+                  {t}
+                </li>
+              ))}
+            </ul>
           </div>
-          <dl className="stats">
-            {[
-              ['6', 'load drivers'],
-              ['19', 'cited studies'],
-              ['1 min', 'simulation step'],
-              ['0', 'trackers or accounts'],
-            ].map(([v, k], i) => (
-              <div key={k} style={{ ['--c' as string]: ['var(--blue)', 'var(--red)', 'var(--yellow)', 'var(--green)'][i] }}>
-                <dt>{v}</dt>
-                <dd>{k}</dd>
-              </div>
-            ))}
-          </dl>
-          <div className="scroll-cue" aria-hidden>
-            <span />
-            scroll
+          <div className="crowd-strip" aria-hidden>
+            <CrowdCanvas className="crowd" density={0.75} />
           </div>
         </section>
+        <div className="ribbon" aria-hidden>
+          <div className="ribbon-track">
+            {[0, 1].map((k) => (
+              <span key={k}>
+                task switching <i>✿</i> attention residue <i>✿</i> notifications <i>✿</i> open loops <i>✿</i> deadlines <i>✿</i> fatigue <i>✿</i> what if? <i>✿</i>{' '}
+              </span>
+            ))}
+          </div>
+        </div>
 
         {CH.map((c, i) => (
           <section key={c.n} className={`chapter ${c.side}`} id={i === 0 ? 'how' : undefined} ref={reg(i + 1)}>
@@ -318,30 +334,35 @@ export default function Landing() {
         ))}
 
         <section className="finale" ref={reg(CH.length + 1)}>
-          <p className="pill">Week 2 of 6</p>
+          <span className="hello">the engine runs, the lab is open</span>
           <h2>
-            The engine <i>runs.</i> The lab is next.
+            <Wavy text="TRY YOUR DAY" />
           </h2>
-          <p className="lede">
-            The load model, its levers and its tests are built. Next up: the Day Builder, the Load Dashboard with its “why?” card, and the What-If Lab.
-          </p>
+          <p className="lede">Pick a scenario or build your own day, drag blocks around, and watch the crew react. The What-If Lab and check-ins come next.</p>
           <div className="actions">
-            <a className="btn primary" href={REPO} target="_blank" rel="noreferrer">
-              Follow on GitHub
+            <a className="pill pill-red" href="./app.html">
+              Open the simulator →
             </a>
-            <a className="btn ghost" href={DOCS} target="_blank" rel="noreferrer">
+            <a className="pill pill-mustard" href={DOCS} target="_blank" rel="noreferrer">
               Read the spec
             </a>
+            <a className="pill pill-cream" href={REPO} target="_blank" rel="noreferrer">
+              GitHub
+            </a>
           </div>
-          <footer className="fine">
-            <p>
-              CognitiveOS is a planning aid, not a diagnostic tool. It produces an estimate under stated assumptions; it does not measure anyone’s ability, and it is not for
-              monitoring other people. Parameters marked “stand-in” are chosen values awaiting calibration.
-            </p>
-            <p>© 2026 Ananya Penumudi.</p>
-          </footer>
         </section>
       </main>
+      <footer className="footer">
+        <span>
+          A planning aid, not a diagnosis. It estimates load under stated assumptions; values marked stand-in await calibration. Nothing leaves your browser.
+        </span>
+        <span>
+          © 2026 Ananya Penumudi · crowd adapted from{' '}
+          <a href="https://skiper-ui.com" target="_blank" rel="noreferrer">
+            Skiper UI
+          </a>
+        </span>
+      </footer>
     </>
   )
 }

@@ -9,7 +9,8 @@ import { DRIVERS, PARAM_SPECS, type Driver, type ParamKey } from '../../engine/p
 import { SOURCES } from '../../engine/sources'
 import type { Day } from '../../engine/schema'
 import type { Trace } from '../../engine/simulate'
-import { C, DRIVER_HEX, label, makeHead, makeOrb, mat, paperTexture, paramCard, roundedSlab, shadow } from './parts'
+import { OutlineEffect } from 'three/examples/jsm/effects/OutlineEffect.js'
+import { C, DRIVER_HEX, TEAL_SHADES, crewCard, label, makeOrb, mat, paperTexture, paramCard, roundedSlab, shadow, standee } from './parts'
 
 type Updater = (t: number, dt: number) => void
 
@@ -45,6 +46,8 @@ const clamp01 = (x: number) => Math.min(1, Math.max(0, x))
 
 export class World {
   private readonly renderer: THREE.WebGLRenderer
+  /** Ink outlines on every toon mesh, like the portfolio's 3px ink borders. */
+  private readonly outline: OutlineEffect
   private readonly scene = new THREE.Scene()
   private readonly camera = new THREE.PerspectiveCamera(46, 1, 0.1, 400)
   private readonly updaters: Updater[] = []
@@ -72,6 +75,7 @@ export class World {
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
     this.renderer.outputColorSpace = THREE.SRGBColorSpace
+    this.outline = new OutlineEffect(this.renderer, { defaultThickness: 0.0042, defaultColor: [0.106, 0.106, 0.106], defaultAlpha: 1 })
     this.scene.background = new THREE.Color(C.paper)
     this.scene.fog = new THREE.Fog(C.paper, 44, 108)
     this.buildWorld()
@@ -180,13 +184,13 @@ export class World {
 
   private render(dt: number) {
     for (const u of this.updaters) u(this.time, dt)
-    this.renderer.render(this.scene, this.camera)
+    this.outline.render(this.scene, this.camera)
   }
 
   // ── world ─────────────────────────────────────────────────
   private buildWorld() {
     const s = this.scene
-    s.add(new THREE.HemisphereLight(0xfff4e4, 0xd9bf9a, 1.55))
+    s.add(new THREE.HemisphereLight(0xfff6ea, 0xe0c9a4, 1.9))
     const key = new THREE.DirectionalLight(0xfff0dc, 1.5)
     key.position.set(18, 30, 24)
     s.add(key)
@@ -194,13 +198,13 @@ export class World {
     fill.position.set(-30, 12, -10)
     s.add(fill)
 
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), new THREE.MeshStandardMaterial({ map: paperTexture(), roughness: 1 }))
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1600), new THREE.MeshBasicMaterial({ map: paperTexture() }))
     floor.rotation.x = -Math.PI / 2
     floor.position.z = -320
     s.add(floor)
 
     this.bubbles()
-    this.heroCluster(new THREE.Vector3(0, 0, 0), true)
+    this.crewCluster(new THREE.Vector3(0, 0, 0), true)
     this.sum(new THREE.Vector3(0, 0, -70))
     this.switching(new THREE.Vector3(0, 0, -140))
     this.alerts(new THREE.Vector3(2, 0, -210))
@@ -209,16 +213,16 @@ export class World {
     this.landscape(new THREE.Vector3(0, 0, -420), false)
     this.landscape(new THREE.Vector3(0, 0, -490), true)
     this.trust(new THREE.Vector3(0, 0, -560))
-    this.heroCluster(new THREE.Vector3(-4.5, 1.5, -646), false)
+    this.crewCluster(new THREE.Vector3(-3.2, 0, -646), false)
   }
 
   /** Drifting pastel memory bubbles along the whole route. */
   private bubbles() {
     const n = 260
     const geo = new THREE.SphereGeometry(1, 20, 14)
-    const m = new THREE.MeshPhysicalMaterial({ roughness: 0.15, clearcoat: 1, transparent: true, opacity: 0.75 })
+    const m = mat(0xffffff)
     const inst = new THREE.InstancedMesh(geo, m, n)
-    const palette = [0xdbe3f8, 0xfadcd5, 0xfcebc4, 0xf8d9e8, 0xe6dcf6, 0xd3eee2].map((h) => new THREE.Color(h))
+    const palette = [0xf7d3db, 0xfbe9bd, 0xe3ead6, 0xf4a9bb, 0xcdd8b8, 0xf8a24a].map((h) => new THREE.Color(h))
     const seeds = Array.from({ length: n }, (_, i) => {
       const r = (k: number) => {
         const x = Math.sin(i * 127.1 + k * 311.7) * 43758.5453
@@ -241,70 +245,71 @@ export class World {
     this.scene.add(inst)
   }
 
-  /** The three layered heads of the cover, with six thought orbs (hero and finale). */
-  private heroCluster(at: THREE.Vector3, hero: boolean) {
+  /**
+   * The crew as 3D trading cards, fanned like the portfolio's tilted mascot
+   * tiles (hero), or circling in a ring (finale). Every few seconds one card
+   * flips over to show its back.
+   */
+  private crewCluster(at: THREE.Vector3, hero: boolean) {
     const g = new THREE.Group()
     g.position.copy(at)
-    // pastel rays fanning up behind the heads, like the emotion wedges
-    const rays = [0xfadcd5, 0xfcebc4, 0xdbe3f8, 0xe6dcf6, 0xd3eee2]
-    rays.forEach((c, i) => {
-      const a = -0.95 + i * 0.47
-      const tri = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(Math.sin(a - 0.16) * 40, Math.cos(a - 0.16) * 40), new THREE.Vector2(Math.sin(a + 0.16) * 40, Math.cos(a + 0.16) * 40)])
-      const m = new THREE.Mesh(new THREE.ShapeGeometry(tri), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.85, depthWrite: false, fog: true }))
-      m.position.set(5, 3, -9)
-      g.add(m)
-    })
-    const heads = [
-      { face: C.yellow, hair: C.yellowDeep, p: [7.6, 10.2, -4.5], s: 0.86 },
-      { face: C.pink, hair: C.pinkDeep, p: [9.6, 6.6, -2.2], s: 0.78 },
-      { face: C.blue, hair: C.blueDeep, p: [3.2, 7.6, 0], s: 1 },
+    const fan: { p: THREE.Vector3Tuple; rz: number }[] = [
+      { p: [1.4, 9.6, -1.2], rz: 0.12 },
+      { p: [5.6, 10.6, -2.6], rz: -0.06 },
+      { p: [9.8, 9.4, -1.6], rz: -0.16 },
+      { p: [2.6, 4.2, 0.4], rz: -0.1 },
+      { p: [6.6, 4.8, 0.8], rz: 0.08 },
+      { p: [10.8, 3.8, 0.2], rz: 0.18 },
     ]
-    const headMeshes = heads.map((h) => {
-      const m = makeHead(h.face, h.hair)
-      m.position.fromArray(h.p)
-      m.scale.setScalar(h.s)
-      g.add(m)
-      const sh = shadow(5 * h.s, 0.18)
-      sh.position.set(h.p[0]!, 0.02, h.p[2]!)
-      g.add(sh)
-      return m
+    const cards = DRIVERS.map((d, i) => {
+      const c = crewCard(d)
+      if (hero) {
+        c.position.fromArray(fan[i]!.p)
+        c.rotation.z = fan[i]!.rz
+      }
+      g.add(c)
+      return c
     })
-    const orbs = DRIVERS.map((d, i) => {
-      const o = makeOrb(DRIVER_HEX[d], [0.85, 0.95, 0.6, 0.75, 0.62, 0.55][i]!)
-      g.add(o)
-      return o
-    })
-    const home: THREE.Vector3Tuple[] = [[2.0, 10.0, 2.3], [4.0, 8.0, 2.4], [5.3, 10.4, 2.2], [1.1, 7.1, 2.2], [4.7, 6.0, 2.3], [6.7, 8.2, 2.1]]
+    if (!hero) {
+      const l = label('MEET THE CREW', { size: 1.1, bg: C.red })
+      l.position.set(0, 13.2, 0)
+      g.add(l)
+    }
+    const flipEvery = 2.6
     this.updaters.push((t) => {
-      headMeshes.forEach((m, i) => {
-        m.position.y = heads[i]!.p[1]! + Math.sin(t * 0.7 + i * 1.7) * 0.18
-        m.rotation.y = Math.sin(t * 0.35 + i) * 0.12 + (hero ? 0 : t * 0.15)
-      })
-      orbs.forEach((o, i) => {
-        const h = home[i]!
-        const orbit = hero ? 0.35 : 3.2
-        const a = t * (hero ? 0.9 : 0.45) + i * ((Math.PI * 2) / 6)
-        if (hero) o.position.set(h[0] + Math.cos(a) * orbit, h[1] + Math.sin(a * 1.3) * orbit + headMeshes[2]!.position.y - 7.6, h[2])
-        else o.position.set(3.2 + Math.cos(a) * 6.2, 8 + Math.sin(a * 2) * 1.4, Math.sin(a) * 6.2)
+      const flipping = Math.floor(t / flipEvery) % cards.length
+      const fk = smooth(clamp01(((t % flipEvery) - 0.4) / 1.1))
+      cards.forEach((c, i) => {
+        const base = hero ? fan[i]! : null
+        const spin = i === flipping ? fk * Math.PI * 2 : 0
+        if (base) {
+          c.position.y = base.p[1] + Math.sin(t * 0.9 + i * 1.3) * 0.22
+          c.rotation.y = -0.28 + Math.sin(t * 0.5 + i) * 0.12 + this.pointer.x * 0.5 + spin
+          c.rotation.x = Math.sin(t * 0.6 + i * 2) * 0.05 - this.pointer.y * 0.25
+        } else {
+          const a = t * 0.32 + (i / cards.length) * Math.PI * 2
+          c.position.set(Math.sin(a) * 7.5, 6.4 + Math.sin(t * 1.1 + i) * 0.5, Math.cos(a) * 7.5)
+          c.rotation.set(0, a + spin, Math.sin(t + i) * 0.08)
+        }
       })
     })
     this.scene.add(g)
   }
 
-  /** Six driver orbs feed one stacked column: load is a weighted sum. */
+  /** The six crew members, on pedestals, feed one stacked column: load is a weighted sum. */
   private sum(at: THREE.Vector3) {
     const g = new THREE.Group()
     g.position.copy(at)
     const shares = DRIVERS.map((d) => this.data.share[d])
-    const orbs: THREE.Mesh[] = []
+    const orbs: THREE.Object3D[] = []
     DRIVERS.forEach((d, i) => {
       const a = (i / 6) * Math.PI * 2 + 0.3
-      const x = -6 + Math.cos(a) * 3.6
-      const z = Math.sin(a) * 3.6
-      const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.75, 0.95, 1.4, 32), mat(C.cream))
+      const x = -6 + Math.cos(a) * 3.8
+      const z = Math.sin(a) * 3.8
+      const ped = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 1.4, 32), mat(DRIVER_HEX[d]))
       ped.position.set(x, 0.7, z)
-      const orb = makeOrb(DRIVER_HEX[d], 0.7)
-      orb.position.set(x, 2.3, z)
+      const orb = standee(d, 2.6)
+      orb.position.set(x, 1.4, z)
       const sh = shadow(1.4, 0.2)
       sh.position.set(x, 0.02, z)
       g.add(ped, orb, sh)
@@ -335,7 +340,7 @@ export class World {
     const beadGeo = new THREE.SphereGeometry(0.13, 12, 8)
     const flows = orbs.map((o, i) => {
       const end = new THREE.Vector3(colX - 1.9, tops[i]!, 0)
-      const curve = new THREE.QuadraticBezierCurve3(o.position.clone(), new THREE.Vector3((o.position.x + end.x) / 2, Math.max(o.position.y, end.y) + 3, o.position.z / 2), end)
+      const curve = new THREE.QuadraticBezierCurve3(o.position.clone().setY(3.2), new THREE.Vector3((o.position.x + end.x) / 2, Math.max(o.position.y, end.y) + 3, o.position.z / 2), end)
       const beads = Array.from({ length: 5 }, () => {
         const b = new THREE.Mesh(beadGeo, new THREE.MeshBasicMaterial({ color: DRIVER_HEX[DRIVERS[i]!] }))
         g.add(b)
@@ -346,8 +351,7 @@ export class World {
     const orbY = orbs.map((o) => o.position.y)
     this.updaters.push((t) => {
       orbs.forEach((o, i) => {
-        o.position.y = orbY[i]! + Math.sin(t * 1.4 + i) * 0.15
-        o.rotation.y = t
+        o.position.y = orbY[i]! + Math.abs(Math.sin(t * 2.2 + i)) * 0.35
       })
       flows.forEach(({ curve, beads }, i) => beads.forEach((b, k) => b.position.copy(curve.getPoint((t * 0.25 + k / beads.length + i * 0.13) % 1))))
     })
@@ -365,7 +369,7 @@ export class World {
       { name: 'ADMIN', c: 1 },
       { name: 'INBOX', c: 1 },
     ]
-    const shades = [0x9bb2ee, 0x7d9ae6, 0x5f82e0, 0x4568d8, 0x2f5bd3]
+    const shades = TEAL_SHADES
     const pos = tasks.map((_, i) => {
       const a = Math.PI * (0.15 + (i / (tasks.length - 1)) * 0.7)
       return new THREE.Vector3(-Math.cos(a) * 8, 0.6, -Math.sin(a) * 5 + 1.5)
@@ -393,8 +397,8 @@ export class World {
     })
     const orb = makeOrb(C.red, 0.5)
     const halo = makeOrb(0xffffff, 0.75)
-    ;(halo.material as THREE.MeshPhysicalMaterial).transparent = true
-    ;(halo.material as THREE.MeshPhysicalMaterial).opacity = 0.18
+    ;(halo.material as THREE.MeshToonMaterial).transparent = true
+    ;(halo.material as THREE.MeshToonMaterial).opacity = 0.18
     g.add(orb, halo)
     const tag = label('residue fades · τ ≈ 12 min', { size: 0.55, bg: C.red })
     tag.position.set(0, 7.2, -2)
@@ -419,7 +423,7 @@ export class World {
   private alerts(at: THREE.Vector3) {
     const g = new THREE.Group()
     g.position.copy(at)
-    const poolMat = () => new THREE.MeshPhysicalMaterial({ color: 0xdbe3f8, roughness: 0.1, clearcoat: 1, transparent: true, opacity: 0.92 })
+    const poolMat = () => mat(0xcfe0dc)
     const poolA = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.4, 0.35, 64), poolMat())
     poolA.position.set(-5, 0.18, 0)
     const poolB = poolA.clone()
@@ -555,7 +559,7 @@ export class World {
       items.forEach((it) => {
         const k = clamp01((c - 1 - it.order * 1.05) / 0.8) * (c > cycle - 1.2 ? clamp01((cycle - c) / 1.2) : 1)
         it.m.geometry = geos[Math.round(k * steps)]!
-        ;(it.m.material as THREE.MeshPhysicalMaterial).color.copy(open).lerp(closed, k)
+        ;(it.m.material as THREE.MeshToonMaterial).color.copy(open).lerp(closed, k)
         it.m.rotation.set(Math.sin(t * 0.6 + it.ph) * 0.5, t * (0.9 - k * 0.7) + it.ph, t * 0.5 * (1 - k) + it.ph)
         it.m.position.y = 2.6 + Math.floor(it.order / 3) * 3.4 + Math.sin(t + it.ph) * 0.2 * (1 - k)
       })
@@ -689,7 +693,7 @@ export class World {
       if (morph) this.updaters.push(() => (m.morphTargetInfluences![0] = this.morphK))
     }
     // zone bands
-    const zones: [number, string, number][] = [[0.65, 'STRAINED', 0xe8902a], [0.85, 'OVERLOADED', C.red]]
+    const zones: [number, string, number][] = [[0.65, 'STRAINED', C.purple], [0.85, 'OVERLOADED', C.red]]
     for (const [v, name, col] of zones) {
       const plane = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, D + 3), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.13, depthWrite: false, side: THREE.DoubleSide }))
       plane.rotation.x = -Math.PI / 2
@@ -699,7 +703,7 @@ export class World {
       g.add(plane, l)
     }
     // blocks of the day, as tiles in front
-    const blockCol = (b: Day['blocks'][number]) => (b.kind === 'meeting' ? C.ink : b.kind === 'break' ? 0xd8c7ad : [0x9bb2ee, 0x7d9ae6, 0x5f82e0, 0x4568d8, 0x2f5bd3][b.c - 1]!)
+    const blockCol = (b: Day['blocks'][number]) => (b.kind === 'meeting' ? C.ink : b.kind === 'break' ? 0xd9c7a6 : TEAL_SHADES[b.c - 1]!)
     for (const b of day.blocks) {
       const w = ((b.to - b.from) / base.minutes) * W - 0.12
       const tile = roundedSlab(Math.max(0.2, w), 1.2, 0.28, 0.25, mat(blockCol(b)))
@@ -761,8 +765,8 @@ export class World {
       ring.add(card)
     })
     g.add(ring)
-    const head = makeHead(C.blue, C.blueDeep)
-    head.scale.setScalar(0.55)
+    const head = crewCard('complexity')
+    head.scale.setScalar(0.8)
     head.position.set(0, 4.8, 0)
     g.add(head)
     const sh = shadow(3, 0.2)
